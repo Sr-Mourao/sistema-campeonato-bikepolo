@@ -20,6 +20,9 @@ tmp
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
+Desktop.ini
+.Spotlight-V100
 *.suo
 *.ntvs*
 *.njsproj
@@ -55,6 +58,16 @@ dist/api/data/
 *.bkp
 *.bak
 *.dump
+*.sql
+*.sql.gz
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+backup/
+backups/
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Exports operacionais (CSV de inscrições, financeiro, alimentação…)
@@ -98,3 +111,6 @@ public/docs/
 .claude/
 .cursor/
 .aider*
+prompt_*.txt
+*.transcript
+*.transcript.*

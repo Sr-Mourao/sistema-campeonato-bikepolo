@@ -1440,9 +1440,6 @@ Tudo detalhado em [SECURITY.md](SECURITY.md). O resumo:
 - `torneio_eventos_gol.contra` foi substituída por `tipo` e mantida só por
   compatibilidade; o código não a lê mais
 - `public/api/poloperator.php` não é mais usado pelo site público
-- `public/prompt_paineladmi.txt` é o prompt original que gerou o painel
-  administrativo, ainda servido publicamente em `/prompt_paineladmi.txt`.
-  Não faz mal, e é um artefato honesto de como isto foi feito
 - Dois sistemas de sessão convivendo
 
 ### UX operacional improvisada
