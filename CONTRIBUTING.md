@@ -165,6 +165,6 @@ PR é mais útil que um comentário.
 ## Licença
 
 Ao contribuir, você concorda que sua contribuição é distribuída sob a
-**Licença LATINHA (Liberdade Ainda que à Tardinha) v0.3.1**, a mesma do resto do
+**Lata — Liberdade Ainda que à Tardinha, versão 0.3.1**, a mesma do resto do
 projeto — que é share-alike: o que sai daqui volta livre. Veja
 [LICENSE](LICENSE).

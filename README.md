@@ -26,6 +26,12 @@ Foi feito para o **10º Campeonato Brasileiro de Bike Polo** e o **4º Brasileir
 MTNB**, em Florianópolis, setembro de 2026. Está publicado para que outros
 clubes e comunidades possam usar, adaptar ou pegar só o pedaço que interessa.
 
+**Instância histórica:** <https://brasileiro.bikepolo.site>
+
+Site utilizado no 10º Campeonato Brasileiro de Bike Polo e no 4º Brasileiro
+MTNB, em Florianópolis, em setembro de 2026. A instância permanece online como
+registro histórico e referência visual do projeto.
+
 ![Página pública do torneio](docs/screenshots/torneio-visao-geral.png)
 
 ---
@@ -1519,4 +1525,4 @@ Cláusula do genocídio − O uso mesmo que comercial nos Estados Unidos, Europa
 Para usar a Lata em sua obra coloque (ou não)
 
 “Sejam mais criativos. Façam seu próprio direito. Obra licenciada sobre a licença a Lata. Para ver a licença completa acesse:
-<https://monoskop.org/images/b/b7/Tarin_Bruno_Belisario_Adriano_eds_Copyfight_Pirataria_and_Cultura_Livre.pdf>”
+<http://crieitivecomo.org/wikka.php?wakka=licencadalata>”
