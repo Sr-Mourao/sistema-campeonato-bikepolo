@@ -1,0 +1,100 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Logs e ruído de build
+# ─────────────────────────────────────────────────────────────────────────────
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+tmp
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Segredos — NUNCA versionar
+# ─────────────────────────────────────────────────────────────────────────────
+# O backend lê constantes de public/api/env.php. O template público, sem nenhum
+# valor real, é public/api/env.example.php — esse SIM é versionado.
+public/api/env.php
+dist/api/env.php
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+!public/**/*.key.svg
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Banco de dados e dumps — o banco de produção contém PII de pessoas inscritas
+# (nome, e-mail, telefone, plano de saúde, contato de emergência, pagamentos).
+# O schema NÃO vive aqui: é criado por initSchema() em public/api/db.php.
+# ─────────────────────────────────────────────────────────────────────────────
+public/api/data/
+dist/api/data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.bkp
+*.bak
+*.dump
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Exports operacionais (CSV de inscrições, financeiro, alimentação…)
+# ─────────────────────────────────────────────────────────────────────────────
+*.csv
+*.xls
+*.xlsx
+exports/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Mídia enviada em runtime — dado gerado por pessoas reais, não é código.
+# Brasões de time, fotos de atleta e fotos de produto da lojinha.
+# ─────────────────────────────────────────────────────────────────────────────
+public/imgs/times/*/
+public/imgs/atletas/*/
+public/imgs/lojinha/*
+!public/imgs/times/.htaccess
+!public/imgs/atletas/.htaccess
+!public/imgs/lojinha/.gitkeep
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Artefatos de QA (Playwright) — screenshots tirados contra a base real,
+# frequentemente com nome/foto de pessoas de verdade. Nunca publicar.
+# Screenshots curados para documentação vivem em docs/screenshots/.
+# ─────────────────────────────────────────────────────────────────────────────
+test-artifacts/
+/placar-*.png
+/visao-*.png
+/screenshot*.png
+
+# …mas a proteção HTTP da pasta de dados precisa ser versionada.
+!public/api/data/.htaccess
+
+# Material de captação em PDF do evento (prospecto de patrocínio). São arquivos
+# da INSTÂNCIA, não do software: pesados, e o do 10º Brasileiro trazia celulares
+# da equipe. Ponha os seus em public/docs/ e liste-os em src/pages/Apoie.tsx.
+public/docs/
+
+# Configuração local de ferramentas de IA/editor — caminhos absolutos da máquina
+# de quem desenvolve, permissões locais, id de sessão. Não é do projeto.
+.claude/
+.cursor/
+.aider*

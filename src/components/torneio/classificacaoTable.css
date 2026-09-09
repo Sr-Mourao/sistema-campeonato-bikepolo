@@ -1,0 +1,59 @@
+/* Tabela de classificação completa da Primeira Fase — trp-* é a página, ctb-* é este
+   componente (compartilhado, auto-contido em cores escuras). */
+
+.ctb-wrap { font-family: system-ui, sans-serif; color: #fff; }
+
+.ctb-legenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: rgba(255,255,255,.6); margin-bottom: 10px; }
+.ctb-legenda-item { display: flex; align-items: center; gap: 6px; }
+.ctb-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.ctb-dot--direto { background: #4ade80; }
+.ctb-dot--rep { background: #f8a23c; }
+
+.ctb-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ctb-table th, .ctb-table td { padding: 8px 9px; text-align: center; white-space: nowrap; }
+.ctb-table th:nth-child(2), .ctb-table td:nth-child(2) { text-align: left; }
+.ctb-table thead th {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: rgba(255,255,255,.5);
+  border-bottom: 1px solid rgba(255,255,255,.14);
+}
+.ctb-table tbody tr { border-bottom: 1px solid rgba(255,255,255,.07); }
+/* Cantinho colorido por linha, batendo com a legenda (bolinha verde/amarela) — nunca
+   depender só da legenda no topo pra saber se o time está classificado ou na repescagem. */
+.ctb-row--direto { background: rgba(74,222,128,.08); box-shadow: inset 4px 0 0 #4ade80; }
+.ctb-row--rep { background: rgba(248,162,60,.08); box-shadow: inset 4px 0 0 #f8a23c; }
+.ctb-nome-cell { display: flex; align-items: baseline; gap: 7px; }
+.ctb-nome-link { background: none; border: none; color: #fff; font: inherit; font-weight: 600; cursor: pointer; padding: 0; text-align: left; }
+.ctb-nome-link:hover { text-decoration: underline; }
+
+/* PTS é a informação principal da classificação — hierarquia tipográfica, não decoração
+   (seção 10 do brief de ajustes cirúrgicos: nada de badge/fundo chamativo). */
+.ctb-pts-header { color: rgba(255,255,255,.75) !important; }
+.ctb-pts-cell { font-size: 1.05em; font-weight: 800; color: #fff; border-left: 1px solid rgba(255,255,255,.1); border-right: 1px solid rgba(255,255,255,.1); }
+
+.ctb-desktop { display: none; }
+.ctb-mobile { display: block; }
+
+.ctb-card { border-radius: 10px; margin-bottom: 6px; background: rgba(255,255,255,.04); overflow: visible; }
+.ctb-card--direto { background: rgba(74,222,128,.08); box-shadow: inset 4px 0 0 #4ade80; }
+.ctb-card--rep { background: rgba(248,162,60,.08); box-shadow: inset 4px 0 0 #f8a23c; }
+.ctb-card-linha {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: none; border: none; color: #fff;
+  font: inherit; cursor: pointer; text-align: left;
+}
+.ctb-card-pos { width: 20px; font-weight: 700; color: rgba(255,255,255,.6); }
+.ctb-card-nome { flex: 1; font-weight: 600; }
+.ctb-card-pts { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1.05em; }
+.ctb-card-toggle { color: rgba(255,255,255,.4); }
+.ctb-card-tiebreak { margin: -4px 12px 8px; }
+.ctb-card-detalhe {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 4px; padding: 4px 14px 14px;
+  font-size: 12px; color: rgba(255,255,255,.75);
+}
+.ctb-card-detalhe > div { display: flex; justify-content: space-between; gap: 4px; }
+.ctb-card-detalhe span { color: rgba(255,255,255,.5); }
+.ctb-card-buchholz { grid-column: span 3; border-top: 1px solid rgba(255,255,255,.08); padding-top: 6px; margin-top: 2px; }
+
+@media (min-width: 760px) {
+  .ctb-desktop { display: table; }
+  .ctb-mobile { display: none; }
+}

@@ -1,0 +1,218 @@
+/* ─────────────────────────────────────────────────────────────
+   /torneio/overlay/intervalo — pacote gráfico de transmissão.
+   Duas linguagens apenas: massa SÓLIDA (identidade e leitura) e
+   vazio TOTAL (câmera limpa). Sem película, sem vidro, sem blur.
+   ───────────────────────────────────────────────────────────── */
+
+.iv-overlay {
+  position: fixed; inset: 0; overflow: hidden;
+  background: transparent; pointer-events: none;
+  --roxo: #1a0845;
+  --roxo-fundo: #12052f;
+  --laranja: #f8a23c;
+  --verde: #1e9365;
+  --vermelho: #ef4b3a;
+  --gelo: #f4f1f7;
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  color: #fff;
+}
+
+/* Palco de 1920×1080 escalado inteiro: a composição de 1080p vale para qualquer saída. */
+.iv-stage {
+  position: absolute; top: 50%; left: 50%;
+  width: 1920px; height: 1080px;
+  transform: translate(-50%, -50%) scale(var(--iv-escala, 1));
+  transform-origin: center;
+}
+
+/* ── Réguas e grafismos que cruzam a câmera sem cobri-la ── */
+.iv-rule { position: absolute; left: 0; width: 1920px; height: 6px; }
+.iv-rule--topo {
+  top: 0;
+  background: linear-gradient(90deg, var(--laranja) 0 62%, var(--vermelho) 62% 80%, var(--verde) 80% 100%);
+  animation: iv-regua 900ms cubic-bezier(.22,.9,.24,1) both;
+}
+.iv-rule--base {
+  bottom: 0;
+  background: linear-gradient(90deg, var(--verde) 0 20%, var(--vermelho) 20% 38%, var(--laranja) 38% 100%);
+  animation: iv-regua 900ms 140ms cubic-bezier(.22,.9,.24,1) both;
+}
+.iv-rule--topo::after {
+  content: ''; position: absolute; top: 0; left: 0; width: 210px; height: 6px;
+  background: #fff;
+  animation: iv-varredura 9s 2s cubic-bezier(.6,0,.35,1) infinite;
+}
+.iv-hatch {
+  position: absolute; right: 84px; top: 62px; width: 214px; height: 84px;
+  background: repeating-linear-gradient(64deg, var(--laranja) 0 12px, transparent 12px 34px);
+  animation: iv-surge 700ms 520ms cubic-bezier(.22,.9,.24,1) both;
+}
+
+/* ── Massa institucional: entra pela esquerda e sustenta a identidade ── */
+.iv-slab {
+  position: absolute; left: 0; top: 0; width: 620px; height: 1080px;
+  background: var(--roxo);
+  clip-path: polygon(0 0, 620px 0, 556px 1080px, 0 1080px);
+  animation: iv-slab 760ms cubic-bezier(.22,.9,.24,1) both;
+}
+.iv-symbol { position: absolute; left: 92px; top: 96px; width: 154px; }
+.iv-kicker {
+  position: absolute; left: 96px; top: 300px;
+  color: var(--laranja); font-size: 27px; font-weight: 900;
+  letter-spacing: .3em; text-transform: uppercase;
+}
+.iv-meta { position: absolute; left: 96px; bottom: 118px; }
+.iv-meta-rule { display: block; width: 132px; height: 5px; background: var(--verde); margin-bottom: 30px; }
+.iv-meta-data { height: 44px; }
+.iv-meta-local { height: 30px; margin-top: 22px; }
+
+/* ── Faixa laranja: o wordmark roxo foi desenhado para este fundo ── */
+.iv-titlebar {
+  position: absolute; left: 0; top: 356px; width: 1190px; height: 172px;
+  display: flex; align-items: center;
+  background: linear-gradient(148deg, #faa93e 0%, #d97618 100%);
+  border-bottom: 7px solid var(--roxo-fundo);
+  clip-path: polygon(0 0, 1190px 0, 1132px 172px, 0 172px);
+  animation: iv-titulo 760ms 180ms cubic-bezier(.22,.9,.24,1) both;
+}
+.iv-wordmark { height: 100px; margin-left: 96px; }
+
+/* ── INTERVALO: bloco escuro que sai da massa e avança sobre a câmera ── */
+.iv-state {
+  position: absolute; left: 0; top: 566px; width: 906px; height: 134px;
+  display: flex; align-items: center; gap: 30px; padding-left: 96px;
+  background: var(--roxo-fundo);
+  font-size: 108px; font-weight: 900; line-height: 1; letter-spacing: .012em; text-transform: uppercase;
+  clip-path: polygon(0 0, 906px 0, 858px 134px, 0 134px);
+  animation: iv-estado 700ms 320ms cubic-bezier(.22,.9,.24,1) both;
+}
+.iv-pulse {
+  width: 26px; height: 26px; background: var(--laranja);
+  animation: iv-pulso 2.6s ease-in-out infinite;
+}
+.iv-sub {
+  position: absolute; left: 0; top: 700px; width: 664px; height: 66px;
+  display: flex; align-items: center; padding-left: 96px;
+  background: var(--roxo-fundo); color: #e6dcf7;
+  font-size: 29px; font-weight: 600; letter-spacing: .07em;
+  clip-path: polygon(0 0, 664px 0, 630px 66px, 0 66px);
+  animation: iv-estado 700ms 400ms cubic-bezier(.22,.9,.24,1) both;
+}
+/* Linha que costura o bloco INTERVALO à placa do apoiador. */
+.iv-connector {
+  position: absolute; left: 906px; top: 631px; width: 294px; height: 5px;
+  background: var(--verde);
+  animation: iv-conector 620ms 620ms cubic-bezier(.22,.9,.24,1) both;
+}
+.iv-connector::after {
+  content: ''; position: absolute; top: 0; left: 0; width: 62px; height: 5px;
+  background: var(--laranja);
+  animation: iv-percorre 3.6s 1.6s ease-in-out infinite;
+}
+
+/* ── Chamada secundária: QR da página pública, costurado à massa institucional ── */
+.iv-qr {
+  position: absolute; left: 660px; top: 798px; display: flex;
+  border: 4px solid var(--roxo-fundo);
+  animation: iv-surge 640ms 700ms cubic-bezier(.22,.9,.24,1) both;
+}
+.iv-qr-costura {
+  position: absolute; left: -98px; top: 116px; width: 98px; height: 5px; background: var(--verde);
+  animation: iv-conector 520ms 820ms cubic-bezier(.22,.9,.24,1) both;
+}
+.iv-qr-tab {
+  display: flex; flex-direction: column; justify-content: center; gap: 12px;
+  width: 250px; height: 240px; padding: 0 24px; background: var(--verde);
+}
+.iv-qr-tab strong { font-size: 30px; font-weight: 900; line-height: 1.06; letter-spacing: .12em; text-transform: uppercase; }
+.iv-qr-tab span { font-size: 20px; font-weight: 600; line-height: 1.25; letter-spacing: .03em; color: #d5f0e4; }
+/* Placa branca sólida: nada de alpha, blur ou animação sobre os módulos do código. */
+.iv-qr-plate { display: grid; place-items: center; width: 240px; height: 240px; background: #fff; }
+
+/* ── Placa do apoiador: superfície realmente sólida, a marca nunca briga com a câmera ── */
+.iv-sponsor { position: absolute; left: 1200px; top: 556px; }
+.iv-sponsor-tab {
+  display: flex; align-items: center; gap: 22px;
+  height: 60px; padding: 0 26px; background: var(--verde);
+  font-size: 25px; font-weight: 900; letter-spacing: .26em; text-transform: uppercase;
+  animation: iv-surge 620ms 520ms cubic-bezier(.22,.9,.24,1) both;
+}
+.iv-sponsor-tab b { font-size: 21px; font-weight: 700; letter-spacing: .12em; color: #bff0da; }
+.iv-sponsor-tab i { font-style: normal; margin: 0 4px; }
+.iv-sponsor-plate {
+  position: relative; width: 656px; height: 384px; overflow: hidden;
+  /* Keyline sólida: a placa precisa ter borda própria mesmo contra parede branca estourada. */
+  border: 4px solid var(--roxo-fundo); border-bottom: 9px solid var(--laranja);
+  clip-path: polygon(0 0, 656px 0, 656px 348px, 620px 384px, 0 384px);
+  animation: iv-placa 720ms 600ms cubic-bezier(.22,.9,.24,1) both;
+}
+.iv-sponsor-plate[data-placa='clara'] { background: var(--gelo); }
+.iv-sponsor-plate[data-placa='escura'] {
+  background: var(--roxo-fundo);
+  border-top-color: var(--gelo); border-left-color: var(--gelo); border-right-color: var(--gelo);
+}
+
+.iv-brand {
+  position: absolute; left: 62px; top: 46px; width: 532px; height: 268px;
+  object-fit: contain; object-position: center;
+}
+.iv-brand--entra { animation: iv-marca-entra 620ms 280ms cubic-bezier(.2,.85,.25,1) both; }
+.iv-brand--sai { animation: iv-marca-sai 520ms cubic-bezier(.5,0,.75,0) both; }
+/* Lâmina laranja que faz a virada entre uma marca e a próxima. */
+.iv-lamina {
+  position: absolute; top: 0; left: 0; width: 210px; height: 384px;
+  background: var(--laranja);
+  transform: skewX(-14deg);
+  animation: iv-lamina 900ms cubic-bezier(.55,0,.3,1) both;
+}
+.iv-sponsor-tempo {
+  position: absolute; left: 0; bottom: 0; width: 656px; height: 9px;
+  background: var(--vermelho); transform-origin: left;
+  animation: iv-tempo 8s linear both;
+}
+
+/* ── Motion ── */
+@keyframes iv-slab {
+  from { clip-path: polygon(0 0, 0 0, 0 1080px, 0 1080px); }
+  to { clip-path: polygon(0 0, 620px 0, 556px 1080px, 0 1080px); }
+}
+@keyframes iv-titulo {
+  from { clip-path: polygon(0 0, 0 0, 0 172px, 0 172px); }
+  to { clip-path: polygon(0 0, 1190px 0, 1132px 172px, 0 172px); }
+}
+@keyframes iv-estado {
+  from { transform: translateX(-42px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes iv-conector { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); } }
+@keyframes iv-regua { from { transform: scaleX(0); transform-origin: left; } to { transform: scaleX(1); } }
+@keyframes iv-surge { from { transform: translateY(-18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes iv-placa {
+  from { clip-path: polygon(0 384px, 656px 384px, 656px 384px, 620px 384px, 0 384px); }
+  to { clip-path: polygon(0 0, 656px 0, 656px 348px, 620px 384px, 0 384px); }
+}
+@keyframes iv-marca-entra { from { opacity: 0; transform: translateX(38px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes iv-marca-sai { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(-34px); } }
+@keyframes iv-lamina {
+  0% { transform: translateX(-320px) skewX(-14deg); }
+  100% { transform: translateX(880px) skewX(-14deg); }
+}
+@keyframes iv-tempo { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes iv-pulso { 0%, 100% { transform: scale(.7); } 50% { transform: scale(1.12); } }
+@keyframes iv-percorre {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(232px); }
+  100% { transform: translateX(0); }
+}
+@keyframes iv-varredura {
+  0%, 12% { transform: translateX(-210px); }
+  55%, 100% { transform: translateX(1920px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iv-rule--topo::after, .iv-connector::after, .iv-pulse { animation: none; }
+  .iv-lamina { animation-duration: 1ms; }
+  .iv-brand--entra { animation: iv-marca-estatica 300ms both; }
+  .iv-brand--sai { animation: none; opacity: 0; }
+  @keyframes iv-marca-estatica { from { opacity: 0; } to { opacity: 1; } }
+}

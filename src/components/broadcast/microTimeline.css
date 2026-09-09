@@ -1,0 +1,37 @@
+.bcy-micro {
+  display: flex; align-items: center; justify-content: center; flex-wrap: nowrap; gap: 10px;
+  font-family: system-ui, sans-serif; font-size: clamp(13px, 1.15vw, 16px); color: rgba(255,255,255,.55);
+  overflow: hidden; white-space: nowrap; max-width: 100%;
+}
+.bcy-micro-titulo {
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em;
+  color: rgba(255,255,255,.35); flex-shrink: 0;
+}
+
+.bcy-micro-grupo { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.bcy-micro-item { display: inline-flex; align-items: center; gap: 5px; line-height: 1; }
+.bcy-micro-item svg { display: block; flex-shrink: 0; }
+.bcy-micro-seta { color: rgba(255,255,255,.25); }
+.bcy-micro-sep { color: rgba(255,255,255,.25); }
+.bcy-micro-hora { font-variant-numeric: tabular-nums; color: rgba(255,255,255,.4); }
+.bcy-micro-nome { font-weight: 700; color: rgba(255,255,255,.8); max-width: 18ch; overflow: hidden; text-overflow: ellipsis; }
+
+/* O acontecimento mais recente se destaca — mais contraste + pontinho de "agora", sem
+   depender de segundos que o backend não tem (ordem visual > precisão textual). */
+.bcy-micro-item--atual .bcy-micro-nome { color: #fff; }
+.bcy-micro-item--atual .bcy-micro-hora { color: rgba(255,255,255,.6); }
+.bcy-micro-dot { color: #f8a23c; font-size: 8px; margin-left: 1px; animation: bcy-micro-pulse 1.8s ease-in-out infinite; }
+
+@keyframes bcy-micro-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) {
+  .bcy-micro-dot { animation: none; }
+}
+
+/* Informação secundária — em telas mais estreitas, cai o acontecimento mais ANTIGO
+   primeiro (nunca o mais recente), mantendo a leitura "→ mais recente" coerente. */
+@media (max-width: 1450px) {
+  .bcy-micro-grupo--antigo { display: none; }
+}
+@media (max-width: 760px) {
+  .bcy-micro { display: none; }
+}

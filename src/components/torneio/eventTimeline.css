@@ -1,0 +1,31 @@
+/* Timeline lateralizada de eventos (seção 7 do brief de acabamento 3) — Time A à
+   esquerda, Time B à direita, ordem temporal top-down. Compartilhada pela home
+   /torneio, pelo histórico de partida encerrada e pela rota /torneio/placar; o
+   tamanho é ajustado por modificador de classe (--lg), nunca duplicando a lógica. */
+
+.evt-timeline { position: relative; display: flex; flex-direction: column; gap: 2px; }
+.evt-timeline::before {
+  content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px;
+  background: rgba(255, 255, 255, .15); transform: translateX(-50%);
+}
+.evt-row { display: grid; grid-template-columns: 1fr 1fr; column-gap: 14px; padding: 5px 0; }
+.evt-content { display: flex; align-items: center; gap: 6px; font-size: 13px; min-width: 0; }
+.evt-row--a .evt-content { grid-column: 1; justify-self: end; flex-direction: row-reverse; text-align: right; }
+.evt-row--b .evt-content { grid-column: 2; justify-self: start; text-align: left; }
+.evt-icon { flex-shrink: 0; display: inline-flex; color: #f8a23c; }
+.evt-icon svg { display: block; }
+.evt-desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.evt-time { color: rgba(255, 255, 255, .45); font-variant-numeric: tabular-nums; font-size: 11px; flex-shrink: 0; }
+
+@media (max-width: 380px) {
+  .evt-content { font-size: 12px; gap: 4px; }
+  .evt-icon svg { width: 13px; height: 13px; }
+  .evt-time { font-size: 10px; }
+}
+
+/* Modificador pra tela grande (rota /torneio/placar — 1920×1080/1366×768). */
+.evt-timeline--lg { gap: 8px; }
+.evt-timeline--lg .evt-row { column-gap: 28px; padding: 8px 0; }
+.evt-timeline--lg .evt-content { font-size: clamp(16px, 1.6vw, 22px); gap: 10px; }
+.evt-timeline--lg .evt-icon svg { width: clamp(18px, 1.8vw, 26px); height: clamp(18px, 1.8vw, 26px); }
+.evt-timeline--lg .evt-time { font-size: clamp(12px, 1.1vw, 15px); }

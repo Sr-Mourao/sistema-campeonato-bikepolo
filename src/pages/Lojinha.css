@@ -1,0 +1,507 @@
+/* ============================================================
+   Lojinha — pré-venda de produtos
+   Prefixo: loj-
+   ============================================================ */
+
+.lojinha {
+  --loj-purple:  #3D1A6E;
+  --loj-purple2: #4D1D95;
+  --loj-orange:  #F8A23C;
+  --loj-green:   #4CE0A8;
+  --loj-nav-h:   var(--site-nav-h, 56px);
+  min-height: 100vh;
+  background: var(--loj-purple);
+  color: #fff;
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+}
+
+.loj-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: calc(var(--loj-nav-h) + 32px) 20px 60px;
+}
+
+.loj-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.loj-header h1 {
+  font-size: 2.4rem;
+  margin: 0 0 8px;
+}
+.loj-header p {
+  color: rgba(255, 255, 255, 0.60);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.loj-loading {
+  display: flex;
+  justify-content: center;
+  padding: 120px 0;
+  color: rgba(255, 255, 255, 0.5);
+}
+.loj-spin { animation: loj-spin 1s linear infinite; }
+@keyframes loj-spin { to { transform: rotate(360deg); } }
+
+/* ─── Manifesto — abertura da lojinha ────────────────────── */
+.loj-manifesto {
+  background: linear-gradient(135deg, rgba(248, 162, 60, 0.10), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(248, 162, 60, 0.28);
+  border-left: 3px solid var(--loj-orange);
+  border-radius: 12px;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.loj-manifesto summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--loj-orange);
+  user-select: none;
+}
+.loj-manifesto summary::-webkit-details-marker { display: none; }
+.loj-manifesto summary span { flex: 1; }
+.loj-manifesto summary:hover { color: #fff; }
+.loj-manifesto-chevron {
+  color: rgba(255, 255, 255, 0.45);
+  transition: transform 220ms ease;
+  flex: none;
+}
+.loj-manifesto[open] .loj-manifesto-chevron { transform: rotate(180deg); }
+
+.loj-manifesto-body {
+  padding: 0 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.loj-manifesto-body p {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.78);
+}
+.loj-manifesto-signoff {
+  color: #fff;
+  font-weight: 600;
+}
+
+.loj-closed-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 40px 28px;
+  text-align: center;
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* ─── Grade de produtos ─────────────────────────────────── */
+/*
+ * Inteligente: decide o layout de acordo com a quantidade real de produtos
+ * (classe loj-grid--count-N injetada no componente):
+ *
+ *   mobile (< 640px): sempre 1 coluna
+ *   tablet/desktop (>= 640px):
+ *     1 → 1 coluna
+ *     2 → 2 colunas, 1 linha
+ *     3 → 3 colunas, 1 linha (MESMA LARGURA, OCUPA A LINHA TODA)
+ *     4 → 2 colunas × 2 linhas (2x2 centrado)
+ *     5+ → auto-fit inteligente
+ */
+.loj-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-bottom: 36px;
+}
+
+@media (min-width: 640px) {
+  .loj-grid--count-1 { grid-template-columns: 1fr; justify-items: center; }
+  .loj-grid--count-1 > .loj-card { width: min(100%, 480px); }
+
+  .loj-grid--count-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .loj-grid--count-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .loj-grid--count-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .loj-grid:not([class*="loj-grid--count-1"]):not([class*="loj-grid--count-2"]):not([class*="loj-grid--count-3"]):not([class*="loj-grid--count-4"]) {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  /* Em telas muito grandes, 4 produtos continua 2x2 (como tu pediu). Não sobe pra 4 colunas. */
+  .loj-grid--count-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 920px; margin-inline: auto; }
+}
+
+.loj-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+.loj-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(248, 162, 60, 0.32);
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.6);
+}
+
+.loj-card-img {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: rgba(0, 0, 0, 0.25);
+}
+.loj-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.loj-card-img--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.loj-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.loj-carousel-arrow--prev { left: 8px; }
+.loj-carousel-arrow--next { right: 8px; }
+
+.loj-carousel-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.loj-carousel-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  padding: 0;
+}
+.loj-carousel-dot--active { background: #fff; }
+
+.loj-card-body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.loj-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.loj-card-head h3 {
+  margin: 0;
+  font-size: 1.18rem;
+  line-height: 1.25;
+}
+.loj-card-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.58);
+  line-height: 1.5;
+  white-space: pre-line;
+}
+.loj-card-preco {
+  margin: 0;
+  flex: none;
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--loj-orange);
+  line-height: 1.2;
+}
+
+/* ─── Picker compacto de tamanho ────────────────────────── */
+.loj-tamanho-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: 2px;
+}
+.loj-tamanho-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.loj-tamanho-title {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 600;
+}
+.loj-tamanho-pill {
+  font-size: 0.74rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(248, 162, 60, 0.14);
+  border: 1px solid rgba(248, 162, 60, 0.35);
+  color: var(--loj-orange);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.loj-tamanho-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.loj-tamanho-chip {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.78);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: all 180ms ease;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+}
+.loj-tamanho-chip:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+  color: #fff;
+}
+.loj-tamanho-chip--active {
+  background: var(--loj-orange);
+  color: var(--loj-purple);
+  border-color: var(--loj-orange);
+  box-shadow: 0 6px 16px -8px rgba(248, 162, 60, 0.7);
+}
+.loj-tamanho-chip--hasqtd:not(.loj-tamanho-chip--active) {
+  border-color: rgba(76, 224, 168, 0.5);
+  background: rgba(76, 224, 168, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+}
+.loj-tamanho-chip-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--loj-green);
+  color: #25503f;
+  font-size: 0.64rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+.loj-tamanho-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.loj-tamanho-ativo-label {
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.68);
+}
+.loj-tamanho-ativo-label strong {
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.loj-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  flex: none;
+}
+.loj-stepper button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 140ms ease;
+}
+.loj-stepper button:hover {
+  border-color: var(--loj-orange);
+  color: var(--loj-orange);
+}
+.loj-stepper button:active {
+  transform: scale(0.94);
+}
+.loj-stepper span {
+  min-width: 22px;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ─── Formulário ─────────────────────────────────────────── */
+.loj-form-section {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.loj-form-section h2 {
+  margin: 0 0 16px;
+  font-size: 1.3rem;
+}
+.loj-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.loj-field label {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.loj-field input,
+.loj-field textarea {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+.loj-field input:focus,
+.loj-field textarea:focus {
+  outline: none;
+  border-color: var(--loj-orange);
+}
+
+/* ─── Resumo ─────────────────────────────────────────────── */
+.loj-summary {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.loj-summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.70);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.loj-summary-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.15rem;
+  font-weight: 700;
+  padding-top: 12px;
+  color: #fff;
+}
+
+.loj-erro {
+  color: #FF6B6B;
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 0 0 16px;
+}
+
+.loj-btn {
+  display: inline-block;
+  border: none;
+  border-radius: 8px;
+  padding: 13px 28px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+}
+.loj-btn--primary {
+  background: var(--loj-orange);
+  color: var(--loj-purple);
+}
+.loj-btn--primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.loj-submit {
+  width: 100%;
+}
+
+/* ─── Sucesso ─────────────────────────────────────────────── */
+.loj-success {
+  text-align: center;
+  padding-top: calc(var(--loj-nav-h) + 100px);
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.loj-success-icon {
+  color: var(--loj-green);
+  margin-bottom: 16px;
+}
+.loj-success h1 {
+  font-size: 1.8rem;
+  margin: 0 0 12px;
+}
+.loj-success p {
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.6;
+  margin: 0 0 28px;
+}

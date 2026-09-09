@@ -1,0 +1,26 @@
+/* Placar principal — fundo transparent no root; o "painel" de contraste é opcional e
+   fica só na página fullscreen (via .plc-scoreboard-painel), nunca aqui, pra funcionar
+   igual sobre a página OU sobre um Browser Source transparente no OBS. */
+
+.bcy-scoreboard { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 1.6vh, 20px); width: 100%; }
+
+.bcy-scoreboard-cabecalho { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.bcy-fase {
+  font-family: system-ui, sans-serif; font-size: clamp(13px, 1.2vw, 18px); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .12em; color: #f8a23c;
+}
+.bcy-fase span { color: rgba(255,255,255,.35); margin: 0 2px; }
+
+.bcy-scoreboard-corpo {
+  display: flex; align-items: center; justify-content: center; width: 100%;
+  gap: clamp(12px, 3vw, 48px);
+}
+.bcy-vs {
+  font-family: 'Barlow Condensed', sans-serif; font-size: clamp(28px, 3.4vw, 54px); font-weight: 800;
+  color: rgba(255,255,255,.5); letter-spacing: .06em; flex-shrink: 0; padding: 0 clamp(10px, 2vw, 30px);
+}
+
+.bcy-scoreboard-rodape {
+  font-family: system-ui, sans-serif; font-size: clamp(13px, 1.1vw, 17px); color: rgba(255,255,255,.55);
+  letter-spacing: .02em;
+}

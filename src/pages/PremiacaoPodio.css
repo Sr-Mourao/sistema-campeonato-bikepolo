@@ -1,0 +1,20 @@
+.prj-frame--podio{--accent:#f8a23c;--accent2:#4ce0a8;background:radial-gradient(circle at 50% 35%,rgba(106,46,184,.78),transparent 36%),radial-gradient(circle at 16% 80%,rgba(30,147,101,.3),transparent 32%),linear-gradient(145deg,#09021d,#1a0644 58%,#080119)}
+.prp-content{position:absolute;inset:0;padding:13vh 5vw 5vh;display:grid;grid-template-rows:auto 1fr;gap:2.5vh}
+.prp-content>header{text-align:center;text-transform:uppercase;animation:prp-title-in 700ms cubic-bezier(.2,.9,.25,1) both}
+.prp-content>header span{color:var(--accent);font-size:clamp(14px,1.15vw,23px);font-weight:900;letter-spacing:.2em}
+.prp-content>header h1{margin:0;font-size:clamp(74px,8vw,150px);line-height:.76;letter-spacing:.025em}
+.prp-content>header p{margin:1.4vh 0 0;color:rgba(255,255,255,.58);font-size:clamp(17px,1.45vw,28px);font-weight:800;letter-spacing:.16em}
+.prp-places{min-height:0;display:grid;grid-template-columns:1fr 1.18fr 1fr;align-items:end;justify-content:center;gap:clamp(18px,2vw,38px)}
+.prp-place{position:relative;min-width:0;height:74%;padding:clamp(18px,1.8vw,34px);display:grid;grid-template-rows:auto 1fr auto auto;justify-items:center;overflow:hidden;background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(14,3,41,.88) 45%);border-bottom:clamp(8px,.8vw,14px) solid rgba(255,255,255,.34);clip-path:polygon(7% 0,100% 0,93% 100%,0 100%);filter:drop-shadow(0 24px 28px rgba(0,0,0,.35));animation:prp-place-in 800ms cubic-bezier(.18,.9,.2,1) both}
+.prp-place--2{animation-delay:.42s}.prp-place--3{animation-delay:.62s}.prp-place--1{height:94%;border-color:var(--accent);background:linear-gradient(160deg,rgba(248,162,60,.25),rgba(22,5,56,.94) 42%);animation-delay:.9s}
+.prp-place::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.18) 50%,transparent 62%);transform:translateX(-130%);animation:prp-shine 7s 2.2s ease-in-out infinite}
+.prp-rank{position:absolute;z-index:3;left:clamp(18px,1.6vw,30px);top:clamp(14px,1.4vw,26px);display:grid;text-transform:uppercase}.prp-rank span{color:var(--accent);font-size:clamp(48px,5vw,92px);font-weight:900;line-height:.75}.prp-rank small{margin-top:9px;color:rgba(255,255,255,.6);font-size:clamp(11px,.85vw,16px);font-weight:900;letter-spacing:.12em}.prp-place:not(.prp-place--1) .prp-rank span{color:#fff}
+.prp-crest{position:relative;z-index:2;align-self:center;width:min(13vw,230px);height:min(19vh,205px);margin-top:3vh}.prp-place--1 .prp-crest{width:min(17vw,300px);height:min(25vh,270px)}.prp-crest img,.prp-crest>.team-monogram{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 16px 16px rgba(0,0,0,.38))}
+.prp-place h2{position:relative;z-index:2;max-width:100%;margin:0 0 1.4vh;text-align:center;font-size:clamp(31px,3.2vw,60px);line-height:.86;text-transform:uppercase;overflow-wrap:anywhere}.prp-place--1 h2{font-size:clamp(40px,4vw,76px)}
+.prp-roster{position:relative;z-index:2;width:100%;display:flex;justify-content:center;gap:clamp(5px,.55vw,10px)}.prp-roster>div{min-width:0;display:grid;justify-items:center;gap:4px}.prp-roster .eq-avatar{width:clamp(34px,3.2vw,58px);height:clamp(34px,3.2vw,58px);object-fit:cover;border:2px solid rgba(255,255,255,.35)}.prp-roster span{max-width:clamp(65px,6vw,110px);color:rgba(255,255,255,.7);font-size:clamp(9px,.7vw,13px);font-weight:800;text-align:center;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prj-loading p{color:rgba(255,255,255,.55);font-size:clamp(16px,1.3vw,25px);font-weight:700;text-transform:uppercase}
+@keyframes prp-title-in{from{opacity:0;transform:translateY(-30px);clip-path:inset(0 0 100%)}to{opacity:1;transform:none;clip-path:inset(0)}}
+@keyframes prp-place-in{from{opacity:0;transform:translateY(110px) scale(.88)}to{opacity:1;transform:none}}
+@keyframes prp-shine{0%,68%,100%{transform:translateX(-130%)}82%{transform:translateX(130%)}}
+@media(max-width:1400px){.prp-content{padding-top:14vh}.prp-places{gap:15px}.prp-place{padding:16px}.prp-roster span{display:none}}
+@media(prefers-reduced-motion:reduce){.prp-content *{animation:none!important}}

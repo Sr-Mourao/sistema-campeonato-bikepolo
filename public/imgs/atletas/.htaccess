@@ -1,0 +1,7 @@
+# Defesa em profundidade: mesmo que um arquivo malicioso disfarçado de imagem chegue
+# aqui (não deveria — o backend só grava depois de validar MIME real), o Apache nunca
+# deve executá-lo. Só imagens são servidas a partir daqui. `<FilesMatch>`/`Require` são
+# diretivas core do Apache — funcionam com mod_php e com PHP-FPM.
+<FilesMatch "\.(php|phtml|php\d|pl|py|cgi|asp|aspx|sh|exe)$">
+  Require all denied
+</FilesMatch>

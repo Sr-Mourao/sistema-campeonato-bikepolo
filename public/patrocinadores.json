@@ -1,0 +1,172 @@
+[
+  {
+    "nome": "2C2 Bags",
+    "slug": "2c2",
+    "logo": "/imgs/logos/2c2.svg",
+    "logoOriginal": "/imgs/logos/originais/2c2.png",
+    "url": "https://www.2c2bags.com/"
+  },
+  {
+    "nome": "Alento",
+    "slug": "alento",
+    "logo": "/imgs/logos/alento.svg",
+    "logoOriginal": "/imgs/logos/originais/alento.png",
+    "url": "https://soualento.com.br"
+  },
+  {
+    "nome": "Camaleão Drinks",
+    "slug": "camaleao",
+    "logo": "/imgs/logos/originais/camaleao.png",
+    "logoOriginal": "/imgs/logos/originais/camaleao.png",
+    "url": "https://www.bebacamaleao.com.br"
+  },
+  {
+    "nome": "Bugio",
+    "slug": "bugio",
+    "logoOriginal": "/imgs/logos/originais/bugio.png",
+    "url": "https://www.instagram.com/bugiocentro/"
+  },
+    {
+    "nome": "Picote Produções",
+    "slug": "picote",
+    "logoOriginal": "/imgs/logos/originais/picote.jpeg",
+    "url": ""
+  },
+  {
+    "nome": "Casa Bicicletas",
+    "slug": "casabicicletas",
+    "logoOriginal": "/imgs/logos/originais/casabicicletas.jpeg",
+    "url": ""
+  },
+  {
+    "nome": "Cuida",
+    "slug": "cuida",
+    "logo": "/imgs/logos/cuida.svg",
+    "logoOriginal": "/imgs/logos/originais/cuida.png",
+    "url": "https://cuidacaps.com.br"
+  },
+  {
+    "nome": "Esgualepado",
+    "slug": "esgualepado",
+    "logo": "/imgs/logos/esgualepado.svg",
+    "logoOriginal": "/imgs/logos/originais/esgualepado.png",
+    "url": "https://www.esgualepado.com.br/"
+  },
+  {
+    "nome": "Fero",
+    "slug": "fero",
+    "logo": "/imgs/logos/fero.svg",
+    "logoOriginal": "/imgs/logos/originais/fero.png",
+    "url": "https://www.instagram.com/fero.bici/"
+  },
+  {
+    "nome": "Garupa",
+    "slug": "garupa",
+    "logo": "/imgs/logos/garupa.svg",
+    "logoOriginal": "/imgs/logos/originais/garupa.png",
+    "url": "https://www.instagram.com/garupa.bike"
+  },
+  {
+    "nome": "Projeto Hito",
+    "slug": "hito",
+    "logo": "/imgs/logos/hito.svg",
+    "logoOriginal": "/imgs/logos/originais/hito.png",
+    "url": "https://projetohito.com.br/"
+  },
+  {
+    "nome": "Luli Shield",
+    "slug": "luli-shield",
+    "logo": "/imgs/logos/luli.shield.svg",
+    "logoOriginal": "/imgs/logos/originais/luli.shield.png",
+    "url": "https://lulinucs.duckdns.org/lulishield"
+  },
+  {
+    "nome": "Marino",
+    "slug": "marino",
+    "logoOriginal": "/imgs/logos/originais/marino.png",
+    "url": "https://www.instagram.com/marinobike/"
+  },
+  {
+    "nome": "Pedala Mais",
+    "slug": "pedalamais",
+    "logoOriginal": "/imgs/logos/originais/pedalamais.jpg",
+    "url": "https://www.instagram.com/pedalamais/"
+  },
+  {
+    "nome": "Speedweed",
+    "slug": "speedweed",
+    "logo": "/imgs/logos/speedweed.svg",
+    "logoOriginal": "/imgs/logos/originais/speedweed.png",
+    "url": "https://speedweedcrew.com.br"
+  },
+  {
+    "nome": "Stephane",
+    "slug": "stephane",
+    "logo": "/imgs/logos/stephane.svg",
+    "logoOriginal": "/imgs/logos/originais/stephane.png",
+    "url": "https://www.instagram.com/stephane2000_/"
+  },
+  {
+    "nome": "Toni Racks",
+    "slug": "toniracks",
+    "logoOriginal": "/imgs/logos/originais/toniracks.png",
+    "url": "https://www.instagram.com/tonirackspoa/"
+  },
+  {
+    "nome": "Velkro",
+    "slug": "velkro",
+    "logoOriginal": "/imgs/logos/originais/velkro.png",
+    "url": "https://www.instagram.com/usevelkro/"
+  },
+  {
+    "nome": "Zeta",
+    "slug": "zeta",
+    "logoOriginal": "/imgs/logos/originais/zeta.png",
+    "url": "https://www.instagram.com/zetasbikes/"
+  },
+   {
+    "nome": "ITCTerm",
+    "slug": "itc",
+    "logo": "/imgs/logos/itc-branco.svg",
+    "logoOriginal": "/imgs/logos/originais/itc.png",
+    "url": "http://www.itcterm.com.br"
+  },
+     {
+    "nome": "Van",
+    "slug": "van",
+    "logoOriginal": "/imgs/logos/originais/van.jpeg",
+    "url": "https://www.instagram.com/vanbrandtcycleclothing/"
+  },
+   {
+    "nome": "alpaca",
+    "slug": "alpaca",
+    "logoOriginal": "/imgs/logos/originais/alpaca.png",
+    "url": "https://www.instagram.com/alpacaserigrafia/"
+  },
+  {
+    "nome": "lama",
+    "slug": "lama",
+    "logoOriginal": "/imgs/logos/originais/lama.png",
+    "url": "https://www.instagram.com/galeria.lama/"
+  },
+  {
+    "nome": "petra",
+    "slug": "petra",
+    "logoOriginal": "/imgs/logos/originais/petra.png",
+    "url": "https://www.instagram.com/petrasalgadoces/"
+  },
+  {
+    "nome": "morgana",
+    "slug": "morgana",
+    "logoOriginal": "/imgs/logos/originais/morgana.jpeg",
+    "url": "https://www.instagram.com/morganalimatattoo/"
+  },
+    {
+    "nome": "HA",
+    "slug": "HA",
+    "logoOriginal": "/imgs/logos/originais/ha.png",
+    "url": "https://hecklersalley.com"
+  }
+
+
+]

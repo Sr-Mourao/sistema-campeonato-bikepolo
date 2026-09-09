@@ -1,0 +1,23 @@
+/* Painel próprio (fundo quase-sólido) — é a "superfície" da barra de transmissão, não a
+   página; funciona igual se este componente for renderizado sozinho no futuro sobre um
+   Browser Source do OBS (o resto da tela em volta fica transparente, só esta barra tem
+   fundo). */
+.bcy-footer {
+  display: grid; grid-template-columns: 1.3fr auto 1fr; align-items: stretch; gap: clamp(16px, 2.4vw, 40px);
+  width: 100%; max-width: 1400px; margin: 0 auto;
+  background: linear-gradient(180deg, rgba(10,5,28,.82), rgba(10,5,28,.94));
+  border: 1px solid rgba(255,255,255,.12); border-radius: 14px;
+  padding: clamp(12px, 1.8vh, 22px) clamp(18px, 2.4vw, 36px);
+  box-shadow: 0 -8px 30px rgba(0,0,0,.25);
+}
+.bcy-footer-divisor { width: 1px; background: rgba(255,255,255,.14); }
+.bcy-footer-title {
+  font-family: system-ui, sans-serif; font-size: clamp(11px, .9vw, 14px); font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.5); margin-bottom: 10px;
+}
+.bcy-footer-vazio { font-family: system-ui, sans-serif; font-size: clamp(12px, 1vw, 15px); color: rgba(255,255,255,.4); margin: 0; }
+
+@media (max-width: 860px) {
+  .bcy-footer { grid-template-columns: 1fr; }
+  .bcy-footer-divisor { display: none; }
+}

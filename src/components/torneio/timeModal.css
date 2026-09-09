@@ -1,0 +1,44 @@
+/* Card/modal público do time (seções 17-19 do brief de área pública). */
+
+.tmm-overlay {
+  position: fixed; inset: 0; background: rgba(10, 4, 30, .7); backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px;
+}
+.tmm-modal {
+  background: #1c0f45; border: 1px solid rgba(255, 255, 255, .14); border-radius: 16px;
+  padding: 24px; max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto;
+  position: relative; color: #fff; font-family: system-ui, sans-serif;
+}
+.tmm-close {
+  position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, .08); border: none;
+  color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px;
+}
+.tmm-close:hover { background: rgba(255, 255, 255, .16); }
+.tmm-hint { text-align: center; font-size: 13px; color: rgba(255, 255, 255, .55); }
+
+.tmm-header { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 6px; }
+.tmm-logo { width: 56px; height: 56px; object-fit: contain; border-radius: 10px; background: rgba(255,255,255,.06); }
+.tmm-nome {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; text-transform: uppercase;
+  text-align: center; margin: 0; letter-spacing: .02em;
+}
+
+.tmm-lista-title {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.5);
+  margin: 18px 0 10px; text-align: center;
+}
+.tmm-jogadores { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.tmm-jogador {
+  display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 10px;
+  background: rgba(255,255,255,.04); font-size: 14px;
+}
+/* Avatar.tsx (compartilhado com /equipes) só define classe/estrutura — o tamanho é
+   sempre decidido por quem chama. Aqui é um círculo pequeno de lista; não depende de
+   Equipes.css estar carregado (chunk separado), por isso completa tudo aqui. */
+.tmm-jogador-avatar.eq-avatar {
+  width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; display: block;
+}
+.tmm-jogador-avatar.eq-avatar--fallback {
+  display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.94);
+  font-weight: 800; font-family: 'Barlow Condensed', sans-serif; font-size: 13px;
+}

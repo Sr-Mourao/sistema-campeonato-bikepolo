@@ -1,0 +1,31 @@
+/* Ticker baixo de transmissão — UMA linha, discreta, nunca mais chamativa que o placar. */
+
+.bcy-ticker {
+  display: flex; align-items: center; gap: 14px; width: 100%; box-sizing: border-box;
+  padding: 10px clamp(16px, 3vw, 40px);
+  background: rgba(8,4,22,.75); border-top: 1px solid rgba(255,255,255,.1);
+  font-family: system-ui, sans-serif;
+}
+.bcy-ticker-rotulo {
+  flex-shrink: 0; font-size: 11px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .12em; color: rgba(248,162,60,.75);
+}
+
+.bcy-ticker-trilho { flex: 1; min-width: 0; overflow: hidden; }
+.bcy-ticker-pista { display: flex; width: max-content; animation: bcy-ticker-scroll 34s linear infinite; }
+.bcy-ticker-conteudo { display: flex; align-items: center; flex-shrink: 0; }
+.bcy-ticker-item {
+  display: inline-flex; align-items: center; gap: 10px; padding: 0 26px;
+  font-size: clamp(12.5px, 1.05vw, 15px); color: rgba(255,255,255,.72); white-space: nowrap;
+}
+.bcy-ticker-bolinha { color: #f8a23c; font-size: 8px; }
+
+@keyframes bcy-ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bcy-ticker-pista { animation: none; }
+  .bcy-ticker-trilho { overflow-x: auto; }
+}

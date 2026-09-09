@@ -1,0 +1,27 @@
+/* Base estrutural do fallback de Avatar/TeamMonogram (iniciais/monograma) — importada
+ * DIRETAMENTE pelos componentes (Avatar.tsx/TeamMonogram.tsx), nunca só em Equipes.css.
+ * Corrige na origem um bug real: fora do bundle de /equipes (torneio, admin, placar
+ * broadcast), Equipes.css não é carregado — cada consumidor tinha que "lembrar" de
+ * replicar `line-height`/centralização, e um deles esqueceu, deixando as iniciais
+ * tortas dentro do círculo. Só o ESSENCIAL de centralização mora aqui; cor/tamanho/fundo
+ * continuam sendo decoração de cada contexto (Equipes.css, teamIdentity.css etc.), com
+ * seletores mais específicos — nunca conflita com isto. */
+
+.eq-avatar { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.eq-avatar--fallback {
+  display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+  line-height: 1; text-align: center;
+  color: rgba(255,255,255,0.94); font-weight: 800; font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.eq-monogram {
+  width: 100%; height: 100%; border-radius: 50%; overflow: hidden; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+}
+.eq-monogram-letters {
+  display: block; line-height: 1; text-align: center;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 900; letter-spacing: -0.02em;
+  color: rgba(255,255,255,0.96);
+}

@@ -1,0 +1,15 @@
+# O banco SQLite do evento fica NESTA pasta, dentro do docroot — decisão que veio
+# do começo do projeto e ficou. Ele contém nome, e-mail, telefone, contato de
+# emergência, plano de saúde e pagamentos de todas as pessoas inscritas.
+#
+# Sem esta regra, um GET em /api/data/10cbbp.db baixa o banco inteiro.
+#
+# `Require all denied` é diretiva core do Apache 2.4 (funciona com mod_php e com
+# PHP-FPM) e não impede o PHP de abrir o arquivo pelo sistema de arquivos —
+# bloqueia só o acesso HTTP.
+#
+# ATENÇÃO: .htaccess só tem efeito no Apache, e só se AllowOverride estiver
+# habilitado para este diretório. Em nginx/Caddy/LiteSpeed esta proteção NÃO
+# existe: bloqueie /api/data/ na configuração do servidor, ou mova o banco para
+# fora do docroot e ajuste DB_PATH em public/api/db.php.
+Require all denied

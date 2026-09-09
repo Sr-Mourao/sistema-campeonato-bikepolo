@@ -1,0 +1,254 @@
+/* ─────────────────────────────────────────────────────────────
+   /torneio/overlay/confronto — apresentação do confronto.
+   Mesmo pacote gráfico do intervalo (sólidos, diagonais, laranja/
+   verde/roxo), composição própria: as massas se ancoram nas bordas
+   inferiores e todo o terço superior fica com a câmera.
+   ───────────────────────────────────────────────────────────── */
+
+.cf-overlay {
+  position: fixed; inset: 0; overflow: hidden;
+  background: transparent; pointer-events: none;
+  --roxo: #1a0845;
+  --roxo-fundo: #12052f;
+  --laranja: #f8a23c;
+  --verde: #1e9365;
+  --vermelho: #ef4b3a;
+  --gelo: #f4f1f7;
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  color: #fff;
+}
+
+.cf-stage {
+  position: absolute; top: 50%; left: 50%;
+  width: 1920px; height: 1080px;
+  transform: translate(-50%, -50%) scale(var(--cf-escala, 1));
+  transform-origin: center;
+}
+
+/* ── Moldura superior: identidade à esquerda, partida à direita, meio aberto ── */
+.cf-regua {
+  position: absolute; left: 0; top: 0; width: 1920px; height: 6px;
+  background: linear-gradient(90deg, var(--laranja) 0 46%, var(--vermelho) 46% 60%, var(--verde) 60% 100%);
+  transform-origin: left;
+}
+.cf-marca {
+  position: absolute; left: 0; top: 6px; width: 792px; height: 74px;
+  display: flex; align-items: center; gap: 20px; padding-left: 56px;
+  background: var(--roxo);
+  clip-path: polygon(0 0, 792px 0, 736px 74px, 0 74px);
+}
+.cf-marca-simbolo { width: 46px; height: 46px; object-fit: contain; }
+.cf-marca p { font-size: 27px; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
+.cf-marca i { color: var(--laranja); font-style: normal; margin: 0 2px; }
+.cf-marca b { color: var(--laranja); font-weight: 900; }
+
+.cf-partida {
+  position: absolute; right: 0; top: 6px; height: 74px;
+  display: flex; align-items: center; gap: 22px; padding: 0 56px 0 74px;
+  background: var(--roxo-fundo);
+  clip-path: polygon(74px 0, 100% 0, 100% 74px, 18px 74px);
+}
+.cf-partida-fase { font-size: 25px; font-weight: 900; letter-spacing: .17em; text-transform: uppercase; }
+.cf-partida-fase i { color: var(--laranja); font-style: normal; }
+.cf-partida-linha { width: 34px; height: 3px; background: var(--verde); }
+.cf-partida-hora { color: #d9cdf0; font-size: 24px; font-weight: 700; letter-spacing: .1em; }
+.cf-status {
+  display: flex; align-items: center; gap: 9px; padding: 8px 16px;
+  background: rgba(255,255,255,.12); color: #fff;
+  font-size: 19px; font-weight: 900; letter-spacing: .19em; text-transform: uppercase;
+}
+.cf-status--vivo { background: var(--vermelho); }
+.cf-status--encerrado { background: var(--verde); }
+.cf-status--vivo i {
+  width: 10px; height: 10px; border-radius: 50%; background: #fff;
+  animation: cf-pulso 2.8s ease-in-out infinite;
+}
+
+/* ── Confronto: duas massas ancoradas nas bordas, centro leve ── */
+.cf-conteudo {
+  position: absolute; left: 0; right: 0; bottom: 66px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  animation: cf-troca 420ms cubic-bezier(.24,.9,.28,1) both;
+}
+/* Linha que costura as duas equipes por cima do vão de câmera. */
+.cf-costura {
+  position: absolute; left: 800px; right: 800px; top: 44px; height: 4px;
+  background: var(--laranja);
+}
+
+.cf-time { position: relative; width: 800px; flex-shrink: 0; }
+.cf-time-topo {
+  position: relative; height: 96px;
+  display: flex; align-items: center; gap: 22px; padding: 0 34px 0 212px;
+  background: var(--roxo);
+  clip-path: polygon(0 0, 800px 0, 744px 96px, 0 96px);
+}
+.cf-time[data-lado='b'] .cf-time-topo {
+  flex-direction: row-reverse; padding: 0 212px 0 34px;
+  clip-path: polygon(56px 0, 800px 0, 800px 96px, 0 96px);
+}
+/* Aresta de identidade: laranja na equipe A, verde na B — nunca cor inventada. */
+.cf-time-topo::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 10px; background: var(--laranja);
+}
+.cf-time[data-lado='b'] .cf-time-topo::before { left: auto; right: 0; background: var(--verde); }
+
+/* O escudo tem placa própria e transborda a faixa para cima: ganha presença de
+   apresentação de equipe sem engordar a barra do nome. Mesma bounding box nos dois lados
+   — logo quadrada, vertical ou horizontal ocupa o mesmo espaço, sempre por contain. */
+.cf-escudo {
+  position: absolute; top: -64px; left: 34px; z-index: 2;
+  width: 160px; height: 160px; padding: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+/* A placa é uma CAMADA ATRÁS, e é só ela que leva o chanfro. clip-path no container
+   cortaria a arte junto — o brasão nunca pode ser recortado, só contido. */
+.cf-escudo::after {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  clip-path: polygon(0 0, 136px 0, 160px 24px, 160px 160px, 0 160px);
+}
+.cf-time[data-lado='b'] .cf-escudo::after {
+  clip-path: polygon(24px 0, 160px 0, 160px 160px, 0 160px, 0 24px);
+}
+/* Marca escura pede placa clara e vice-versa — o brasão nunca some no próprio suporte. */
+.cf-escudo[data-placa='escura']::after { background: var(--roxo-fundo); box-shadow: inset 0 0 0 2px rgba(255,255,255,.16); }
+.cf-escudo[data-placa='clara']::after { background: var(--gelo); }
+.cf-time[data-lado='b'] .cf-escudo { left: auto; right: 34px; }
+/* A aresta de identidade continua do lado externo, agora subindo com o escudo. */
+.cf-escudo::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 10px; z-index: 1; background: var(--laranja);
+}
+.cf-time[data-lado='b'] .cf-escudo::before { left: auto; right: 0; background: var(--verde); }
+.cf-escudo-img { position: relative; z-index: 2; width: 100%; height: 100%; object-fit: contain; }
+/* Monograma editorial quadrado — o escudo nunca vira avatar circular. */
+.cf-escudo .eq-monogram { border-radius: 0; background: none; border: 0; }
+.cf-escudo .eq-monogram-letters { font-size: 62px; letter-spacing: .01em; }
+
+.cf-time-nome {
+  min-width: 0; flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 46px; font-weight: 900; line-height: 1; letter-spacing: .02em; text-transform: uppercase;
+}
+.cf-time[data-lado='b'] .cf-time-nome { text-align: right; }
+.cf-time-origem { color: #c9b8e8; font-size: 20px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+
+/* A costura de 8px entre as massas deixa a câmera passar por dentro da composição. */
+.cf-elenco {
+  margin-top: 8px; padding: 22px 24px 22px 56px;
+  display: flex; gap: 16px; list-style: none;
+  background: var(--roxo-fundo);
+}
+.cf-time[data-lado='b'] .cf-elenco { justify-content: flex-end; padding: 22px 56px 22px 24px; }
+.cf-atleta { width: 160px; display: flex; flex-direction: column; gap: 10px; }
+.cf-atleta-foto {
+  display: block; width: 160px; height: 184px; overflow: hidden;
+  background: #241150; box-shadow: inset 0 0 0 2px rgba(255,255,255,.14);
+}
+.cf-atleta-foto { position: relative; }
+.cf-atleta-img { width: 100%; height: 100%; object-fit: cover; }
+.cf-atleta .eq-avatar--fallback { font-size: 54px; }
+
+/* Quem marcou/cometeu falta ganha a marca no próprio retrato — sem virar lista. */
+.cf-atleta-marcas { position: absolute; left: 0; right: 0; bottom: 0; display: flex; }
+.cf-atleta-marcas b {
+  display: flex; align-items: center; gap: 5px; padding: 7px 11px;
+  font-size: 20px; font-weight: 900; line-height: 1;
+}
+.cf-atleta-marcas i { font-style: normal; }
+.cf-marca-gol { background: var(--laranja); color: var(--roxo-fundo); }
+.cf-marca-falta { background: #f8d342; color: #3a2a05; }
+/* Artilheiro em cena: a moldura do retrato acende, sem animar nada continuamente. */
+.cf-atleta[data-marcou='sim'] .cf-atleta-foto { box-shadow: inset 0 0 0 3px var(--laranja); }
+.cf-atleta-nome {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 22px; font-weight: 800; line-height: 1; letter-spacing: .05em; text-transform: uppercase;
+}
+
+/* ── Centro: VS quando não há placar, placar quando ele significa algo ── */
+.cf-centro { flex: 1; display: flex; align-items: center; justify-content: center; padding-bottom: 60px; }
+/* O losango vem de um pseudo-elemento: assim o scale da vinheta não briga com o rotate. */
+.cf-versus { position: relative; width: 122px; height: 122px; display: grid; place-items: center; }
+.cf-versus::before { content: ''; position: absolute; inset: 0; background: var(--laranja); transform: rotate(45deg); }
+.cf-versus span {
+  position: relative;
+  color: var(--roxo-fundo); font-size: 44px; font-weight: 900; letter-spacing: .04em;
+}
+.cf-placar {
+  display: flex; align-items: center; gap: 14px; padding: 16px 26px;
+  background: var(--roxo-fundo); border-top: 7px solid var(--laranja);
+}
+.cf-placar b { font-size: 88px; font-weight: 900; line-height: .9; font-variant-numeric: tabular-nums; }
+.cf-placar i { color: #a68fd4; font-size: 36px; font-style: normal; }
+
+/* ── Vinheta de entrada: a peça se constrói (~1,35s) ── */
+.cf-overlay[data-intro='ativa'] .cf-regua { animation: cf-regua 420ms cubic-bezier(.3,.9,.3,1) both; }
+/* Peças com silhueta própria crescem pelo próprio polígono — nunca por um inset() que
+   apagaria o corte diagonal e devolveria a forma com um salto no fim da animação. */
+.cf-overlay[data-intro='ativa'] .cf-marca { animation: cf-marca-entra 480ms 80ms cubic-bezier(.24,.9,.28,1) both; }
+.cf-overlay[data-intro='ativa'] .cf-partida { animation: cf-partida-entra 480ms 140ms cubic-bezier(.24,.9,.28,1) both; }
+.cf-overlay[data-intro='ativa'] .cf-time[data-lado='a'] .cf-time-topo { animation: cf-topo-a 520ms 220ms cubic-bezier(.24,.9,.28,1) both; }
+.cf-overlay[data-intro='ativa'] .cf-time[data-lado='b'] .cf-time-topo { animation: cf-topo-b 520ms 260ms cubic-bezier(.24,.9,.28,1) both; }
+.cf-overlay[data-intro='ativa'] .cf-time[data-lado='a'] .cf-elenco { animation: cf-esquerda 520ms 420ms cubic-bezier(.24,.9,.28,1) both; }
+.cf-overlay[data-intro='ativa'] .cf-time[data-lado='b'] .cf-elenco { animation: cf-direita 520ms 460ms cubic-bezier(.24,.9,.28,1) both; }
+.cf-overlay[data-intro='ativa'] .cf-escudo { transform-origin: bottom center; animation: cf-escudo-entra 460ms 380ms cubic-bezier(.24,.9,.3,1) both; }
+.cf-overlay[data-intro='ativa'] .cf-time-nome { animation: cf-nome 420ms 460ms cubic-bezier(.24,.9,.3,1) both; }
+.cf-overlay[data-intro='ativa'] .cf-costura { animation: cf-costura 420ms 900ms cubic-bezier(.24,.9,.28,1) both; }
+/* Atletas entram em sequência curta, um atrás do outro. */
+.cf-overlay[data-intro='ativa'] .cf-atleta {
+  animation: cf-atleta 380ms cubic-bezier(.24,.9,.3,1) both;
+  animation-delay: calc(620ms + var(--ordem) * 70ms);
+}
+.cf-overlay[data-intro='ativa'] .cf-time[data-lado='b'] .cf-atleta { animation-delay: calc(660ms + var(--ordem) * 70ms); }
+.cf-overlay[data-intro='ativa'] .cf-centro > * { animation: cf-centro 460ms 940ms cubic-bezier(.2,.9,.28,1) both; }
+.cf-overlay[data-intro='ativa'] .cf-status { animation: cf-atleta 340ms 1080ms ease-out both; }
+
+@keyframes cf-regua { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes cf-esquerda { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes cf-direita { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+@keyframes cf-marca-entra {
+  from { clip-path: polygon(0 0, 0 0, 0 74px, 0 74px); }
+  to { clip-path: polygon(0 0, 792px 0, 736px 74px, 0 74px); }
+}
+@keyframes cf-partida-entra {
+  from { clip-path: polygon(100% 0, 100% 0, 100% 74px, 100% 74px); }
+  to { clip-path: polygon(74px 0, 100% 0, 100% 74px, 18px 74px); }
+}
+@keyframes cf-topo-a {
+  from { clip-path: polygon(0 0, 0 0, 0 96px, 0 96px); }
+  to { clip-path: polygon(0 0, 800px 0, 744px 96px, 0 96px); }
+}
+@keyframes cf-topo-b {
+  from { clip-path: polygon(800px 0, 800px 0, 800px 96px, 800px 96px); }
+  to { clip-path: polygon(56px 0, 800px 0, 800px 96px, 0 96px); }
+}
+@keyframes cf-escudo-entra { from { opacity: 0; transform: scale(.86) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes cf-nome { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cf-atleta { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cf-costura { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes cf-centro {
+  0% { opacity: 0; transform: scale(.72); }
+  70% { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* Troca de confronto: só o conteúdo reentra, a moldura permanece. */
+@keyframes cf-troca { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cf-pulso { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .cf-overlay[data-intro='ativa'] .cf-regua,
+  .cf-overlay[data-intro='ativa'] .cf-marca,
+  .cf-overlay[data-intro='ativa'] .cf-partida,
+  .cf-overlay[data-intro='ativa'] .cf-time-topo,
+  .cf-overlay[data-intro='ativa'] .cf-elenco,
+  .cf-overlay[data-intro='ativa'] .cf-escudo,
+  .cf-overlay[data-intro='ativa'] .cf-time-nome,
+  .cf-overlay[data-intro='ativa'] .cf-costura,
+  .cf-overlay[data-intro='ativa'] .cf-atleta,
+  .cf-overlay[data-intro='ativa'] .cf-centro > *,
+  .cf-overlay[data-intro='ativa'] .cf-status,
+  .cf-conteudo {
+    animation: cf-simples 300ms ease-out both; clip-path: none; transform: none;
+  }
+  .cf-status--vivo i { animation: none; }
+  @keyframes cf-simples { from { opacity: 0; } to { opacity: 1; } }
+}

@@ -1,0 +1,70 @@
+/* Elenco + o que cada jogador fez — elemento PRINCIPAL da metade inferior do placar
+   (não um rodapé secundário). Altura fixa (tamanho do elenco, tipicamente 3-4 atletas),
+   NUNCA cresce com o número de eventos: um jogo 7×4 ocupa a mesma altura que um 1×0.
+   PROIBIDO ter scroll aqui — telão, os atletas (poucos, ~3-5) têm que aparecer todos de
+   uma vez. Nada de max-height/overflow-y neste container. */
+
+.bcy-atividade { width: 100%; min-width: 0; font-family: system-ui, sans-serif; }
+.bcy-atividade-hint { text-align: center; font-size: 14px; color: rgba(255,255,255,.4); margin: 0; }
+
+.bcy-atividade-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: clamp(10px, 1.8vh, 20px); }
+
+/* Cada jogador é UMA unidade visual só: avatar+nome+ocorrências bem juntos (nunca
+   esticada pela linha inteira, nunca truncada por um max-width arbitrário — só encolhe
+   com reticências se o nome genuinamente não couber). Time A (esquerda) justificado À
+   ESQUERDA; time B (direita) justificado À DIREITA — cada um hugando a borda EXTERNA da
+   própria metade. Quem evita o "deserto" no meio é o `max-width` do wrapper
+   `.plc-atividade` em TorneioPlacar.css (colunas mais estreitas que o painel inteiro),
+   nunca a justificação em si. */
+.bcy-atividade-jogador {
+  display: flex; align-items: center; gap: clamp(8px, .8vw, 12px);
+  font-size: clamp(20px, 1.7vw, 28px); max-width: 100%;
+  justify-content: flex-start;
+}
+.bcy-atividade--b .bcy-atividade-jogador { flex-direction: row-reverse; justify-content: flex-start; text-align: right; }
+
+.bcy-atividade-avatar.eq-avatar,
+.bcy-atividade-avatar.eq-avatar--fallback {
+  width: clamp(46px, 3.6vw, 64px); height: clamp(46px, 3.6vw, 64px); border-radius: 50%; flex-shrink: 0;
+}
+.bcy-atividade-avatar.eq-avatar { object-fit: cover; }
+.bcy-atividade-avatar.eq-avatar--fallback { font-size: clamp(16px, 1.4vw, 22px); }
+
+.bcy-atividade-nome {
+  flex: 0 1 auto; min-width: 0; color: #fff; font-weight: 700;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Ícones BEM pertinho do nome, tamanho proporcional ao texto (nunca microícone) — nunca
+   uma coluna separada de eventos. */
+.bcy-atividade-badges { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.bcy-atividade-badge {
+  display: inline-flex; align-items: center; gap: 4px; line-height: 1; color: #f8a23c;
+  font-size: 0.78em; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.bcy-atividade-badge svg { display: block; flex-shrink: 0; }
+.bcy-atividade-badge--falta { color: #fbbf24; }
+
+.bcy-atividade-extra {
+  display: flex; flex-direction: column; gap: 4px; margin-top: 10px; padding-top: 10px;
+  border-top: 1px dashed rgba(255,255,255,.14); align-items: flex-start;
+}
+.bcy-atividade--b .bcy-atividade-extra { align-items: flex-end; }
+.bcy-atividade-extra span {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: rgba(255,255,255,.55); font-style: italic;
+}
+
+/* Telas mais baixas (1366×768 etc.) — aperta só o gap vertical entre os atletas antes de
+   qualquer coisa, nunca miniaturiza avatar/texto (ver TorneioPlacar.css). */
+@media (max-height: 800px) {
+  .bcy-atividade-lista { gap: clamp(6px, 1.2vh, 12px); }
+}
+
+.bcy-atividade-lista--compacta { gap: clamp(5px, 1vh, 10px); }
+
+@media (max-width: 720px) {
+  .bcy-atividade-jogador { gap: 8px; font-size: clamp(15px, 3.8vw, 20px); }
+  .bcy-atividade-avatar.eq-avatar,
+  .bcy-atividade-avatar.eq-avatar--fallback { width: 42px; height: 42px; }
+  .bcy-atividade-badges { gap: 4px; }
+}

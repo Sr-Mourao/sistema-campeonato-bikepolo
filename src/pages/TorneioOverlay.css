@@ -1,0 +1,186 @@
+.obs-overlay-root {
+  position: fixed; inset: 0; width: 100vw; height: 100vh; overflow: hidden;
+  background: transparent; color: #fff; pointer-events: none;
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+}
+
+/* Scorebug permanente — safe area superior e largura previsível em 720p/1080p. */
+.obs-overlay-root--scorebug { display: flex; align-items: flex-start; justify-content: center; padding: clamp(24px, 3vw, 58px); }
+.obs-scorebug {
+  position: relative;
+  width: clamp(720px, 58vw, 1110px); border-radius: 18px; overflow: hidden;
+  filter: drop-shadow(0 16px 24px rgba(0,0,0,.36));
+  animation: obs-scorebug-in .45s cubic-bezier(.2,.85,.25,1) both;
+}
+@keyframes obs-scorebug-in { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+.obs-scorebug-main {
+  min-height: clamp(84px, 8.4vw, 126px); display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: stretch;
+  background: linear-gradient(105deg, rgba(20,8,52,.96), rgba(56,25,102,.96) 49%, rgba(20,8,52,.96));
+  border: 1px solid rgba(255,255,255,.18); border-bottom: 0; border-radius: 18px 18px 0 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+}
+.obs-scorebug-team { min-width: 0; display: flex; align-items: center; gap: clamp(11px, 1vw, 18px); padding: clamp(10px, 1vw, 16px); }
+.obs-scorebug-team--b { flex-direction: row-reverse; text-align: right; }
+.obs-scorebug-logo-frame {
+  width: clamp(58px, 5.2vw, 86px); height: clamp(58px, 5.2vw, 86px); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.obs-scorebug-logo { width: 100%; height: 100%; object-fit: contain; padding: 3px; border-radius: 11px; background: rgba(255,255,255,.94); }
+.obs-scorebug-logo.eq-monogram { padding: 0; border-radius: 50%; background: linear-gradient(145deg,#f8a23c,#b8462f); border: 2px solid rgba(255,255,255,.45); }
+.obs-scorebug-logo .eq-monogram-letters { font-size: clamp(18px, 2vw, 30px); }
+.obs-scorebug-team-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: clamp(22px, 2.1vw, 38px); font-weight: 900; line-height: .95; text-transform: uppercase; }
+.obs-scorebug-score { align-self: stretch; min-width: clamp(150px, 12vw, 220px); display: flex; align-items: center; justify-content: center; padding: 0 12px; background: rgba(7,3,24,.5); }
+.obs-scorebug .bcy-score { gap: clamp(8px, .8vw, 14px); padding: 0; }
+.obs-scorebug .bcy-score-num { min-width: .8ch; font-size: clamp(48px, 4.8vw, 76px); text-shadow: 0 4px 22px rgba(248,162,60,.32); }
+.obs-scorebug .bcy-score-x { font-size: clamp(20px, 1.8vw, 30px); }
+.obs-scorebug-vs { font-size: clamp(31px, 3vw, 48px); font-weight: 900; color: rgba(255,255,255,.55); }
+.obs-scorebug-meta {
+  min-height: 34px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: clamp(9px,1.1vw,18px); padding: 0 clamp(12px,1.4vw,22px);
+  border-radius: 0 0 14px 14px; background: rgba(8,3,27,.96); border: 1px solid rgba(255,255,255,.15); border-top-color: rgba(248,162,60,.35);
+  font: 800 clamp(11px, .9vw, 15px)/1 system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase;
+}
+.obs-scorebug-meta > span { min-width: 0; color: rgba(255,255,255,.72); white-space: nowrap; }
+.obs-scorebug-brand { justify-self: start; color: rgba(255,255,255,.58) !important; font-weight: 700; letter-spacing: .065em; }
+.obs-scorebug-context { justify-self: center; }
+.obs-scorebug-meta .bcy-status { justify-self: end; }
+.obs-scorebug-meta i { color: #f8a23c; font-style: normal; }
+.obs-scorebug .bcy-status { padding: 3px 8px; gap: 5px; font-size: clamp(9px, .7vw, 11px); }
+
+/* ── Entrada no ar: a peça se constrói em camadas (~1.15s) ──────────────
+   Tudo fica sob [data-intro='ativa'], que a rota remove ao terminar: nenhuma
+   transform da intro sobrevive para brigar com o pulse de mudança de placar. */
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug { animation: none; }
+/* 1. accent laranja rasga o eixo antes de qualquer superfície (fora do clip da barra) */
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 4px; z-index: 3;
+  background: linear-gradient(90deg, transparent, #f8a23c 20%, #f8a23c 80%, transparent);
+  animation: obs-intro-accent 700ms cubic-bezier(.3,.85,.25,1) both;
+}
+/* 2. barra principal revela do centro para fora */
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug-main {
+  animation: obs-intro-barra 520ms 210ms cubic-bezier(.32,.86,.3,1) both;
+}
+/* 3. brasões e nomes entram para dentro da peça */
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug-logo-frame {
+  animation: obs-intro-brasao 400ms 360ms cubic-bezier(.25,.9,.3,1) both;
+}
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug-team--b .obs-scorebug-logo-frame { animation-delay: 420ms; }
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug-team--a .obs-scorebug-team-name {
+  animation: obs-intro-nome-a 420ms 420ms cubic-bezier(.25,.9,.3,1) both;
+}
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug-team--b .obs-scorebug-team-name {
+  animation: obs-intro-nome-b 420ms 480ms cubic-bezier(.25,.9,.3,1) both;
+}
+/* 4. o placar é o clímax: painel abre e os números ganham presença */
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug-score {
+  animation: obs-intro-painel 420ms 300ms cubic-bezier(.25,.9,.25,1) both;
+}
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug-score > * {
+  animation: obs-intro-placar 460ms 560ms cubic-bezier(.22,.92,.3,1) both;
+}
+/* 5. barrinha inferior fecha a composição */
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug-meta {
+  animation: obs-intro-meta 420ms 700ms cubic-bezier(.25,.9,.25,1) both;
+}
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug-meta > span {
+  animation: obs-intro-meta-item 340ms 820ms ease-out both;
+}
+.obs-overlay-root[data-intro='ativa'] .obs-scorebug-meta .bcy-status {
+  animation: obs-intro-meta-item 340ms 940ms ease-out both;
+}
+
+@keyframes obs-intro-accent {
+  0% { transform: scaleX(0); opacity: 1; }
+  62% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+@keyframes obs-intro-barra {
+  from { clip-path: inset(0 50% 0 50% round 18px 18px 0 0); }
+  to { clip-path: inset(0 0 0 0 round 18px 18px 0 0); }
+}
+@keyframes obs-intro-painel { from { clip-path: inset(50% 0 50% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes obs-intro-brasao { from { opacity: 0; transform: scale(.84); } to { opacity: 1; transform: scale(1); } }
+@keyframes obs-intro-nome-a { from { opacity: 0; transform: translateX(-22px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes obs-intro-nome-b { from { opacity: 0; transform: translateX(22px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes obs-intro-placar {
+  0% { opacity: 0; transform: scale(.85); }
+  70% { opacity: 1; transform: scale(1.035); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes obs-intro-meta { from { clip-path: inset(0 100% 0 0 round 0 0 14px 14px); } to { clip-path: inset(0 0 0 0 round 0 0 14px 14px); } }
+@keyframes obs-intro-meta-item { from { opacity: 0; } to { opacity: 1; } }
+
+/* Evento: a viewport continua 100% transparente; só estes shapes recebem cor. */
+.obs-goal { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.obs-goal-shape { position: absolute; opacity: 0; transition: transform .52s cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
+.obs-goal-shape--one { left: 12%; right: 12%; height: min(60vh,650px); transform: skewX(-11deg) scaleX(.25); background: linear-gradient(115deg, rgba(248,162,60,.93), rgba(91,33,155,.94) 48%, rgba(15,86,66,.92)); filter: drop-shadow(0 24px 40px rgba(0,0,0,.3)); }
+.obs-goal-shape--two { left: 21%; right: 21%; height: min(67vh,720px); transform: skewX(12deg) scaleX(.2); border: 2px solid rgba(255,255,255,.22); background: rgba(18,7,48,.28); }
+.obs-goal-panel {
+  position: relative; z-index: 2; min-width: min(720px, 72vw); min-height: min(590px, 58vh); padding: clamp(28px, 4vh, 44px) clamp(60px, 8vw, 145px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(8px, 1.2vh, 15px);
+  opacity: 0; transform: translateY(24px) scale(.88); transition: opacity .38s ease, transform .48s cubic-bezier(.16,.86,.28,1.18);
+}
+.obs-event--visivel .obs-goal-shape { opacity: 1; transform: skewX(-11deg) scaleX(1); }
+.obs-event--visivel .obs-goal-shape--two { transform: skewX(12deg) scaleX(1); }
+.obs-event--visivel .obs-goal-panel { opacity: 1; transform: translateY(0) scale(1); }
+.obs-event--saindo .obs-goal-shape { opacity: 0; transform: skewX(-11deg) scaleX(.45); }
+.obs-event--saindo .obs-goal-shape--two { transform: skewX(12deg) scaleX(.45); }
+.obs-event--saindo .obs-goal-panel { opacity: 0; transform: translateY(-18px) scale(.94); transition-duration: .4s; }
+.obs-goal-label { display: flex; align-items: center; gap: 13px; color: #fff; font-size: clamp(42px, 4.8vw, 76px); font-weight: 900; line-height: 1; letter-spacing: .045em; text-transform: uppercase; text-shadow: 0 6px 22px rgba(0,0,0,.35); }
+.obs-goal-photo-frame { width: clamp(210px, 25vh, 300px); aspect-ratio: 1; border-radius: 50%; overflow: hidden; border: 6px solid #fff; box-shadow: 0 0 0 10px rgba(248,162,60,.4), 0 20px 45px rgba(0,0,0,.42); }
+.obs-goal-photo { width: 100%; height: 100%; object-fit: cover; font-size: clamp(54px, 6vw, 92px); }
+.obs-goal-athlete { max-width: 850px; text-align: center; font-size: clamp(35px, 4vw, 62px); font-weight: 900; line-height: .94; text-transform: uppercase; text-shadow: 0 5px 20px rgba(0,0,0,.45); }
+.obs-event-team { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,.92); font-size: clamp(18px, 1.7vw, 28px); font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.obs-event-logo-frame { width: clamp(64px, 6vh, 86px); height: clamp(64px, 6vh, 86px); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.obs-event-logo { width: 100%; height: 100%; object-fit: contain; padding: 3px; border-radius: 11px; background: rgba(255,255,255,.95); filter: drop-shadow(0 7px 13px rgba(0,0,0,.3)); }
+.obs-event-logo.eq-monogram { padding: 0; border-radius: 50%; background: linear-gradient(145deg,#f8a23c,#b8462f); border: 2px solid rgba(255,255,255,.55); }
+.obs-event-logo .eq-monogram-letters { font-size: clamp(21px, 2.2vw, 34px); }
+.obs-goal-team-only { display: flex; flex-direction: column; align-items: center; gap: 18px; margin-top: 18px; }
+.obs-event-team--large { flex-direction: column; font-size: clamp(32px, 3.4vw, 54px); }
+.obs-event-team--large .obs-event-logo-frame { width: clamp(170px, 22vh, 250px); height: clamp(170px, 22vh, 250px); }
+.obs-event-team--large .obs-event-logo .eq-monogram-letters { font-size: clamp(52px, 5vw, 78px); }
+.obs-goal-team-only > strong { padding: 8px 18px; border: 1px solid rgba(255,255,255,.27); border-radius: 999px; background: rgba(10,4,31,.38); font: 900 clamp(16px,1.4vw,22px)/1 system-ui,sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+
+/* Falta: intervenção curta e lateral, sem competir com a câmera. */
+.obs-foul { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: clamp(42px, 5vw, 86px); }
+.obs-foul--b { justify-content: flex-end; }
+.obs-foul-card {
+  width: clamp(430px, 31vw, 590px); min-height: clamp(112px, 9vw, 150px); display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 18px;
+  padding: 15px 22px; border: 1px solid rgba(255,255,255,.22); border-left: 5px solid #f8d342; border-radius: 15px;
+  background: linear-gradient(110deg, rgba(17,7,44,.97), rgba(58,28,99,.95)); box-shadow: 0 18px 35px rgba(0,0,0,.35);
+  opacity: 0; transform: translateX(-42px); transition: opacity .3s ease, transform .4s cubic-bezier(.2,.9,.25,1.12);
+}
+.obs-foul--b .obs-foul-card { transform: translateX(42px); }
+.obs-event--visivel .obs-foul-card { opacity: 1; transform: translateX(0); }
+.obs-event--saindo .obs-foul-card { opacity: 0; transform: translateX(-30px); transition-duration: .35s; }
+.obs-foul--b.obs-event--saindo .obs-foul-card { transform: translateX(30px); }
+.obs-foul-icon { color: #f8d342; filter: drop-shadow(0 4px 9px rgba(248,211,66,.25)); }
+.obs-foul-avatar { width: clamp(70px, 6vw, 100px); height: clamp(70px, 6vw, 100px); border-radius: 50%; object-fit: cover; font-size: clamp(22px,2vw,32px); border: 3px solid rgba(255,255,255,.8); }
+.obs-foul-copy { min-width: 0; display: flex; flex-direction: column; }
+.obs-foul-copy span { color: #f8d342; font-size: 14px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+.obs-foul-copy strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: clamp(26px,2.2vw,38px); line-height: 1; text-transform: uppercase; }
+.obs-foul-copy small { margin-top: 5px; color: rgba(255,255,255,.63); font: 700 13px system-ui,sans-serif; text-transform: uppercase; }
+
+@media (max-width: 1350px) {
+  .obs-scorebug { width: min(880px, 86vw); }
+  .obs-scorebug-team-name { font-size: clamp(20px, 2.2vw, 30px); }
+  .obs-scorebug-meta { gap: 8px; padding-inline: 11px; font-size: clamp(9px,1vw,12px); letter-spacing: .055em; }
+  .obs-scorebug-brand { letter-spacing: .04em; }
+  .obs-goal-panel { min-height: 500px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .obs-scorebug, .obs-goal-shape, .obs-goal-panel, .obs-foul-card { transition: opacity .3s ease; transform: none !important; }
+  /* Entrada simples: um fade curto no lugar da coreografia. */
+  .obs-overlay-root[data-intro='ativa'] .obs-scorebug-main::before { content: none; }
+  .obs-overlay-root[data-intro='ativa'] .obs-scorebug-main,
+  .obs-overlay-root[data-intro='ativa'] .obs-scorebug-meta,
+  .obs-overlay-root[data-intro='ativa'] .obs-scorebug-score,
+  .obs-overlay-root[data-intro='ativa'] .obs-scorebug-score > *,
+  .obs-overlay-root[data-intro='ativa'] .obs-scorebug-logo-frame,
+  .obs-overlay-root[data-intro='ativa'] .obs-scorebug-team-name,
+  .obs-overlay-root[data-intro='ativa'] .obs-scorebug-meta > span,
+  .obs-overlay-root[data-intro='ativa'] .obs-scorebug-meta .bcy-status {
+    animation: obs-intro-meta-item 320ms ease-out both; clip-path: none;
+  }
+}
