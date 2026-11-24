@@ -8,14 +8,14 @@
 .cf-overlay {
   position: fixed; inset: 0; overflow: hidden;
   background: transparent; pointer-events: none;
-  --roxo: #1a0845;
-  --roxo-fundo: #12052f;
-  --laranja: #f8a23c;
-  --verde: #1e9365;
-  --vermelho: #ef4b3a;
-  --gelo: #f4f1f7;
+  --roxo: var(--pal-purple-d55);
+  --roxo-fundo: var(--pal-purple-d35);
+  --laranja: var(--pal-orange);
+  --verde: var(--pal-magenta);
+  --vermelho: var(--pal-pink);
+  --gelo: var(--pal-beige);
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  color: #fff;
+  color: var(--pal-white);
 }
 
 .cf-stage {
@@ -51,16 +51,16 @@
 .cf-partida-fase { font-size: 25px; font-weight: 900; letter-spacing: .17em; text-transform: uppercase; }
 .cf-partida-fase i { color: var(--laranja); font-style: normal; }
 .cf-partida-linha { width: 34px; height: 3px; background: var(--verde); }
-.cf-partida-hora { color: #d9cdf0; font-size: 24px; font-weight: 700; letter-spacing: .1em; }
+.cf-partida-hora { color: var(--pal-purple-l20); font-size: 24px; font-weight: 700; letter-spacing: .1em; }
 .cf-status {
   display: flex; align-items: center; gap: 9px; padding: 8px 16px;
-  background: rgba(255,255,255,.12); color: #fff;
+  background: rgba(255,255,255,.12); color: var(--pal-white);
   font-size: 19px; font-weight: 900; letter-spacing: .19em; text-transform: uppercase;
 }
 .cf-status--vivo { background: var(--vermelho); }
 .cf-status--encerrado { background: var(--verde); }
 .cf-status--vivo i {
-  width: 10px; height: 10px; border-radius: 50%; background: #fff;
+  width: 10px; height: 10px; border-radius: 50%; background: var(--pal-white);
   animation: cf-pulso 2.8s ease-in-out infinite;
 }
 
@@ -130,7 +130,7 @@
   font-size: 46px; font-weight: 900; line-height: 1; letter-spacing: .02em; text-transform: uppercase;
 }
 .cf-time[data-lado='b'] .cf-time-nome { text-align: right; }
-.cf-time-origem { color: #c9b8e8; font-size: 20px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.cf-time-origem { color: var(--pal-purple-l25); font-size: 20px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 
 /* A costura de 8px entre as massas deixa a câmera passar por dentro da composição. */
 .cf-elenco {
@@ -142,7 +142,7 @@
 .cf-atleta { width: 160px; display: flex; flex-direction: column; gap: 10px; }
 .cf-atleta-foto {
   display: block; width: 160px; height: 184px; overflow: hidden;
-  background: #241150; box-shadow: inset 0 0 0 2px rgba(255,255,255,.14);
+  background: var(--pal-purple-d65); box-shadow: inset 0 0 0 2px rgba(255,255,255,.14);
 }
 .cf-atleta-foto { position: relative; }
 .cf-atleta-img { width: 100%; height: 100%; object-fit: cover; }
@@ -156,7 +156,7 @@
 }
 .cf-atleta-marcas i { font-style: normal; }
 .cf-marca-gol { background: var(--laranja); color: var(--roxo-fundo); }
-.cf-marca-falta { background: #f8d342; color: #3a2a05; }
+.cf-marca-falta { background: var(--pal-yellow-95); color: var(--pal-amber-23-2); }
 /* Artilheiro em cena: a moldura do retrato acende, sem animar nada continuamente. */
 .cf-atleta[data-marcou='sim'] .cf-atleta-foto { box-shadow: inset 0 0 0 3px var(--laranja); }
 .cf-atleta-nome {
@@ -178,7 +178,7 @@
   background: var(--roxo-fundo); border-top: 7px solid var(--laranja);
 }
 .cf-placar b { font-size: 88px; font-weight: 900; line-height: .9; font-variant-numeric: tabular-nums; }
-.cf-placar i { color: #a68fd4; font-size: 36px; font-style: normal; }
+.cf-placar i { color: var(--pal-purple-l40); font-size: 36px; font-style: normal; }
 
 /* ── Vinheta de entrada: a peça se constrói (~1,35s) ── */
 .cf-overlay[data-intro='ativa'] .cf-regua { animation: cf-regua 420ms cubic-bezier(.3,.9,.3,1) both; }

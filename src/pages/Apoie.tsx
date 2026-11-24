@@ -68,7 +68,7 @@ const TEAM = SITE.equipe
 /**
  * PDFs de captação oferecidos no topo da página.
  *
- * ESVAZIADO NA PUBLICAÇÃO. Os dois PDFs do 10º Brasileiro somavam 19 MB e
+ * ESVAZIADO NA PUBLICAÇÃO. Os dois PDFs do 2° Pior Campeonato de Bici Polo somavam 19 MB e
  * continham os celulares da equipe de captação — não entram num repositório
  * público, e não servem para quem só quer reusar o software.
  *
@@ -95,7 +95,7 @@ export default function Apoie() {
           <div className="ap-hero-overlay" />
         </div>
         <div className="ap-hero-content">
-          <div className="ap-hero-tag reveal">10º Campeonato Brasileiro · 2026</div>
+          <div className="ap-hero-tag reveal">2° Pior Campeonato de Bici Polo · 2026</div>
           <h1 className="ap-hero-title reveal d1">
             O Bike Polo
             <em>precisa do seu apoio</em>
@@ -145,14 +145,14 @@ export default function Apoie() {
       <section id="clube" className="ap-section ap-section--purple2">
         <div className="ap-inner ap-cols ap-cols--rev ap-cols--wide-img">
           <div className="ap-img-wrap reveal">
-            <img src="/imgs/apoie/DSC_4807.jpg" alt="Clube Bike Polo Floripa" onError={imgFallback} />
+            <img src="/imgs/apoie/DSC_4807.jpg" alt="Clube Bike Polo" onError={imgFallback} />
           </div>
           <div>
             <p className="ap-eyebrow reveal d1">Florianópolis / SC</p>
             <h2 className="ap-title reveal d2">O CLUBE</h2>
             <div className="ap-body reveal d3">
               <p>
-                O <span className="ap-hi">Bike Polo Floripa</span> existe desde 2016. Estamos
+                O <span className="ap-hi">Bike Polo</span> existe desde 2016. Estamos
                 presentes nos Campeonatos Brasileiros, Latino-Americanos, Abertos e Torneios
                 Internacionais. Em <span className="ap-hi">2019</span> o clube esteve no Mundial
                 de Córdoba, na Argentina.
@@ -180,12 +180,12 @@ export default function Apoie() {
             <div>
               <div className="ap-body reveal d2">
                 <p>
-                  O Campeonato Brasileiro existe desde{' '}
+                  O Pior Campeonato de Bici Polo existe desde{' '}
                   <span className="ap-hi">2013</span> e já foi realizado nas seguintes cidades:
                 </p>
               </div>
               <div className="ap-img-wrap reveal d3" style={{ marginTop: 'clamp(24px,4vw,40px)' }}>
-                <img src="/imgs/apoie/DSC_3849.jpg" alt="Campeonato Brasileiro de Bike Polo" onError={imgFallback} />
+                <img src="/imgs/apoie/DSC_3849.jpg" alt="Pior Campeonato de Bici Polo" onError={imgFallback} />
               </div>
             </div>
             <div>
@@ -204,11 +204,8 @@ export default function Apoie() {
                 ))}
               </ul>
               <p className="ap-champ-note reveal">
-                Em 2018 tivemos a primeira oportunidade de organizar o Campeonato Brasileiro —
-                na <span className="ap-hi">UFSC</span>, com grande sucesso. Também foi quando
-                realizamos a primeira edição do torneio{' '}
-                <span className="ap-hi">MTNB</span>, criado para incentivar mulheres, pessoas
-                trans e não-binárias.
+                Em 2018 tivemos a primeira oportunidade de organizar o Pior Campeonato de Bici Polo —
+                na <span className="ap-hi">UFSC</span>, com grande sucesso.
               </p>
             </div>
           </div>
@@ -241,7 +238,7 @@ export default function Apoie() {
             ))}
           </div>
           <div className="ap-cities reveal">
-            {['Porto Alegre/RS','Florianópolis/SC','Curitiba/PR','São Paulo/SP',
+            {['Porto Alegre/RS','Curitiba/PR','Curitiba/PR','São Paulo/SP',
               'Santos/SP','Belo Horizonte/MG','Recife/PE']
               .map(c => <span key={c} className="ap-city">{c}</span>)}
           </div>
@@ -298,7 +295,7 @@ export default function Apoie() {
             <div className="ap-body reveal">
               <p>
                 Grande parte da divulgação será via postagens patrocinadas nas páginas{' '}
-                <span className="ap-hi">Bike Polo Floripa</span> e{' '}
+                <span className="ap-hi">Bike Polo</span> e{' '}
                 <span className="ap-hi">Brasil Bike Polo</span> no Instagram, além dos
                 perfis de clubes, jogadores e simpatizantes.
               </p>
@@ -339,8 +336,8 @@ export default function Apoie() {
             <p>
               Toda a organização é <span className="ap-hi">voluntária</span>. Os custos envolvem
               estrutura, logística, premiação, material de identificação e divulgação.
-              Para o sucesso do <span className="ap-hi">10º Campeonato</span> e do{' '}
-              <span className="ap-hi">4º MTNB</span> precisamos de apoio — existem 4 formas:
+              Para o sucesso do <span className="ap-hi">10º Campeonato</span>{' '}
+              precisamos de apoio — existem 4 formas:
             </p>
           </div>
           <div className="ap-sponsor-cards">
@@ -415,7 +412,7 @@ export default function Apoie() {
           <div className="ap-photo-strip" style={{ marginTop: 0, marginBottom: 'clamp(36px,5vw,56px)' }}>
             {['/imgs/apoie/DSC_4401.jpg', '/imgs/apoie/DSC_3981.jpg', '/imgs/apoie/DSC_4602.jpg'].map((src, i) => (
               <div key={src} className={`ap-img-wrap ap-img-wrap--sq reveal d${i + 1}`}>
-                <img src={src} alt="Bike Polo Floripa" onError={imgFallback} />
+                <img src={src} alt="Bike Polo" onError={imgFallback} />
               </div>
             ))}
           </div>
@@ -457,11 +454,11 @@ export default function Apoie() {
               rel="noopener noreferrer"
               className="ap-footer-club-link"
             >
-              <img src="/imgs/logos/bikeplofloripa.png" alt="Bike Polo Floripa"
+              <img src="/imgs/logos/bikeplofloripa.png" alt="Bike Polo"
                 className="ap-footer-logo" onError={imgFallback} />
             </a>
             <p className="ap-footer-copy">
-              © 2026 Bike Polo Floripa · 10º Campeonato Brasileiro de Bike Polo
+              © 2026 Bike Polo · 2° Pior Campeonato de Bici Polo
             </p>
           </div>
         </div>

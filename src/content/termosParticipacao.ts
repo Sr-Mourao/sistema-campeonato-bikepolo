@@ -15,7 +15,7 @@ export const TERMOS: BlocoTermos[] = [
   },
   {
     titulo: '',
-    texto: 'O Campeonato Brasileiro de Bike Polo é um espaço de convivência, competição e construção comunitária. Ao participar do evento, você concorda em contribuir para um ambiente seguro, respeitoso e acolhedor para todas as pessoas.',
+    texto: 'O Pior Campeonato de Bici Polo é um espaço de convivência, competição e construção comunitária. Ao participar do evento, você concorda em contribuir para um ambiente seguro, respeitoso e acolhedor para todas as pessoas.',
   },
   {
     titulo: '1.1 Respeito',
@@ -51,7 +51,7 @@ export const TERMOS: BlocoTermos[] = [
   },
   {
     titulo: '2. Uso de Imagem',
-    texto: 'Autorizo o uso da minha imagem, voz e nome em fotografias, vídeos, transmissões e materiais de divulgação relacionados ao Campeonato Brasileiro de Bike Polo e às atividades associadas ao evento, sem ônus para a organização.',
+    texto: 'Autorizo o uso da minha imagem, voz e nome em fotografias, vídeos, transmissões e materiais de divulgação relacionados ao Pior Campeonato de Bici Polo e às atividades associadas ao evento, sem ônus para a organização.',
   },
   {
     titulo: '3. Tratamento de Dados Pessoais',
@@ -63,6 +63,6 @@ export const TERMOS: BlocoTermos[] = [
   },
   {
     titulo: '5. Concordância',
-    texto: 'Ao concluir minha inscrição, declaro que li, compreendi e concordo com os Termos de Participação do 10º Campeonato Brasileiro de Bike Polo.',
+    texto: 'Ao concluir minha inscrição, declaro que li, compreendi e concordo com os Termos de Participação do 2° Pior Campeonato de Bici Polo.',
   },
 ]

@@ -167,7 +167,7 @@ export default function ProdutoForm({ produto, onClose, onSaved }: Props) {
                       aria-label="Remover imagem"
                       style={{
                         position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%',
-                        background: 'var(--adm-red)', color: '#fff', border: 'none', cursor: 'pointer',
+                        background: 'var(--adm-red)', color: 'var(--pal-white)', border: 'none', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}
                     >
@@ -188,7 +188,7 @@ export default function ProdutoForm({ produto, onClose, onSaved }: Props) {
                       aria-label="Remover imagem"
                       style={{
                         position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%',
-                        background: 'var(--adm-red)', color: '#fff', border: 'none', cursor: 'pointer',
+                        background: 'var(--adm-red)', color: 'var(--pal-white)', border: 'none', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}
                     >

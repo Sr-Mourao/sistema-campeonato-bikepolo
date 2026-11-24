@@ -34,7 +34,7 @@ function lerAba(nav: readonly { key: string }[]): AbaKey {
  */
 export default function Torneio() {
   const categoria = useTournamentCategory()
-  const NAV = categoria === 'mtnb' ? NAV_BASE.filter(n => n.key !== 'repescagem') : NAV_BASE
+  const NAV = false ? NAV_BASE.filter(n => n.key !== 'repescagem') : NAV_BASE
   const [aba, setAbaState] = useState<AbaKey>(() => lerAba(NAV))
   const [resumo, setResumo] = useState<TorneioResumo | null>(null)
   const [erro, setErro] = useState('')
@@ -63,7 +63,7 @@ export default function Torneio() {
 
       <main className="trp-main">
         <header className="trp-header">
-          <p className="trp-header-eyebrow">Campeonato Brasileiro de Bike Polo · Floripa 2026</p>
+          <p className="trp-header-eyebrow">Pior Campeonato de Bici Polo · Curitiba 2026</p>
           <h1 className="trp-header-title">{TOURNAMENT_PRESENTATION[categoria].title}</h1>
         </header>
 

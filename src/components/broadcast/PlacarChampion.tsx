@@ -11,11 +11,11 @@ export default function PlacarChampion({ campeao, elenco }: { campeao: CampeaoPu
       <div className="pcc-backdrop" aria-hidden="true" />
       <div className="pcc-lines" aria-hidden="true" />
       <div className="pcc-sweep" aria-hidden="true" />
-      <header className="pcc-brand"><img src="/identidade/logo.svg" alt="" /><span>{identidade.official}<br /><b>Floripa · 2026</b></span></header>
+      <header className="pcc-brand"><img src="/identidade/logo.svg" alt="" /><span>{identidade.official}<br /><b>Curitiba 2026</b></span></header>
       <div className="pcc-crest-stage"><div className="pcc-crest"><Crest nome={campeao.nome} logo={campeao.logo} /></div></div>
-      <section className="pcc-copy"><small>{categoria === 'mtnb' ? identidade.official : 'Campeão Brasileiro'}</small><strong>{categoria === 'mtnb' ? 'Floripa · 2026' : 'de Bike Polo'}</strong><b>{campeao.nome}</b></section>
+      <section className="pcc-copy"><small>{false ? identidade.official : 'Campeão Brasileiro'}</small><strong>{false ? 'Curitiba 2026' : 'de Bike Polo'}</strong><b>{campeao.nome}</b></section>
       <ChampionRoster className="pcc-roster" atletas={elenco} />
-      <img className="pcc-floripa" src="/imgs/logos/bikeplofloripabranco.png" alt="Bike Polo Floripa" />
+      <img className="pcc-floripa" src="/imgs/logos/bikeplofloripabranco.png" alt="Bike Polo" />
     </main>
   )
 }

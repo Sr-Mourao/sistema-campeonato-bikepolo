@@ -144,7 +144,7 @@ export default function MinhaInscricao() {
         {/* ── Login — email ──────────────────────────── */}
         {step === 'email' && (
           <div className="atl-auth">
-            <div className="atl-auth-icon"><Mail size={44} strokeWidth={1.5} style={{ color: 'rgba(248,162,60,.70)' }} /></div>
+            <div className="atl-auth-icon"><Mail size={44} strokeWidth={1.5} style={{ color: 'color-mix(in srgb, var(--pal-orange) 70%, transparent)' }} /></div>
             <h1 className="atl-auth-title">Minha Inscrição</h1>
             <p className="atl-auth-sub">
               Informe seu email para receber um código de acesso.
@@ -173,10 +173,10 @@ export default function MinhaInscricao() {
         {/* ── Login — código ────────────────────────── */}
         {step === 'code' && (
           <div className="atl-auth">
-            <div className="atl-auth-icon"><KeyRound size={44} strokeWidth={1.5} style={{ color: 'rgba(248,162,60,.70)' }} /></div>
+            <div className="atl-auth-icon"><KeyRound size={44} strokeWidth={1.5} style={{ color: 'color-mix(in srgb, var(--pal-orange) 70%, transparent)' }} /></div>
             <h1 className="atl-auth-title">Código enviado!</h1>
             <p className="atl-auth-sub">
-              Verifique sua caixa de entrada em <strong style={{ color: '#fff' }}>{email}</strong>
+              Verifique sua caixa de entrada em <strong style={{ color: 'var(--pal-white)' }}>{email}</strong>
               {' '}e cole o código de 6 dígitos abaixo.
             </p>
             <form className="atl-auth-form" onSubmit={handleVerificarCodigo}>
@@ -214,8 +214,8 @@ export default function MinhaInscricao() {
             <div className="atl-no-inscricao-icon">🚲</div>
             <h2 className="atl-no-inscricao-title">Nenhuma inscrição encontrada</h2>
             <p className="atl-no-inscricao-sub">
-              O email <strong style={{ color: '#fff' }}>{atleta.email}</strong> ainda não tem uma inscrição
-              no Campeonato Brasileiro 2026. Que tal fazer a sua?
+              O email <strong style={{ color: 'var(--pal-white)' }}>{atleta.email}</strong> ainda não tem uma inscrição
+              no Pior Campeonato de Bici Polo 2026. Que tal fazer a sua?
             </p>
             <a href="/inscricoes" className="atl-no-inscricao-btn">
               Fazer inscrição

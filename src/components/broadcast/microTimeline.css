@@ -18,9 +18,9 @@
 
 /* O acontecimento mais recente se destaca — mais contraste + pontinho de "agora", sem
    depender de segundos que o backend não tem (ordem visual > precisão textual). */
-.bcy-micro-item--atual .bcy-micro-nome { color: #fff; }
+.bcy-micro-item--atual .bcy-micro-nome { color: var(--pal-white); }
 .bcy-micro-item--atual .bcy-micro-hora { color: rgba(255,255,255,.6); }
-.bcy-micro-dot { color: #f8a23c; font-size: 8px; margin-left: 1px; animation: bcy-micro-pulse 1.8s ease-in-out infinite; }
+.bcy-micro-dot { color: var(--pal-orange); font-size: 8px; margin-left: 1px; animation: bcy-micro-pulse 1.8s ease-in-out infinite; }
 
 @keyframes bcy-micro-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
 @media (prefers-reduced-motion: reduce) {

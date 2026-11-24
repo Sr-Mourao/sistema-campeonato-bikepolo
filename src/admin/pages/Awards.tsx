@@ -99,7 +99,7 @@ export default function AwardsAdmin() {
 
   return <div className="awd-admin">
     <section className="awd-admin-hero">
-      <div><span>{aba === 'mtnb' ? '4º Brasileiro · MTNB' : '10º Brasileiro · Misto'}</span><h1>Awards</h1><p>{aba === 'mtnb' ? 'Cadastro e publicação das premiações definidas externamente.' : 'Curadoria, participação e apuração dos quatro prêmios individuais.'}</p></div>
+      <div><span>{aba === 'mtnb' ? '4º Brasileiro · MTNB' : '2° Pior Campeonato de Bici Polo · Misto'}</span><h1>Awards</h1><p>{aba === 'mtnb' ? 'Cadastro e publicação das premiações definidas externamente.' : 'Curadoria, participação e apuração dos quatro prêmios individuais.'}</p></div>
       {aba === 'misto' && <div className={`awd-status awd-status--${dados.status}`}><i />{dados.status}</div>}
       {aba === 'misto' && <div className="awd-state-actions">
         {dados.status === 'fechada' && <button className="adm-btn-primary" disabled={Boolean(ocupado)} onClick={() => agir({ acao: 'abrir' }, 'abrir')}>Abrir votação</button>}

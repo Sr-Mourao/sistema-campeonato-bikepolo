@@ -1,8 +1,5 @@
 export const CONFIG = {
   VALOR_MISTO: 182,
-  VALOR_MTNB: 52,
-  // Quando MTNB também está selecionado, Misto passa a R$90
-  VALOR_MISTO_COM_MTNB: 90,
   DESCONTO_PRIMEIRO_TORNEIO: 0.50,
 
   VALOR_ALIMENTACAO_COMPLETO: 51,
@@ -10,7 +7,6 @@ export const CONFIG = {
   VALOR_ALOJAMENTO_DIARIA: 26,
 
   LIMITE_MISTO: 4,
-  LIMITE_MTNB: 3,
   UPLOAD_TIMES: true,
 
   // Alojamento — 03 a 09/09/2026, fonte única (espelha ALOJAMENTO_DIAS_VALIDOS em db.php)
@@ -27,16 +23,14 @@ export const CONFIG = {
 
 export type Config = typeof CONFIG
 
-export type DescontoTipo = 'ppi' | 'mtnb' | 'primeiroTorneio' | null
+export type DescontoTipo = 'ppi' | 'primeiroTorneio' | null
 
 export interface CalcResult {
   valorMistoBase: number
-  valorMtnbBase: number
   subtotalBase: number
   descontoValor: number
   descontoTipo: DescontoTipo
   temPPI: boolean
-  temIncentivoMtnb: boolean
   temPrimeiroTorneio: boolean
   valorEsportivo: number
   valorAlim: number
@@ -56,26 +50,20 @@ function alimVal(pacote: PacoteAlim, cfg: Config): number {
 
 export function calcTotal(
   state: {
-    misto: boolean; mtnb: boolean
+    misto: boolean
     acaoPreta: boolean; acaoParda: boolean
     acaoIndigena: boolean; acaoPrimeiroTorneio: boolean
     alimentacaoDia5: PacoteAlim; alimentacaoDia6: PacoteAlim; alimentacaoDia7: PacoteAlim
     alojamento: boolean
     diasAlojamento: number[]
-    // aceita acoesAtivas legado (ignorado)
-    acoesAtivas?: boolean
   },
   cfg: Config = CONFIG
 ): CalcResult {
   const temPPI = state.acaoPreta || state.acaoParda || state.acaoIndigena
-  // Incentivo MTNB: só aplica quando AMBAS estão selecionadas
-  const temIncentivoMtnb = state.misto && state.mtnb
-  // PT não acumula com incentivo MTNB
-  const temPrimeiroTorneio = state.acaoPrimeiroTorneio && !temIncentivoMtnb
+  const temPrimeiroTorneio = state.acaoPrimeiroTorneio && !temPPI
 
   const valorMistoBase = state.misto ? cfg.VALOR_MISTO : 0
-  const valorMtnbBase  = state.mtnb  ? cfg.VALOR_MTNB  : 0
-  const subtotalBase   = valorMistoBase + valorMtnbBase
+  const subtotalBase   = valorMistoBase
 
   let valorEsportivo = subtotalBase
   let descontoValor  = 0
@@ -86,11 +74,6 @@ export function calcTotal(
     valorEsportivo = 0
     descontoValor  = subtotalBase
     descontoTipo   = 'ppi'
-  } else if (temIncentivoMtnb) {
-    // Misto vira R$90 quando MTNB selecionado
-    valorEsportivo = cfg.VALOR_MISTO_COM_MTNB + cfg.VALOR_MTNB
-    descontoValor  = subtotalBase - valorEsportivo  // 180+50 - 90+50 = 90
-    descontoTipo   = 'mtnb'
   } else if (temPrimeiroTorneio) {
     // 50% de desconto sobre o valor esportivo
     valorEsportivo = subtotalBase * (1 - cfg.DESCONTO_PRIMEIRO_TORNEIO)
@@ -107,9 +90,9 @@ export function calcTotal(
   const total = valorEsportivo + valorAlim + valorAloj
 
   return {
-    valorMistoBase, valorMtnbBase, subtotalBase,
+    valorMistoBase, subtotalBase,
     descontoValor, descontoTipo,
-    temPPI, temIncentivoMtnb, temPrimeiroTorneio,
+    temPPI, temPrimeiroTorneio,
     valorEsportivo, valorAlim, diasAlim, valorAloj, diasAloj, total,
   }
 }

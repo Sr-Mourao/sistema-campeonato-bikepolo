@@ -1,13 +1,13 @@
 /* Tabela de classificação completa da Primeira Fase — trp-* é a página, ctb-* é este
    componente (compartilhado, auto-contido em cores escuras). */
 
-.ctb-wrap { font-family: system-ui, sans-serif; color: #fff; }
+.ctb-wrap { font-family: system-ui, sans-serif; color: var(--pal-white); }
 
 .ctb-legenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: rgba(255,255,255,.6); margin-bottom: 10px; }
 .ctb-legenda-item { display: flex; align-items: center; gap: 6px; }
 .ctb-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-.ctb-dot--direto { background: #4ade80; }
-.ctb-dot--rep { background: #f8a23c; }
+.ctb-dot--direto { background: var(--pal-magenta-l75); }
+.ctb-dot--rep { background: var(--pal-orange); }
 
 .ctb-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .ctb-table th, .ctb-table td { padding: 8px 9px; text-align: center; white-space: nowrap; }
@@ -19,25 +19,25 @@
 .ctb-table tbody tr { border-bottom: 1px solid rgba(255,255,255,.07); }
 /* Cantinho colorido por linha, batendo com a legenda (bolinha verde/amarela) — nunca
    depender só da legenda no topo pra saber se o time está classificado ou na repescagem. */
-.ctb-row--direto { background: rgba(74,222,128,.08); box-shadow: inset 4px 0 0 #4ade80; }
-.ctb-row--rep { background: rgba(248,162,60,.08); box-shadow: inset 4px 0 0 #f8a23c; }
+.ctb-row--direto { background: color-mix(in srgb, var(--pal-magenta-l75) 8%, transparent); box-shadow: inset 4px 0 0 var(--pal-magenta-l75); }
+.ctb-row--rep { background: color-mix(in srgb, var(--pal-orange) 8%, transparent); box-shadow: inset 4px 0 0 var(--pal-orange); }
 .ctb-nome-cell { display: flex; align-items: baseline; gap: 7px; }
-.ctb-nome-link { background: none; border: none; color: #fff; font: inherit; font-weight: 600; cursor: pointer; padding: 0; text-align: left; }
+.ctb-nome-link { background: none; border: none; color: var(--pal-white); font: inherit; font-weight: 600; cursor: pointer; padding: 0; text-align: left; }
 .ctb-nome-link:hover { text-decoration: underline; }
 
 /* PTS é a informação principal da classificação — hierarquia tipográfica, não decoração
    (seção 10 do brief de ajustes cirúrgicos: nada de badge/fundo chamativo). */
 .ctb-pts-header { color: rgba(255,255,255,.75) !important; }
-.ctb-pts-cell { font-size: 1.05em; font-weight: 800; color: #fff; border-left: 1px solid rgba(255,255,255,.1); border-right: 1px solid rgba(255,255,255,.1); }
+.ctb-pts-cell { font-size: 1.05em; font-weight: 800; color: var(--pal-white); border-left: 1px solid rgba(255,255,255,.1); border-right: 1px solid rgba(255,255,255,.1); }
 
 .ctb-desktop { display: none; }
 .ctb-mobile { display: block; }
 
 .ctb-card { border-radius: 10px; margin-bottom: 6px; background: rgba(255,255,255,.04); overflow: visible; }
-.ctb-card--direto { background: rgba(74,222,128,.08); box-shadow: inset 4px 0 0 #4ade80; }
-.ctb-card--rep { background: rgba(248,162,60,.08); box-shadow: inset 4px 0 0 #f8a23c; }
+.ctb-card--direto { background: color-mix(in srgb, var(--pal-magenta-l75) 8%, transparent); box-shadow: inset 4px 0 0 var(--pal-magenta-l75); }
+.ctb-card--rep { background: color-mix(in srgb, var(--pal-orange) 8%, transparent); box-shadow: inset 4px 0 0 var(--pal-orange); }
 .ctb-card-linha {
-  width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: none; border: none; color: #fff;
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: none; border: none; color: var(--pal-white);
   font: inherit; cursor: pointer; text-align: left;
 }
 .ctb-card-pos { width: 20px; font-weight: 700; color: rgba(255,255,255,.6); }

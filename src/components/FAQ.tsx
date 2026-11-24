@@ -50,7 +50,7 @@ const faqItems = [
         <p>
           <strong>Instituto Estadual de Educação (IEE)</strong>
           <br />
-          <Hi>Av. Mauro Ramos, 275 — Florianópolis/SC</Hi>
+          <Hi>Curitiba/PR</Hi>
         </p>
 
         <div className="faq-map">
@@ -114,7 +114,7 @@ const faqItems = [
       <p>
         Caso a equipe tenha atleta estrangeiro(a), essa pessoa deverá informar
         previamente se irá disputar a vaga para o Latino através do{' '}
-        <Hi>Campeonato Brasileiro</Hi>, já que atletas estrangeiros também podem
+        <Hi>Pior Campeonato de Bici Polo</Hi>, já que atletas estrangeiros também podem
         possuir vaga classificatória por seus países de origem.
       </p>
     </>
@@ -180,7 +180,7 @@ answer: (
     answer: (
       <>
         <p>
-          Sim! O Campeonato Brasileiro dará vagas para o{' '}
+          Sim! O Pior Campeonato de Bici Polo dará vagas para o{' '}
           <Hi>Latinoamericano de Bike Polo no Peru</Hi>.
         </p>
 
@@ -357,7 +357,7 @@ export function HomeQuickLinks() {
     {
       href: '/equipes',
       label: 'Conheça as equipes',
-      description: 'Times e atletas que estão nas quadras de Floripa.',
+      description: 'Times e atletas que estão nas quadras de Curitiba.',
       className: 'home-link-card--teams',
       icon: <Users size={34} strokeWidth={2.1} />,
     },
@@ -394,8 +394,8 @@ export function HomeQuickLinks() {
     <section className="home-links">
       <div className="home-links-inner">
         <p className="home-links-eyebrow">Acompanhamento oficial</p>
-        <h2 className="home-links-title">Acompanhe o Brasileiro de Bike Polo 2026</h2>
-        <p className="home-links-intro">Equipes, torneio, regulamento e tudo que acontece nas quadras de Floripa.</p>
+        <h2 className="home-links-title">Acompanhe o 2° Pior Campeonato de Bici Polo 2026</h2>
+        <p className="home-links-intro">Equipes, torneio, regulamento e tudo que acontece nas quadras de Curitiba.</p>
         <div className="home-primary-grid">
           {principais.map(link => (
             <a key={link.href} href={link.href} className={`home-link-card ${link.className}`}>
@@ -428,7 +428,7 @@ export default function FAQ({ standalone = false }: FAQProps) {
         <p className="faq-eyebrow">Perguntas Frequentes</p>
         <h2 className="faq-title">FAQ — PREPARATIVOS</h2>
         <div className="faq-championships">
-          <span>10º Campeonato Brasileiro de Bike Polo</span>
+          <span>2° Pior Campeonato de Bici Polo</span>
           <span className="faq-champ-dot" aria-hidden="true" />
           <span>4º Campeonato MTNB Brasileiro de Bike Polo</span>
         </div>

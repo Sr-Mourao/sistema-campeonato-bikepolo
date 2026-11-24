@@ -1,6 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react'
 
-export type TournamentCategory = 'misto' | 'mtnb'
+export type TournamentCategory = 'misto'
 
 const TournamentContext = createContext<TournamentCategory>('misto')
 
@@ -13,6 +13,5 @@ export function useTournamentCategory(): TournamentCategory {
 }
 
 export const TOURNAMENT_PRESENTATION = {
-  misto: { title: '10º Brasileiro — Misto', short: '10º CBBP', official: '10º Brasileiro Misto' },
-  mtnb: { title: '4º Brasileiro MTNB', short: '4º MTNB', official: '4º Brasileiro MTNB' },
+  misto: { title: '2° Pior Campeonato de Bici Polo — Misto', short: '2° PCP', official: '2° Pior Campeonato de Bici Polo Misto' },
 } as const

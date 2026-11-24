@@ -4,14 +4,14 @@
   position: absolute; top: calc(100% + 10px); left: 50%; transform: translateX(-50%);
   display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
   padding: 6px 14px; border-radius: 999px; z-index: 2;
-  background: rgba(10,5,28,.85); border: 1px solid rgba(248,162,60,.4);
+  background: color-mix(in srgb, var(--pal-purple-d20) 85%, transparent); border: 1px solid color-mix(in srgb, var(--pal-orange) 40%, transparent);
   box-shadow: 0 6px 18px rgba(0,0,0,.4);
   font-family: system-ui, sans-serif; font-size: clamp(12px, 1.1vw, 16px); font-weight: 800;
-  color: #fff; letter-spacing: .02em;
+  color: var(--pal-white); letter-spacing: .02em;
   animation: bcy-reacao-entrar .28s ease-out;
   opacity: 1; transition: opacity .35s ease, transform .35s ease;
 }
-.bcy-reacao--falta { border-color: rgba(251,191,36,.4); font-size: clamp(11px, 1vw, 14px); padding: 5px 12px; }
+.bcy-reacao--falta { border-color: color-mix(in srgb, var(--pal-amber-98) 40%, transparent); font-size: clamp(11px, 1vw, 14px); padding: 5px 12px; }
 .bcy-reacao--saindo { opacity: 0; transform: translateX(-50%) translateY(4px); }
 
 @keyframes bcy-reacao-entrar {

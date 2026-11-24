@@ -16,30 +16,21 @@ export default function TorneioSeletor() {
       <SiteNavbar currentPath="/torneio" scrollThreshold={40} />
       <main className="trps-main">
         <header className="trps-header">
-          <p className="trps-header-eyebrow">Campeonato Brasileiro de Bike Polo · Floripa 2026</p>
+          <p className="trps-header-eyebrow">Pior Campeonato de Bici Polo · Curitiba 2026</p>
           <h1 className="trps-header-title">Torneio</h1>
           <p className="trps-header-sub">Acompanhe jogos, tabelas, classificação e chaveamentos em tempo real.</p>
           <p className="trps-header-detail">Escolha uma categoria para ver o andamento completo do campeonato.</p>
         </header>
 
         <nav className="trps-results" aria-label="Resultados por categoria">
-          <a href="/torneio/resultados?categoria=misto"><Medal size={19} /><span><b>Resultados</b>10º Brasileiro Misto</span></a>
-          <a href="/torneio/resultados?categoria=mtnb"><Medal size={19} /><span><b>Resultados</b>4º Brasileiro MTNB</span></a>
+          <a href="/torneio/resultados?categoria=misto"><Medal size={19} /><span><b>Resultados</b>2° Pior Campeonato de Bici Polo Misto</span></a>
         </nav>
 
         <div className="trps-grid">
           <a href="/torneio/misto" className="trps-panel trps-panel--orange">
             <div className="trps-panel-photo"><span className="trps-panel-subtitulo">Categoria Misto</span></div>
             <div className="trps-panel-band">
-              <img src="/identidade/10BR.svg" alt="10º Campeonato Brasileiro" className="trps-panel-svg" />
-              <span className="trps-panel-cta">Acompanhar torneio <span aria-hidden="true">→</span></span>
-            </div>
-          </a>
-
-          <a href="/torneio/mtnb" className="trps-panel trps-panel--green">
-            <div className="trps-panel-photo"><span className="trps-panel-subtitulo">Mulheres, trans e não-bináries</span></div>
-            <div className="trps-panel-band">
-              <img src="/identidade/4mtnb.svg" alt="4º MTNB Brasileiro" className="trps-panel-svg" />
+              <img src="/identidade/10BR.svg" alt="2° Pior Campeonato de Bici Polo" className="trps-panel-svg" />
               <span className="trps-panel-cta">Acompanhar torneio <span aria-hidden="true">→</span></span>
             </div>
           </a>

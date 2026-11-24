@@ -55,7 +55,7 @@ export default function PremiacaoPodio() {
 
   return <ProjectionFrame variant="podio" replay={replay} onReplay={restart}>
     {!podio ? <div className="prj-loading"><div><span>Pódio · Brasileiro Misto</span><strong>{erro || 'Preparando premiação…'}</strong></div></div> : ordem.length < 3 ? <div className="prj-loading"><div><span>Pódio · Brasileiro Misto</span><strong>Pódio ainda não disponível</strong><p>Aguardando o encerramento oficial da fase final.</p></div></div> : <div className="prp-content">
-      <header><span>10º Campeonato Brasileiro · Misto</span><h1>Pódio</h1><p>Floripa · 2026</p></header>
+      <header><span>2° Pior Campeonato de Bici Polo · Misto</span><h1>Pódio</h1><p>Curitiba 2026</p></header>
       <section className="prp-places">{ordem.map(time => <Lugar time={time} key={time.time_id} />)}</section>
     </div>}
   </ProjectionFrame>

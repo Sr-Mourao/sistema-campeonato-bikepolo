@@ -73,7 +73,7 @@ export default function TorneioOverlayConfronto() {
 
         <div className="cf-marca">
           <img src="/identidade/logo.svg" alt="" className="cf-marca-simbolo" aria-hidden="true" />
-          <p>{TOURNAMENT_PRESENTATION[categoria].official} <i>·</i> <b>Floripa 2026</b></p>
+          <p>{TOURNAMENT_PRESENTATION[categoria].official} <i>·</i> <b>Curitiba 2026</b></p>
         </div>
 
         <div className="cf-partida">

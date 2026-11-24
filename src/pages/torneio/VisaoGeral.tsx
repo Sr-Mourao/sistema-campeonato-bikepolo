@@ -116,7 +116,7 @@ export default function VisaoGeral({ resumo, onIrPara, onAbrirTime }: Props) {
 }
 
 function Progress({ resumo, fase, foco }: { resumo: TorneioResumo; fase: FasePublica | null; foco: JogoPublico | null }) {
-  const etapas = resumo.torneio.formato === 'mtnb_round_robin_5' ? ['Primeira Fase', 'Double', 'Final'] : ['Primeira Fase', 'Repescagem', 'Double', 'Final']
+  const etapas = ['Primeira Fase', 'Repescagem', 'Double', 'Final']
   let atual = fase?.tipo === 'repescagem' ? 1 : fase?.tipo === 'double' ? etapas.length - 2 : 0
   if (foco?.codigo === 'GF' || foco?.codigo === 'GF2' || resumo.torneio.estado === 'FINALIZADO') atual = etapas.length - 1
   const finalizado = resumo.torneio.estado === 'FINALIZADO'
@@ -240,8 +240,7 @@ function PhaseMatches({ jogos, onHistorico }: { jogos: JogoPublico[]; onHistoric
 }
 
 function Standings({ rows, onAbrirTime, compact }: { rows: StandingRowPublico[]; onAbrirTime: (id: number) => void; compact?: boolean }) {
-  const categoria = useTournamentCategory()
-  return <div className={`ov-standings ${compact ? 'ov-standings--compact' : ''}`}>{rows.map(r => <button key={r.time_id} className={r.classificado_direto ? 'is-direct' : 'is-rep'} onClick={() => onAbrirTime(r.time_id)}><b>{r.posicao}º</b><span>{r.nome}</span><small>{categoria === 'mtnb' ? `Seed ${r.posicao}` : r.classificado_direto ? 'Direto' : 'Repescagem'}</small><strong>{r.pontos} pts</strong></button>)}</div>
+  return <div className={`ov-standings ${compact ? 'ov-standings--compact' : ''}`}>{rows.map(r => <button key={r.time_id} className={r.classificado_direto ? 'is-direct' : 'is-rep'} onClick={() => onAbrirTime(r.time_id)}><b>{r.posicao}º</b><span>{r.nome}</span><small>{false ? `Seed ${r.posicao}` : r.classificado_direto ? 'Direto' : 'Repescagem'}</small><strong>{r.pontos} pts</strong></button>)}</div>
 }
 
 function Remaining({ fase, jogos, resumo }: { fase: FasePublica | null; jogos: JogoPublico[]; resumo: TorneioResumo }) {

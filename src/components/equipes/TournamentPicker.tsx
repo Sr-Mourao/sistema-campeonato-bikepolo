@@ -5,8 +5,7 @@ interface Props {
 }
 
 const OPCOES: { torneio: Torneio; subtitulo: string; cor: 'orange' | 'green'; svg: string; svgAlt: string }[] = [
-  { torneio: 'brasileiro', subtitulo: 'Categoria Misto', cor: 'orange', svg: '/identidade/10BR.svg', svgAlt: '10º Campeonato Brasileiro' },
-  { torneio: 'mtnb',       subtitulo: 'Mulheres, trans e não-bináries', cor: 'green', svg: '/identidade/4mtnb.svg', svgAlt: '4º MTNB Brasileiro' },
+  { torneio: 'brasileiro', subtitulo: 'Categoria Misto', cor: 'orange', svg: '/identidade/10BR.svg', svgAlt: '2° Pior Campeonato de Bici Polo' },
 ]
 
 export default function TournamentPicker({ onEscolher }: Props) {

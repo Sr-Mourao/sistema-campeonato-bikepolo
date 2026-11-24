@@ -8,7 +8,7 @@ import './Equipes.css'
 
 function lerTorneio(): Torneio | null {
   const t = new URLSearchParams(window.location.search).get('torneio')
-  return (t === 'brasileiro' || t === 'mtnb') ? t : null
+  return t === 'brasileiro' ? t : null
 }
 
 function escreveTorneio(torneio: Torneio | null) {
@@ -17,8 +17,7 @@ function escreveTorneio(torneio: Torneio | null) {
 }
 
 const TORNEIO_LABEL: Record<Torneio, string> = {
-  brasileiro: '10º Campeonato Brasileiro',
-  mtnb:       '4º Campeonato MTNB Brasileiro',
+  brasileiro: '2° Pior Campeonato de Bici Polo',
 }
 
 export default function Equipes() {
@@ -47,10 +46,10 @@ export default function Equipes() {
 
       <main className="eq-main">
         <header className="eq-header">
-          <p className="eq-header-eyebrow">Campeonato Brasileiro de Bike Polo · Floripa 2026</p>
+          <p className="eq-header-eyebrow">Pior Campeonato de Bici Polo · Curitiba 2026</p>
           <h1 className="eq-header-title">Conheça as Equipes</h1>
           <p className="eq-header-sub">
-            As equipes e atletas confirmados na disputa do Brasileiro e do MTNB.
+            As equipes e atletas confirmados na disputa do Brasileiro.
           </p>
         </header>
 

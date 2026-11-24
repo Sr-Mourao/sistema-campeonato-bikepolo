@@ -338,7 +338,7 @@ function consolidarResultadosPublicos(PDO $db, array $torneio): array
     $payload = [
         'competicao' => [
             'id' => $torneioId, 'categoria' => $categoria, 'nome' => $torneio['nome'],
-            'titulo_publico' => $categoria === 'mtnb' ? '4º Brasileiro MTNB' : '10º Brasileiro Misto',
+            'titulo_publico' => $categoria === 'mtnb' ? '4º Brasileiro MTNB' : '2° Pior Campeonato de Bici Polo Misto',
             'estado' => $torneio['estado'], 'encerrado' => count($final) === $esperado,
         ],
         'campeao_definido' => resolverCampeaoOficial($torneio, $jogos) !== null,

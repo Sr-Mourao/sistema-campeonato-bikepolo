@@ -44,7 +44,7 @@ export default function Regulamento({ resumo }: Props) {
   const t = resumo.torneio
   const ultimaVagaRepescagem = totalTimes
 
-  if (categoria === 'mtnb') return (
+  if (false) return (
     <section className="reg-page">
       <header className="reg-hero"><span>Formato oficial</span><h3>4º Brasileiro MTNB</h3><p>Todos contra todos seguido de Double Elimination.</p></header>
       <section className="reg-section"><h4>Primeira Fase</h4><p>As cinco equipes se enfrentam uma vez em cinco rodadas, totalizando dez partidas. A folga de calendário não vale vitória, pontos ou estatística.</p></section>
@@ -193,7 +193,7 @@ export default function Regulamento({ resumo }: Props) {
         </div>
         <div className="reg-bloco">
           <p>
-            As partidas do 10º Campeonato Brasileiro de Bike Polo são regidas pelo
+            As partidas do 2° Pior Campeonato de Bici Polo são regidas pelo
             Regulamento Oficial de Bici Polo — Versão brasileira — 28 de agosto de 2026.
           </p>
           <div className="reg-reference-comparison">

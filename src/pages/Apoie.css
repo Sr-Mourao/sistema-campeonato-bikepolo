@@ -1,10 +1,10 @@
 /* ─── Tokens ───────────────────────────────────────────────────── */
 .apoie {
-  --ap-purple:  #3D1A6E;
-  --ap-purple2: #4D1D95;
-  --ap-green:   #1B6B3A;
-  --ap-orange:  #F5A623;
-  --ap-white:   #FFFFFF;
+  --ap-purple:  var(--pal-purple-d90);
+  --ap-purple2: var(--pal-purple);
+  --ap-green:   var(--pal-magenta-d50);
+  --ap-orange:  var(--pal-orange);
+  --ap-white:   var(--pal-white);
   --ap-nav-h:   var(--site-nav-h, 56px);
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   background: var(--ap-purple);
@@ -47,10 +47,10 @@
 }
 
 .ap-nav--scrolled {
-  background: rgba(14, 3, 38, 0.96);
+  background: color-mix(in srgb, var(--pal-purple-d25) 96%, transparent);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid rgba(245,166,35,0.28);
+  border-bottom: 1px solid color-mix(in srgb, var(--pal-orange) 28%, transparent);
 }
 
 .ap-nav--hidden {
@@ -158,7 +158,7 @@
   top: var(--ap-nav-h);
   inset-inline: 0;
   z-index: 99;
-  background: rgba(28, 8, 58, 0.97);
+  background: color-mix(in srgb, var(--pal-purple-d45) 97%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 2px solid var(--ap-orange);
@@ -185,7 +185,7 @@
   border-bottom: 1px solid rgba(255,255,255,0.06);
   transition: color 150ms, background 150ms;
 }
-.ap-drawer-link:hover { color: var(--ap-orange); background: rgba(245,166,35,0.06); }
+.ap-drawer-link:hover { color: var(--ap-orange); background: color-mix(in srgb, var(--pal-orange) 6%, transparent); }
 .ap-drawer-link--back { color: var(--ap-orange); margin-top: 6px; }
 
 /* ─── Section base ─────────────────────────────────────────────── */
@@ -209,7 +209,7 @@
   margin-bottom: 12px;
 }
 .ap-section--green  .ap-eyebrow { color: rgba(255,255,255,0.60); }
-.ap-section--orange .ap-eyebrow { color: rgba(61,26,110,0.60); }
+.ap-section--orange .ap-eyebrow { color: color-mix(in srgb, var(--pal-purple-d90) 60%, transparent); }
 
 .ap-title {
   font-size: clamp(36px, 7.5vw, 72px);
@@ -232,7 +232,7 @@
 .ap-body p + p { margin-top: 18px; }
 
 .ap-hi { color: var(--ap-orange); font-weight: 700; }
-.ap-section--green  .ap-hi { color: #7EE8A2; }
+.ap-section--green  .ap-hi { color: var(--pal-magenta-l50); }
 .ap-section--orange .ap-hi { color: var(--ap-purple2); font-weight: 900; }
 
 /* ─── 1. HERO ──────────────────────────────────────────────────── */
@@ -253,11 +253,11 @@
 .ap-hero-overlay {
   position: absolute; inset: 0;
   background:
-    linear-gradient(to right, rgba(14,3,38,0.55) 0%, transparent 45%, rgba(14,3,38,0.30) 100%),
+    linear-gradient(to right, color-mix(in srgb, var(--pal-purple-d25) 55%, transparent) 0%, transparent 45%, color-mix(in srgb, var(--pal-purple-d25) 30%, transparent) 100%),
     linear-gradient(to bottom,
-      rgba(14,3,38,0.28) 0%,
-      rgba(14,3,38,0.52) 42%,
-      rgba(8,1,25,0.99) 100%
+      color-mix(in srgb, var(--pal-purple-d25) 28%, transparent) 0%,
+      color-mix(in srgb, var(--pal-purple-d25) 52%, transparent) 42%,
+      color-mix(in srgb, var(--pal-purple-d15) 99%, transparent) 100%
     );
 }
 .ap-hero-content {
@@ -271,7 +271,7 @@
   color: var(--ap-orange);
   border: 1.5px solid var(--ap-orange);
   padding: 7px 20px; margin-bottom: 28px;
-  box-shadow: 0 0 18px rgba(245,166,35,0.25);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--pal-orange) 25%, transparent);
 }
 .ap-hero-title {
   font-size: clamp(48px, 10.5vw, 116px);
@@ -306,13 +306,13 @@
   padding: 12px 16px;
   border: 2px solid var(--ap-orange);
   transition: background 160ms, color 160ms, transform 200ms, box-shadow 200ms;
-  box-shadow: 0 4px 20px rgba(245,166,35,0.18);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--pal-orange) 18%, transparent);
 }
 .ap-hero-cta:hover {
   background: transparent;
   color: var(--ap-orange);
   transform: translateY(-2px);
-  box-shadow: 0 14px 44px rgba(245,166,35,0.22), 0 0 0 1px rgba(245,166,35,0.35);
+  box-shadow: 0 14px 44px color-mix(in srgb, var(--pal-orange) 22%, transparent), 0 0 0 1px color-mix(in srgb, var(--pal-orange) 35%, transparent);
 }
 
 .ap-footer-club-link {
@@ -387,7 +387,7 @@
 }
 .ap-tl-item--star .ap-tl-dot {
   background: var(--ap-orange);
-  box-shadow: 0 0 0 4px rgba(245,166,35,0.22);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--pal-orange) 22%, transparent);
 }
 .ap-tl-badge {
   font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
@@ -414,16 +414,16 @@
   transition: background 220ms, border-color 220ms, box-shadow 220ms, transform 220ms;
 }
 .ap-stat:hover {
-  background: rgba(245,166,35,0.10);
+  background: color-mix(in srgb, var(--pal-orange) 10%, transparent);
   border-color: var(--ap-orange);
-  box-shadow: 0 0 0 1px rgba(245,166,35,0.22), 0 10px 28px rgba(0,0,0,0.30);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--pal-orange) 22%, transparent), 0 10px 28px rgba(0,0,0,0.30);
   transform: translateY(-2px);
 }
 .ap-stat-num {
   display: block;
   font-size: clamp(48px, 9.5vw, 90px);
   font-weight: 900; letter-spacing: -0.02em; color: var(--ap-orange); line-height: 1;
-  text-shadow: 0 0 44px rgba(245,166,35,0.42);
+  text-shadow: 0 0 44px color-mix(in srgb, var(--pal-orange) 42%, transparent);
 }
 .ap-stat-label {
   display: block;
@@ -454,7 +454,7 @@
   color: rgba(255,255,255,0.45); margin-bottom: 6px;
 }
 .ap-spec-row { color: rgba(255,255,255,0.84); }
-.ap-spec-row strong { color: #fff; font-weight: 700; }
+.ap-spec-row strong { color: var(--pal-white); font-weight: 700; }
 
 /* ─── Dual image: landscape + portrait ────────────────────────── */
 .ap-dual-imgs {
@@ -501,8 +501,8 @@
 }
 .ap-sponsor-card:hover {
   border-color: var(--ap-orange);
-  background: rgba(245,166,35,0.07);
-  box-shadow: 0 0 0 1px rgba(245,166,35,0.20), 0 14px 44px rgba(0,0,0,0.38);
+  background: color-mix(in srgb, var(--pal-orange) 7%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--pal-orange) 20%, transparent), 0 14px 44px rgba(0,0,0,0.38);
   transform: translateY(-3px);
 }
 .ap-card-num {
@@ -512,7 +512,7 @@
 .ap-card-title {
   font-size: clamp(20px, 3.8vw, 30px);
   font-weight: 900; letter-spacing: 0.04em; text-transform: uppercase;
-  color: #fff; margin-bottom: 14px; line-height: 1.1;
+  color: var(--pal-white); margin-bottom: 14px; line-height: 1.1;
 }
 .ap-card-body {
   font-size: clamp(15px, 2.4vw, 18px); line-height: 1.68; color: rgba(255,255,255,0.74);
@@ -531,7 +531,7 @@
 }
 .ap-supporter {
   background: transparent;
-  border: 1.5px solid rgba(61,26,110,0.28);
+  border: 1.5px solid color-mix(in srgb, var(--pal-purple-d90) 28%, transparent);
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   gap: 12px;
@@ -539,8 +539,8 @@
   transition: background 200ms, border-color 200ms;
 }
 .ap-supporter:hover {
-  background: rgba(61,26,110,0.15);
-  border-color: rgba(61,26,110,0.5);
+  background: color-mix(in srgb, var(--pal-purple-d90) 15%, transparent);
+  border-color: color-mix(in srgb, var(--pal-purple-d90) 50%, transparent);
 }
 .ap-supporter-logo {
   max-width: 140px;
@@ -552,13 +552,13 @@
   display: block;
   font-size: clamp(11px, 1.8vw, 13px); font-weight: 700;
   letter-spacing: 0.12em; text-transform: uppercase;
-  color: rgba(61,26,110,0.75);
+  color: color-mix(in srgb, var(--pal-purple-d90) 75%, transparent);
 }
 
 /* ─── 10. CTA ──────────────────────────────────────────────────── */
 .ap-cta-section {
   position: relative; overflow: hidden;
-  background: linear-gradient(160deg, #2A0E62 0%, #1A0845 50%, #0E0430 100%) !important;
+  background: linear-gradient(160deg, var(--pal-purple-d80) 0%, var(--pal-purple-d55) 50%, var(--pal-purple-d35) 100%) !important;
 }
 .ap-cta-bg-img {
   position: absolute; inset: 0;
@@ -570,7 +570,7 @@
   position: absolute;
   bottom: 0; right: 0;
   width: 60%; height: 70%;
-  background: radial-gradient(ellipse at 100% 100%, rgba(245,166,35,0.10) 0%, transparent 65%);
+  background: radial-gradient(ellipse at 100% 100%, color-mix(in srgb, var(--pal-orange) 10%, transparent) 0%, transparent 65%);
   pointer-events: none;
 }
 .ap-cta-section .ap-inner { position: relative; z-index: 1; }
@@ -585,7 +585,7 @@
 .ap-cta-title {
   font-size: clamp(40px, 8vw, 90px);
   font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; line-height: 0.96;
-  color: #fff; margin-bottom: 4px;
+  color: var(--pal-white); margin-bottom: 4px;
   text-shadow: 0 4px 24px rgba(0,0,0,0.50);
 }
 .ap-cta-sub {
@@ -600,12 +600,12 @@
   padding: clamp(18px, 2.8vw, 24px) clamp(40px, 8vw, 80px);
   border: 3px solid var(--ap-orange);
   transition: background 160ms, color 160ms, transform 200ms, box-shadow 200ms;
-  box-shadow: 0 4px 20px rgba(245,166,35,0.30);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--pal-orange) 30%, transparent);
 }
 .ap-cta-btn:hover {
   background: transparent; color: var(--ap-orange);
   transform: translateY(-4px);
-  box-shadow: 0 14px 44px rgba(245,166,35,0.38), 0 0 0 1px rgba(245,166,35,0.50);
+  box-shadow: 0 14px 44px color-mix(in srgb, var(--pal-orange) 38%, transparent), 0 0 0 1px color-mix(in srgb, var(--pal-orange) 50%, transparent);
 }
 .ap-cta-thanks {
   font-size: clamp(13px, 2.2vw, 16px); font-weight: 700; letter-spacing: 0.2em;
@@ -627,7 +627,7 @@
   color: rgba(255,255,255,0.42);
 }
 .ap-contact-value {
-  font-size: clamp(16px, 2.8vw, 20px); font-weight: 700; color: #fff;
+  font-size: clamp(16px, 2.8vw, 20px); font-weight: 700; color: var(--pal-white);
   transition: color 160ms;
 }
 .ap-contact-value:hover { color: var(--ap-orange); }
@@ -643,7 +643,7 @@
   color: var(--ap-orange); letter-spacing: 0.04em; white-space: nowrap;
   transition: color 160ms;
 }
-.ap-team-phone:hover { color: #fff; }
+.ap-team-phone:hover { color: var(--pal-white); }
 .ap-contacts-footer {
   margin-top: clamp(40px, 6vw, 60px); padding-top: 30px;
   border-top: 1px solid rgba(255,255,255,0.12);

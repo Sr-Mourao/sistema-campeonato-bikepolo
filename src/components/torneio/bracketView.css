@@ -23,14 +23,14 @@
 .trnb-match-head .trnb-match-code { margin-bottom: 0; }
 .trnb-match-status { font-size: .58rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.42); }
 .trnb-team-block { padding: 1px 0; }
-.trnb-team { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; font-size: .86rem; color: #fff; }
+.trnb-team { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; font-size: .86rem; color: var(--pal-white); }
 .trnb-team-subtitulo { font-size: .66rem; color: rgba(255,255,255,.45); margin-top: -2px; }
 .trnb-team--tbd { color: rgba(255,255,255,.4); font-style: italic; font-size: .8rem; }
-.trnb-team--winner { font-weight: 800; color: #4ade80; }
+.trnb-team--winner { font-weight: 800; color: var(--pal-magenta-l75); }
 .trnb-team-placar { font-variant-numeric: tabular-nums; font-weight: 700; }
 .trnb-badge {
   margin-top: 8px; font-size: .66rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em;
-  color: #4ade80; background: rgba(74,222,128,.14); border-radius: 6px; padding: 4px 8px; text-align: center;
+  color: var(--pal-magenta-l75); background: color-mix(in srgb, var(--pal-magenta-l75) 14%, transparent); border-radius: 6px; padding: 4px 8px; text-align: center;
 }
 
 /* Desktop: colunas lado a lado, com scroll horizontal só como rede de segurança
@@ -44,11 +44,11 @@
   flex-shrink: 0; font-size: .78rem; font-weight: 700; padding: 6px 12px; border-radius: 999px;
   border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.04); color: rgba(255,255,255,.7); cursor: pointer;
 }
-.trnb-mobile-tab--active { background: #f8a23c; border-color: #f8a23c; color: #1a1400; }
+.trnb-mobile-tab--active { background: var(--pal-orange); border-color: var(--pal-orange); color: var(--pal-yellow-10); }
 .trnb-mobile-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
 .trnb-nav-btn {
   font-size: .8rem; font-weight: 700; padding: 8px 14px; border-radius: 8px;
-  border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.05); color: #fff; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.05); color: var(--pal-white); cursor: pointer;
 }
 .trnb-nav-btn:disabled { opacity: .3; cursor: not-allowed; }
 .trnb-mobile-progress { font-size: .76rem; color: rgba(255,255,255,.5); }
@@ -63,24 +63,24 @@
   position: relative; min-width: 190px; padding: 12px 14px; overflow: hidden;
   background: linear-gradient(145deg, rgba(255,255,255,.095), rgba(255,255,255,.035));
   border-color: rgba(255,255,255,.14); border-radius: 13px;
-  box-shadow: 0 12px 28px rgba(8,2,28,.2), inset 0 1px 0 rgba(255,255,255,.05);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--pal-purple-d20) 20%, transparent), inset 0 1px 0 rgba(255,255,255,.05);
 }
 .trnb-responsive--showcase .trnb-match::before {
   content: ''; position: absolute; inset: 0 auto 0 0; width: 3px;
   background: rgba(255,255,255,.16);
 }
-.trnb-responsive--showcase .trnb-match--encerrado::before { background: #22c55e; }
+.trnb-responsive--showcase .trnb-match--encerrado::before { background: var(--pal-magenta-l90); }
 .trnb-responsive--showcase .trnb-match--em_andamento {
-  border-color: rgba(248,162,60,.62); background: linear-gradient(145deg, rgba(248,162,60,.18), rgba(255,255,255,.045));
-  box-shadow: 0 14px 36px rgba(248,162,60,.13), inset 0 1px 0 rgba(255,255,255,.08);
+  border-color: color-mix(in srgb, var(--pal-orange) 62%, transparent); background: linear-gradient(145deg, color-mix(in srgb, var(--pal-orange) 18%, transparent), rgba(255,255,255,.045));
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--pal-orange) 13%, transparent), inset 0 1px 0 rgba(255,255,255,.08);
 }
 .trnb-responsive--showcase .trnb-match--em_andamento::before,
-.trnb-responsive--showcase .trnb-match--atrasado::before { background: #f8a23c; }
+.trnb-responsive--showcase .trnb-match--atrasado::before { background: var(--pal-orange); }
 .trnb-responsive--showcase .trnb-match-head { margin-bottom: 7px; }
-.trnb-responsive--showcase .trnb-match-code { color: #f8a23c; font-size: .67rem; letter-spacing: .1em; }
-.trnb-responsive--showcase .trnb-match--encerrado .trnb-match-code { color: #86efac; }
-.trnb-responsive--showcase .trnb-match--em_andamento .trnb-match-status { color: #ffc477; }
-.trnb-responsive--showcase .trnb-match--encerrado .trnb-match-status { color: rgba(134,239,172,.72); }
+.trnb-responsive--showcase .trnb-match-code { color: var(--pal-orange); font-size: .67rem; letter-spacing: .1em; }
+.trnb-responsive--showcase .trnb-match--encerrado .trnb-match-code { color: var(--pal-magenta-l50); }
+.trnb-responsive--showcase .trnb-match--em_andamento .trnb-match-status { color: var(--pal-amber-100-2); }
+.trnb-responsive--showcase .trnb-match--encerrado .trnb-match-status { color: color-mix(in srgb, var(--pal-magenta-l50) 72%, transparent); }
 .trnb-responsive--showcase .trnb-team { padding: 4px 0; font-size: .9rem; line-height: 1.2; }
 .trnb-responsive--showcase .trnb-team + .trnb-team,
 .trnb-responsive--showcase .trnb-team-block + .trnb-team-block { border-top: 1px solid rgba(255,255,255,.07); }
@@ -90,7 +90,7 @@
 .trnb-responsive--showcase .trnb-match--placeholder {
   box-shadow: none; background: rgba(255,255,255,.025); border-color: rgba(255,255,255,.12);
 }
-.trnb-responsive--showcase .trnb-badge { border: 1px solid rgba(74,222,128,.2); }
+.trnb-responsive--showcase .trnb-badge { border: 1px solid color-mix(in srgb, var(--pal-magenta-l75) 20%, transparent); }
 .trnb-responsive--showcase .trnb-mobile-tabs { margin-bottom: 14px; scrollbar-width: none; }
 .trnb-responsive--showcase .trnb-mobile-tabs::-webkit-scrollbar { display: none; }
 .trnb-responsive--showcase .trnb-mobile-tab { min-height: 36px; padding-inline: 15px; }
@@ -105,6 +105,6 @@
   .trnb-responsive--showcase .trnb-desktop .trnb-match { width: 100%; min-width: 0; }
   .trnb-responsive--showcase .trnb-desktop .trnb-col:not(:last-child)::after {
     content: '›'; position: absolute; z-index: 2; right: -19px; top: 50%; transform: translateY(-50%);
-    color: rgba(248,162,60,.6); font-size: 30px; font-weight: 300;
+    color: color-mix(in srgb, var(--pal-orange) 60%, transparent); font-size: 30px; font-weight: 300;
   }
 }

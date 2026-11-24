@@ -15,8 +15,8 @@ export default function IntervalQr() {
           size={188}
           level="M"
           marginSize={1}
-          bgColor="#ffffff"
-          fgColor="#12052f"
+          bgColor="var(--pal-white)"
+          fgColor="var(--pal-purple-d35)"
           title="Acompanhe o campeonato pelo celular"
         />
       </div>

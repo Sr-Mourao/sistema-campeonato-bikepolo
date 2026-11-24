@@ -35,7 +35,7 @@ if ($metodo === 'cartao') {
 // ── Monta payload para o MP ──────────────────────────────
 $mpPayload = array_merge($formData, [
     'transaction_amount'  => $valorMP,
-    'description'         => "10º Brasileiro de Bike Polo — Lojinha (Pedido #{$pedidoId})",
+    'description'         => "2° Pior Campeonato de Bici Polo de Bike Polo — Lojinha (Pedido #{$pedidoId})",
     'external_reference'  => (string)$pedidoId,
     'notification_url'    => APP_URL . '/api/webhook-mp-lojinha.php',
     'statement_descriptor'=> 'BIKEPOLO',

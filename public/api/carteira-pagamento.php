@@ -16,7 +16,7 @@ try {
     $db->prepare("UPDATE carteira_recargas SET status='pendente',metodo=?,valor_cobrado_centavos=?,atualizada_em=datetime('now') WHERE id=?")->execute([$metodo,$cobrado,$id]);
     $payload=array_merge($body['form_data']??[],[
         'transaction_amount'=>$cobrado/100,
-        'description'=>'10º Brasileiro de Bike Polo — Recarga de carteira',
+        'description'=>'2° Pior Campeonato de Bici Polo de Bike Polo — Recarga de carteira',
         'external_reference'=>$recarga['referencia_externa'],
         'notification_url'=>APP_URL.'/api/webhook-mp.php',
         'statement_descriptor'=>'BIKEPOLO',

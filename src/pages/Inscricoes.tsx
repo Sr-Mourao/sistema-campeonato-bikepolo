@@ -93,13 +93,11 @@ export default function Inscricoes() {
 
   // Categorias e descontos (só atletas)
   const [misto, setMisto]     = useState(false)
-  const [mtnb,  setMtnb]      = useState(false)
   const [acaoPreta, setAcaoPreta]               = useState(false)
   const [acaoParda, setAcaoParda]               = useState(false)
   const [acaoIndigena, setAcaoIndigena]         = useState(false)
   const [acaoPrimeiroTorneio, setAcaoPrimeiroTorneio] = useState(false)
   const [timeMisto, setTimeMisto] = useState<TimeState>(TIME_INIT)
-  const [timeMtnb,  setTimeMtnb]  = useState<TimeState>({ ...TIME_INIT })
   const [latino, setLatino]       = useState<boolean | null>(null)
 
   // Serviços
@@ -137,7 +135,6 @@ export default function Inscricoes() {
   }, [])
 
   function patchDados(field: keyof DadosPessoaisValues, value: string | number | null) {
-    if (field === 'genero' && value === 'Homem cis') setMtnb(false)
     if (field === 'email') {
       clearTimeout(emailCheckRef.current)
       setEmailExiste(false)
@@ -173,9 +170,8 @@ export default function Inscricoes() {
     setSaude(prev => ({ ...prev, [field]: value }))
   }
 
-  const patchTime = useCallback((cat: 'misto' | 'mtnb', field: keyof TimeState, value: unknown) => {
+  const patchTime = useCallback((cat: 'misto', field: keyof TimeState, value: unknown) => {
     if (cat === 'misto') setTimeMisto(prev => ({ ...prev, [field]: value }))
-    else                 setTimeMtnb(prev  => ({ ...prev, [field]: value }))
     if (field === 'codigo' || field === 'acao') {
       setTimeErrors(prev => ({ ...prev, [cat]: undefined }))
     }
@@ -201,7 +197,7 @@ export default function Inscricoes() {
 
     // Categorias (só atletas)
     if (tipoParticipacao === 'atleta') {
-      if (!misto && !mtnb) { setCatError('Selecione pelo menos uma categoria'); ok = false; hasFieldError = true }
+      if (!misto) { setCatError('Selecione pelo menos uma categoria'); ok = false; hasFieldError = true }
       else setCatError('')
     }
 
@@ -214,17 +210,6 @@ export default function Inscricoes() {
           ok = false
         }
       }
-      if (mtnb && timeMtnb.acao === 'entrar' && timeMtnb.timeInfo) {
-        if (timeMtnb.timeInfo.total_membros >= CONFIG.LIMITE_MTNB) {
-          newTimeErrors.mtnb = 'Este time está cheio — escolha outro ou crie um novo'
-          ok = false
-        }
-      }
-    }
-    setTimeErrors(newTimeErrors)
-
-    // Termos
-    if (!aceitouTermos) {
       setTermosError('Você precisa aceitar os termos para continuar')
       ok = false
       hasFieldError = true
@@ -254,7 +239,6 @@ export default function Inscricoes() {
     const categorias: string[] = []
     if (tipoParticipacao === 'atleta') {
       if (misto) categorias.push('misto')
-      if (mtnb)  categorias.push('mtnb')
     }
 
     const alimentacao: { dia: number; pacote: string }[] = []
@@ -293,11 +277,6 @@ export default function Inscricoes() {
         acao:   timeMisto.acao,
         nome:   timeMisto.nome,
         codigo: timeMisto.codigo,
-      },
-      timeMtnb: {
-        acao:   timeMtnb.acao,
-        nome:   timeMtnb.nome,
-        codigo: timeMtnb.codigo,
       },
       latino,
       alimentacao,
@@ -353,7 +332,7 @@ export default function Inscricoes() {
             <div className="ins-closed-icon"><Lock size={30} strokeWidth={1.5} /></div>
             <h1 className="ins-closed-title">Inscrições encerradas</h1>
             <p className="ins-closed-sub">
-              O período de inscrições para o 10º Campeonato Brasileiro de Bike Polo foi encerrado.
+              O período de inscrições para o 2° Pior Campeonato de Bici Polo foi encerrado.
               Agradecemos a participação de todos! 💛
             </p>
             <p className="ins-closed-sub">
@@ -530,7 +509,6 @@ export default function Inscricoes() {
   // ── Formulário ─────────────────────────────────────────
   const calcState = {
     misto:   tipoParticipacao === 'atleta' ? misto : false,
-    mtnb:    tipoParticipacao === 'atleta' ? mtnb  : false,
     acaoPreta, acaoParda, acaoIndigena, acaoPrimeiroTorneio,
     alimentacaoDia5: alimDia5, alimentacaoDia6: alimDia6, alimentacaoDia7: alimDia7,
     alojamento: true,
@@ -571,10 +549,10 @@ export default function Inscricoes() {
 
       <main className="ins-main">
         <header className="ins-hero">
-          <p className="ins-hero-eyebrow">5–7 de Setembro · Florianópolis/SC</p>
+          <p className="ins-hero-eyebrow">5–7 de Setembro · Curitiba/PR</p>
           <h1 className="ins-hero-title">Inscrições</h1>
           <p className="ins-hero-sub">
-            10º Campeonato Brasileiro de Bike Polo · 4º Brasileiro MTNB
+            2° Pior Campeonato de Bici Polo · 4º Brasileiro MTNB
           </p>
         </header>
 
@@ -630,7 +608,6 @@ export default function Inscricoes() {
               onChange={v => {
                 setTipoParticipacao(v)
                 if (v === 'acompanhante') {
-                  setMisto(false); setMtnb(false)
                   setAcaoPreta(false); setAcaoParda(false)
                   setAcaoIndigena(false); setAcaoPrimeiroTorneio(false)
                   setCatError('')
@@ -643,10 +620,8 @@ export default function Inscricoes() {
                 <CategoriasSection
                   genero={dados.genero}
                   misto={misto}
-                  mtnb={mtnb}
                   onChange={(f, v) => {
                     if (f === 'misto') setMisto(v)
-                    else setMtnb(v)
                     setCatError('')
                   }}
                   error={catError}
@@ -665,17 +640,15 @@ export default function Inscricoes() {
 
                 <PrimeiroTorneioSection
                   checked={acaoPrimeiroTorneio}
-                  desativado={misto && mtnb}
+                  desativado={false}
                   onChange={setAcaoPrimeiroTorneio}
                 />
 
-                {(misto || mtnb) && (
+                {misto && (
                   <div ref={timeSectionRef}>
                     <TimesSection
                       misto={misto}
-                      mtnb={mtnb}
                       timeMisto={timeMisto}
-                      timeMtnb={timeMtnb}
                       onChange={patchTime}
                       errors={timeErrors}
                     />
@@ -723,7 +696,6 @@ export default function Inscricoes() {
                 nome: dados.nome, email: dados.email,
                 clubeNome: dados.clubeNome, genero: dados.genero,
                 timeMistoNome: timeMisto.nome, timeMistoAcao: timeMisto.acao, timeMistoCodigo: timeMisto.codigo,
-                timeMtnbNome: timeMtnb.nome,   timeMtnbAcao: timeMtnb.acao,   timeMtnbCodigo: timeMtnb.codigo,
                 latino,
                 aceitouTermos,
                 ...calcState,

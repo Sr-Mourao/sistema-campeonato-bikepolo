@@ -1,13 +1,12 @@
 import { CheckCircle } from 'lucide-react'
-import { CONFIG, calcTotal, type PacoteAlim } from '../../inscricoes.config'
+import { calcTotal, type PacoteAlim } from '../../inscricoes.config'
 import type { TipoParticipacao } from './TipoParticipacao'
 
 interface FormSummary {
   tipoParticipacao: TipoParticipacao
   nome: string; email: string; clubeNome: string; genero: string
-  misto: boolean; mtnb: boolean
+  misto: boolean
   timeMistoNome: string; timeMistoAcao: string; timeMistoCodigo: string
-  timeMtnbNome: string; timeMtnbAcao: string; timeMtnbCodigo: string
   latino: boolean | null
   acaoPreta: boolean; acaoParda: boolean
   acaoIndigena: boolean; acaoPrimeiroTorneio: boolean
@@ -32,15 +31,14 @@ function fmt(v: number) {
 
 const DESCONTO_LABEL: Record<string, string> = {
   ppi:             'Isenção ações afirmativas',
-  mtnb:            'Incentivo MTNB no Misto',
   primeiroTorneio: 'Desconto primeiro torneio (50%)',
 }
 
 export default function ResumoFinal({ form, submitting, error, emailExiste, onSubmit }: Props) {
   const {
-    valorMistoBase, valorMtnbBase, subtotalBase,
+    valorMistoBase, subtotalBase,
     descontoValor, descontoTipo,
-    temPPI, temIncentivoMtnb, temPrimeiroTorneio,
+    temPPI, temPrimeiroTorneio,
     valorEsportivo, valorAlim, valorAloj, total,
   } = calcTotal(form)
 
@@ -48,7 +46,6 @@ export default function ResumoFinal({ form, submitting, error, emailExiste, onSu
 
   const categorias: string[] = []
   if (form.misto) categorias.push('Brasileiro Misto')
-  if (form.mtnb)  categorias.push('Brasileiro MTNB')
 
   const acoesPPI: string[] = []
   if (form.acaoPreta)    acoesPPI.push('Pessoa preta')
@@ -100,17 +97,11 @@ export default function ResumoFinal({ form, submitting, error, emailExiste, onSu
               <span>{fmt(valorMistoBase)}</span>
             </div>
           )}
-          {form.mtnb && (
-            <div className="ins-summary-row">
-              <span>Brasileiro MTNB</span>
-              <span>{fmt(valorMtnbBase)}</span>
-            </div>
-          )}
         </div>
       )}
 
       {/* Times (só atletas) */}
-      {ehAtleta && (form.misto || form.mtnb) && (
+      {ehAtleta && form.misto && (
         <div className="ins-summary-block">
           <p className="ins-summary-block-title">Times</p>
           {form.misto && (
@@ -118,14 +109,6 @@ export default function ResumoFinal({ form, submitting, error, emailExiste, onSu
               <span>Misto — {form.timeMistoAcao === 'criar'
                 ? `Criando "${form.timeMistoNome}"`
                 : `Entrando no time ${form.timeMistoCodigo}`
-              }</span>
-            </div>
-          )}
-          {form.mtnb && (
-            <div className="ins-summary-row">
-              <span>MTNB — {form.timeMtnbAcao === 'criar'
-                ? `Criando "${form.timeMtnbNome}"`
-                : `Entrando no time ${form.timeMtnbCodigo}`
               }</span>
             </div>
           )}
@@ -197,12 +180,6 @@ export default function ResumoFinal({ form, submitting, error, emailExiste, onSu
       {temPPI && acoesPPI.length > 0 && (
         <div className="ins-info-box ins-info-box--green" style={{ marginBottom: 16, marginTop: form.latino !== true ? 16 : 0 }}>
           💛 <strong>Isenção ações afirmativas:</strong> {acoesPPI.join(', ')}
-        </div>
-      )}
-
-      {temIncentivoMtnb && !temPPI && (
-        <div className="ins-info-box ins-info-box--green" style={{ marginBottom: 16, marginTop: form.latino !== true ? 16 : 0 }}>
-          ✨ <strong>Incentivo MTNB:</strong> Misto com valor especial de {fmt(CONFIG.VALOR_MISTO_COM_MTNB)}
         </div>
       )}
 

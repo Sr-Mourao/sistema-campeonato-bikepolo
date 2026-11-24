@@ -143,7 +143,7 @@ export default function AthleteDashboard({ pessoa, inscricao: initialIns, config
           <div className="atl-card-title">Minha Carteira</div>
           <p style={{ margin: '3px 0 0', fontSize: 12, color: 'rgba(255,255,255,.45)' }}>Saldo, recarga, QR Code e extrato</p>
         </div>
-        <span style={{ marginLeft: 'auto', color: '#F8A23C' }}>→</span>
+        <span style={{ marginLeft: 'auto', color: 'var(--pal-orange)' }}>→</span>
       </a>
 
       {inscricao.tipo_participacao === 'atleta' && inscricao.categorias.some(c => c.categoria === 'misto') && (
@@ -192,7 +192,7 @@ export default function AthleteDashboard({ pessoa, inscricao: initialIns, config
               <span className="atl-info-val">R$ {c.valor}</span>
             </div>
           ))}
-          {inscricao.acao_afirmativa && <p style={{ fontSize: 13, color: '#4CE0A8', marginTop: 10 }}>💛 Política afirmativa aplicada</p>}
+          {inscricao.acao_afirmativa && <p style={{ fontSize: 13, color: 'var(--pal-magenta-l70)', marginTop: 10 }}>💛 Política afirmativa aplicada</p>}
           {inscricao.latino && <p style={{ fontSize: 13, color: 'rgba(255,255,255,.55)', marginTop: 10 }}>🌎 Optou por disputar vaga para o Latinoamericano 2026</p>}
         </div>
       )}
@@ -226,7 +226,7 @@ export default function AthleteDashboard({ pessoa, inscricao: initialIns, config
             <div className="atl-card-title">Latinoamericano 2026</div>
           </div>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,.65)', lineHeight: 1.55 }}>
-            Você optou por disputar vaga para o <strong style={{ color: '#fff' }}>Latinoamericano de Bike Polo no Peru</strong>.
+            Você optou por disputar vaga para o <strong style={{ color: 'var(--pal-white)' }}>Latinoamericano de Bike Polo no Peru</strong>.
           </p>
         </div>
       )}

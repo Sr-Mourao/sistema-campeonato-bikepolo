@@ -26,7 +26,7 @@ export default function DoubleElimination() {
   const [secao, setSecao] = useState<Secao>('winners')
   useEffect(() => { torneioPublico.chaves(categoria).then(d => setDouble(d.double)) }, [categoria])
   useEffect(() => { torneioPublico.classificacao(categoria).then(d => setStandings(d.classificacao)) }, [categoria])
-  const mtnb = categoria === 'mtnb'
+  const mtnb = false
   const winCols = mtnb ? MTNB_WIN_COLS : WIN_COLS
   const losCols = mtnb ? MTNB_LOS_COLS : LOS_COLS
   const placeholders = mtnb ? MTNB_DOUBLE_PLACEHOLDERS : DOUBLE_PLACEHOLDERS

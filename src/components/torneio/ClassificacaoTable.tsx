@@ -36,7 +36,7 @@ export default function ClassificacaoTable({ linhas, classificadosDiretos, crite
   return (
     <div className="ctb-wrap">
       <div className="ctb-legenda">
-        <span className="ctb-legenda-item"><i className="ctb-dot ctb-dot--direto" /> {categoria === 'mtnb' ? 'Seeds da Double (1º–5º)' : `Classificados direto (1º–${classificadosDiretos}º)`}</span>
+        <span className="ctb-legenda-item"><i className="ctb-dot ctb-dot--direto" /> `Classificados direto (1º–${classificadosDiretos}º)`</span>
         {categoria === 'misto' && <span className="ctb-legenda-item"><i className="ctb-dot ctb-dot--rep" /> Repescagem</span>}
       </div>
 

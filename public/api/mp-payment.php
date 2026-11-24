@@ -81,13 +81,13 @@ if ($metodo === 'cartao') {
 
 // ── Monta payload para o MP ──────────────────────────────
 $descricoes = [
-    'inscricao'  => '10º Brasileiro de Bike Polo — Inscrição',
-    'alimentacao'=> '10º Brasileiro de Bike Polo — Alimentação',
-    'alojamento' => '10º Brasileiro de Bike Polo — Alojamento',
+    'inscricao'  => '2° Pior Campeonato de Bici Polo de Bike Polo — Inscrição',
+    'alimentacao'=> '2° Pior Campeonato de Bici Polo de Bike Polo — Alimentação',
+    'alojamento' => '2° Pior Campeonato de Bici Polo de Bike Polo — Alojamento',
 ];
 $descricao = $tipoFluxo === 'checkout'
-    ? '10º Brasileiro de Bike Polo — Inscrição + Serviços'
-    : ($descricoes[$pagamento['tipo']] ?? '10º Brasileiro de Bike Polo');
+    ? '2° Pior Campeonato de Bici Polo de Bike Polo — Inscrição + Serviços'
+    : ($descricoes[$pagamento['tipo']] ?? '2° Pior Campeonato de Bici Polo de Bike Polo');
 
 $mpPayload = array_merge($formData, [
     'transaction_amount'  => $valorMP,

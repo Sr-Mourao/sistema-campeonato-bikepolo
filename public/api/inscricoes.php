@@ -25,7 +25,7 @@ if ($tipoParticipacao === 'atleta' && empty($categorias))            respondErro
 $db = getDb();
 
 if (getConfigGeral($db)['inscricoes_abertas'] !== '1') {
-    respondError('O período de inscrições para o Campeonato Brasileiro foi encerrado.', 403);
+    respondError('O período de inscrições para o Pior Campeonato de Bici Polo foi encerrado.', 403);
 }
 
 // Preços lidos da tabela configuracoes (editáveis pelo admin)

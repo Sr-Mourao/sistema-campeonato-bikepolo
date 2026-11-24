@@ -1,6 +1,18 @@
 <?php
 require_once __DIR__ . '/env.php';
 
+// E-mail não aceita var() do CSS: estas são as únicas cores literais do back-end.
+// Espelham a paleta de src/theme/palette.css — mantenha as duas em sincronia.
+$GLOBALS['EMAIL_COR'] = [
+    'orange'            => '#d56606',
+    'orange_rgb'        => '213,102,6',
+    'magenta_light'     => '#e04cc5',
+    'magenta_light_rgb' => '224,76,197',
+    'purple'            => '#5a0781',
+    'purple_dark'       => '#310840',
+    'white'             => '#ffffff',
+];
+
 function sendEmail(string $to, string $subject, string $html): bool {
     if (RESEND_API_KEY === 're_COLOQUE_SUA_CHAVE_AQUI') {
         error_log("[EMAIL DEV] Para: $to | Assunto: $subject");
@@ -45,44 +57,44 @@ function sendEmail(string $to, string $subject, string $html): bool {
 }
 
 function sendLoginCodeEmail(string $email, string $code): bool {
-    return sendEmail($email, 'Seu código de acesso — Campeonato Brasileiro — Floripa 2026', loginCodeTemplate($code));
+    return sendEmail($email, 'Seu código de acesso — Pior Campeonato de Bici Polo — Curitiba 2026', loginCodeTemplate($code));
 }
 
 function sendConfirmationEmail(string $email, string $nome, string $codigo, float $valorPendente = 0.0): bool {
-    return sendEmail($email, 'Inscrição recebida! 🎉 — Campeonato Brasileiro — Floripa 2026', confirmationTemplate($nome, $codigo, $valorPendente));
+    return sendEmail($email, 'Inscrição recebida! 🎉 — Pior Campeonato de Bici Polo — Curitiba 2026', confirmationTemplate($nome, $codigo, $valorPendente));
 }
 
 function sendPaymentPendingEmail(string $email, string $nome, float $valor): bool {
-    return sendEmail($email, 'Pagamento pendente — Campeonato Brasileiro — Floripa 2026', paymentPendingTemplate($nome, $valor));
+    return sendEmail($email, 'Pagamento pendente — Pior Campeonato de Bici Polo — Curitiba 2026', paymentPendingTemplate($nome, $valor));
 }
 
 function sendTeamInviteEmail(string $email, string $nomeTime, string $codigo, string $categoria): bool {
-    return sendEmail($email, "Convite para o time {$nomeTime} — Campeonato Brasileiro — Floripa 2026", teamInviteTemplate($nomeTime, $codigo, $categoria));
+    return sendEmail($email, "Convite para o time {$nomeTime} — Pior Campeonato de Bici Polo — Curitiba 2026", teamInviteTemplate($nomeTime, $codigo, $categoria));
 }
 
 function sendPaymentApprovedEmail(string $email, string $nome, string $tipo, string $tipoLabel, float $valor): bool {
-    return sendEmail($email, 'Pagamento confirmado ✅ — Campeonato Brasileiro — Floripa 2026', paymentApprovedTemplate($nome, $tipo, $tipoLabel, $valor));
+    return sendEmail($email, 'Pagamento confirmado ✅ — Pior Campeonato de Bici Polo — Curitiba 2026', paymentApprovedTemplate($nome, $tipo, $tipoLabel, $valor));
 }
 
 function sendPaymentRejectedEmail(string $email, string $nome, string $tipoLabel): bool {
-    return sendEmail($email, 'Pagamento não aprovado — Campeonato Brasileiro — Floripa 2026', paymentRejectedTemplate($nome, $tipoLabel));
+    return sendEmail($email, 'Pagamento não aprovado — Pior Campeonato de Bici Polo — Curitiba 2026', paymentRejectedTemplate($nome, $tipoLabel));
 }
 
 function sendServiceUpdatedEmail(string $email, string $nome, string $tipo, string $detalhes): bool {
     $assunto = ($tipo === 'alimentação') ? 'Alimentação atualizada' : 'Alojamento atualizado';
-    return sendEmail($email, "{$assunto} — Campeonato Brasileiro — Floripa 2026", serviceUpdatedTemplate($nome, $tipo, $detalhes));
+    return sendEmail($email, "{$assunto} — Pior Campeonato de Bici Polo — Curitiba 2026", serviceUpdatedTemplate($nome, $tipo, $detalhes));
 }
 
 function sendCancellationEmail(string $email, string $nome, bool $houvePagemento): bool {
-    return sendEmail($email, 'Sua inscrição foi cancelada — Campeonato Brasileiro — Floripa 2026', cancellationTemplate($nome, $houvePagemento));
+    return sendEmail($email, 'Sua inscrição foi cancelada — Pior Campeonato de Bici Polo — Curitiba 2026', cancellationTemplate($nome, $houvePagemento));
 }
 
 function sendLojaOrderConfirmedEmail(string $email, string $nome, string $codigoRetirada, array $itens, float $valor): bool {
-    return sendEmail($email, 'Compra confirmada na Lojinha! 🎉 — Campeonato Brasileiro — Floripa 2026', lojaOrderTemplate($nome, $codigoRetirada, $itens, $valor));
+    return sendEmail($email, 'Compra confirmada na Lojinha! 🎉 — Pior Campeonato de Bici Polo — Curitiba 2026', lojaOrderTemplate($nome, $codigoRetirada, $itens, $valor));
 }
 
 function sendWalletMagicLinkEmail(string $email, string $nome, string $token): bool {
-    return sendEmail($email, 'Acesse sua carteira — Campeonato Brasileiro — Floripa 2026', walletMagicLinkTemplate($nome, $token));
+    return sendEmail($email, 'Acesse sua carteira — Pior Campeonato de Bici Polo — Curitiba 2026', walletMagicLinkTemplate($nome, $token));
 }
 
 // ── Templates ─────────────────────────────────────────────
@@ -96,18 +108,18 @@ function emailWrapper(string $content): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
 </head>
-<body style="margin:0;padding:0;background:#160840;font-family:'Arial Narrow',Arial,sans-serif;color:#ffffff;">
+<body style="margin:0;padding:0;background:{$GLOBALS['EMAIL_COR']['purple_dark']};font-family:'Arial Narrow',Arial,sans-serif;color:{$GLOBALS['EMAIL_COR']['white']};">
   <table width="100%" cellpadding="0" cellspacing="0" style="min-height:100vh;">
     <tr>
       <td align="center" style="padding:40px 16px;">
         <table width="100%" style="max-width:520px;" cellpadding="0" cellspacing="0">
           <tr>
-            <td style="background:#4D1D95;padding:28px 28px 20px;text-align:center;">
+            <td style="background:{$GLOBALS['EMAIL_COR']['purple']};padding:28px 28px 20px;text-align:center;">
               <div style="display:inline-block;background:rgba(255,255,255,0.10);border-radius:12px;padding:14px 24px;margin-bottom:14px;">
-                <img src="{$logoUrl}" alt="10º Campeonato Brasileiro de Bike Polo" height="64" style="display:block;max-width:220px;">
+                <img src="{$logoUrl}" alt="2° Pior Campeonato de Bici Polo" height="64" style="display:block;max-width:220px;">
               </div>
               <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.50);letter-spacing:0.14em;text-transform:uppercase;">
-                10º Campeonato Brasileiro · Florianópolis 2026
+                2° Pior Campeonato de Bici Polo · Curitiba 2026
               </p>
             </td>
           </tr>
@@ -139,10 +151,10 @@ function loginCodeTemplate(string $code): string {
 </p>
 <p style="margin:0 0 28px;font-size:15px;color:rgba(255,255,255,0.55);line-height:1.55;text-align:center;">
   Use este código para entrar na área da pessoa atleta.<br>
-  Expira em <strong style="color:#F8A23C;">10 minutos</strong>.
+  Expira em <strong style="color:{$GLOBALS['EMAIL_COR']['orange']};">10 minutos</strong>.
 </p>
 <div style="text-align:center;margin-bottom:28px;">
-  <span style="display:inline-block;font-size:46px;font-weight:900;letter-spacing:0.28em;color:#F8A23C;background:rgba(248,162,60,0.12);border:2px solid rgba(248,162,60,0.35);padding:14px 24px;">
+  <span style="display:inline-block;font-size:46px;font-weight:900;letter-spacing:0.28em;color:{$GLOBALS['EMAIL_COR']['orange']};background:rgba({$GLOBALS['EMAIL_COR']['orange_rgb']},0.12);border:2px solid rgba({$GLOBALS['EMAIL_COR']['orange_rgb']},0.35);padding:14px 24px;">
     {$code}
   </span>
 </div>
@@ -161,10 +173,10 @@ function walletMagicLinkTemplate(string $nome, string $token): string {
   Sua carteira está pronta
 </p>
 <p style="margin:0 0 24px;font-size:15px;color:rgba(255,255,255,0.60);line-height:1.6;">
-  Oi <strong style="color:#fff;">{$primeiroNome}</strong>! Use o botão abaixo para acessar sua carteira do Campeonato Brasileiro de Bike Polo.
+  Oi <strong style="color:#fff;">{$primeiroNome}</strong>! Use o botão abaixo para acessar sua carteira do Pior Campeonato de Bici Polo.
 </p>
 <p style="margin:0 0 26px;">
-  <a href="{$url}" style="display:inline-block;padding:14px 26px;background:#F8A23C;color:#160840;font-weight:800;text-decoration:none;border-radius:7px;font-size:14px;">
+  <a href="{$url}" style="display:inline-block;padding:14px 26px;background:{$GLOBALS['EMAIL_COR']['orange']};color:{$GLOBALS['EMAIL_COR']['purple_dark']};font-weight:800;text-decoration:none;border-radius:7px;font-size:14px;">
     ACESSAR MINHA CARTEIRA
   </a>
 </p>
@@ -182,8 +194,8 @@ function confirmationTemplate(string $nome, string $codigo, float $valorPendente
     if ($valorPendente > 0) {
         $v = 'R$ ' . number_format($valorPendente, 2, ',', '.');
         $blocoPagemento = <<<HTML
-<div style="background:rgba(248,162,60,0.10);border:1px solid rgba(248,162,60,0.35);border-radius:8px;padding:20px 24px;margin:24px 0;">
-  <p style="margin:0 0 12px;font-size:14px;font-weight:700;color:#F8A23C;letter-spacing:0.06em;text-transform:uppercase;">
+<div style="background:rgba({$GLOBALS['EMAIL_COR']['orange_rgb']},0.10);border:1px solid rgba({$GLOBALS['EMAIL_COR']['orange_rgb']},0.35);border-radius:8px;padding:20px 24px;margin:24px 0;">
+  <p style="margin:0 0 12px;font-size:14px;font-weight:700;color:{$GLOBALS['EMAIL_COR']['orange']};letter-spacing:0.06em;text-transform:uppercase;">
     Falta só o pagamento!
   </p>
   <p style="margin:0 0 14px;font-size:14px;color:rgba(255,255,255,0.70);line-height:1.6;">
@@ -191,7 +203,7 @@ function confirmationTemplate(string $nome, string $codigo, float $valorPendente
   </p>
   <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;">
     <strong style="color:rgba(255,255,255,0.80);">Como pagar:</strong><br>
-    1. Acesse <a href="{$url}" style="color:#F8A23C;">sua área da pessoa atleta</a><br>
+    1. Acesse <a href="{$url}" style="color:{$GLOBALS['EMAIL_COR']['orange']};">sua área da pessoa atleta</a><br>
     2. Faça login com o seu email (você receberá um código de acesso)<br>
     3. Clique em <strong style="color:#fff;">Pagar</strong> na seção da sua inscrição<br>
     4. Escolha PIX ou cartão de crédito
@@ -200,8 +212,8 @@ function confirmationTemplate(string $nome, string $codigo, float $valorPendente
 HTML;
     } else {
         $blocoPagemento = <<<HTML
-<div style="background:rgba(76,224,168,0.10);border:1px solid rgba(76,224,168,0.30);border-radius:8px;padding:16px 20px;margin:24px 0;">
-  <p style="margin:0;font-size:14px;color:#4CE0A8;line-height:1.6;">
+<div style="background:rgba({$GLOBALS['EMAIL_COR']['magenta_light_rgb']},0.10);border:1px solid rgba({$GLOBALS['EMAIL_COR']['magenta_light_rgb']},0.30);border-radius:8px;padding:16px 20px;margin:24px 0;">
+  <p style="margin:0;font-size:14px;color:{$GLOBALS['EMAIL_COR']['magenta_light']};line-height:1.6;">
     Você está isenta/isento de pagamento — sua vaga já está confirmada! 🎉
   </p>
 </div>
@@ -213,13 +225,13 @@ HTML;
   Inscrição recebida! 🎉
 </p>
 <p style="margin:0 0 20px;font-size:15px;color:rgba(255,255,255,0.55);line-height:1.55;">
-  Oi <strong style="color:#fff;">{$primeiroNome}</strong>! Que bom ter você no Campeonato Brasileiro.
+  Oi <strong style="color:#fff;">{$primeiroNome}</strong>! Que bom ter você no Pior Campeonato de Bici Polo.
   Sua inscrição foi salva com sucesso — guarde o código abaixo.
 </p>
 <p style="margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.40);">
   Código da inscrição
 </p>
-<p style="margin:0 0 4px;font-size:36px;font-weight:900;letter-spacing:0.20em;color:#F8A23C;">
+<p style="margin:0 0 4px;font-size:36px;font-weight:900;letter-spacing:0.20em;color:{$GLOBALS['EMAIL_COR']['orange']};">
   #{$codigo}
 </p>
 <p style="margin:0 0 0;font-size:12px;color:rgba(255,255,255,0.30);line-height:1.5;">
@@ -227,7 +239,7 @@ HTML;
 </p>
 {$blocoPagemento}
 <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.40);line-height:1.6;">
-  Na <a href="{$url}" style="color:#F8A23C;">área da pessoa atleta</a> você acompanha o status da inscrição,
+  Na <a href="{$url}" style="color:{$GLOBALS['EMAIL_COR']['orange']};">área da pessoa atleta</a> você acompanha o status da inscrição,
   gerencia alimentação e alojamento, e acessa o histórico de pagamentos.
 </p>
 HTML;
@@ -244,9 +256,9 @@ function paymentPendingTemplate(string $nome, float $valor): string {
 <p style="margin:0 0 8px;font-size:15px;color:rgba(255,255,255,0.55);line-height:1.55;">
   Oi <strong style="color:#fff;">{$nome}</strong>! Há um pagamento pendente na sua inscrição.
 </p>
-<p style="margin:0 0 24px;font-size:32px;font-weight:900;color:#F8A23C;">{$v}</p>
+<p style="margin:0 0 24px;font-size:32px;font-weight:900;color:{$GLOBALS['EMAIL_COR']['orange']};">{$v}</p>
 <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.50);line-height:1.55;">
-  Acesse a <a href="{$url}" style="color:#F8A23C;">área da pessoa atleta</a> para realizar o pagamento via PIX ou cartão.
+  Acesse a <a href="{$url}" style="color:{$GLOBALS['EMAIL_COR']['orange']};">área da pessoa atleta</a> para realizar o pagamento via PIX ou cartão.
 </p>
 HTML;
     return emailWrapper($content);
@@ -265,7 +277,7 @@ function teamInviteTemplate(string $nomeTime, string $codigo, string $categoria)
 <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.40);">
   Código do time
 </p>
-<p style="margin:0 0 24px;font-size:36px;font-weight:900;letter-spacing:0.22em;color:#F8A23C;">
+<p style="margin:0 0 24px;font-size:36px;font-weight:900;letter-spacing:0.22em;color:{$GLOBALS['EMAIL_COR']['orange']};">
   {$codigo}
 </p>
 <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.50);line-height:1.55;">
@@ -283,35 +295,35 @@ function paymentApprovedTemplate(string $nome, string $tipo, string $tipoLabel, 
     if (in_array($tipo, ['inscricao', 'checkout', 'completo'])) {
         $mensagem = <<<HTML
 <p style="margin:0 0 16px;font-size:15px;color:rgba(255,255,255,0.65);line-height:1.65;">
-  Você está confirmadx no <strong style="color:#fff;">10º Campeonato Brasileiro de Bike Polo</strong>!
+  Você está confirmadx no <strong style="color:#fff;">2° Pior Campeonato de Bici Polo</strong>!
   Nos vemos em Florianópolis de 5 a 7 de setembro de 2026. Vai ser incrível! 🚴
 </p>
 <p style="margin:0 0 0;font-size:14px;color:rgba(255,255,255,0.45);line-height:1.65;">
   Se você contratou alimentação ou alojamento, eles já estão confirmados também.
   Se ainda não contratou e quiser, acesse a
-  <a href="{$url}" style="color:#F8A23C;">área da pessoa atleta</a> — esses serviços podem ser adicionados a qualquer momento.
+  <a href="{$url}" style="color:{$GLOBALS['EMAIL_COR']['orange']};">área da pessoa atleta</a> — esses serviços podem ser adicionados a qualquer momento.
 </p>
 HTML;
     } elseif ($tipo === 'alimentacao') {
         $mensagem = <<<HTML
 <p style="margin:0 0 16px;font-size:15px;color:rgba(255,255,255,0.65);line-height:1.65;">
-  Sua alimentação no Campeonato Brasileiro está garantida! Café da manhã, almoço e lanche da tarde
+  Sua alimentação no Pior Campeonato de Bici Polo está garantida! Café da manhã, almoço e lanche da tarde
   nos dias selecionados. Cuide-se bem antes do campeonato! 🌱
 </p>
 <p style="margin:0 0 0;font-size:14px;color:rgba(255,255,255,0.45);line-height:1.65;">
   Veja o resumo completo na
-  <a href="{$url}" style="color:#F8A23C;">área da pessoa atleta</a>.
+  <a href="{$url}" style="color:{$GLOBALS['EMAIL_COR']['orange']};">área da pessoa atleta</a>.
 </p>
 HTML;
     } else {
         $mensagem = <<<HTML
 <p style="margin:0 0 16px;font-size:15px;color:rgba(255,255,255,0.65);line-height:1.65;">
-  Sua hospedagem no Campeonato Brasileiro está garantida! Você tem uma vaga confirmada no ginásio
+  Sua hospedagem no Pior Campeonato de Bici Polo está garantida! Você tem uma vaga confirmada no ginásio
   do evento nos dias selecionados. 🏠
 </p>
 <p style="margin:0 0 0;font-size:14px;color:rgba(255,255,255,0.45);line-height:1.65;">
   Veja o resumo completo na
-  <a href="{$url}" style="color:#F8A23C;">área da pessoa atleta</a>.
+  <a href="{$url}" style="color:{$GLOBALS['EMAIL_COR']['orange']};">área da pessoa atleta</a>.
 </p>
 HTML;
     }
@@ -326,7 +338,7 @@ HTML;
 <p style="margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.40);">
   {$tipoLabel}
 </p>
-<p style="margin:0 0 24px;font-size:36px;font-weight:900;color:#4CE0A8;">{$v}</p>
+<p style="margin:0 0 24px;font-size:36px;font-weight:900;color:{$GLOBALS['EMAIL_COR']['magenta_light']};">{$v}</p>
 <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:20px 22px;margin-bottom:0;">
   {$mensagem}
 </div>
@@ -351,7 +363,7 @@ function paymentRejectedTemplate(string $nome, string $tipoLabel): string {
   a qualquer hora pela área da pessoa atleta.
 </p>
 <p style="margin:0;">
-  <a href="{$url}" style="display:inline-block;padding:12px 28px;background:#F8A23C;color:#160840;font-weight:700;text-decoration:none;border-radius:6px;font-size:14px;">
+  <a href="{$url}" style="display:inline-block;padding:12px 28px;background:{$GLOBALS['EMAIL_COR']['orange']};color:{$GLOBALS['EMAIL_COR']['purple_dark']};font-weight:700;text-decoration:none;border-radius:6px;font-size:14px;">
     Tentar novamente
   </a>
 </p>
@@ -384,12 +396,12 @@ function serviceUpdatedTemplate(string $nome, string $tipo, string $detalhes): s
 <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.10);border-radius:8px;padding:16px 20px;margin-bottom:20px;font-size:14px;color:rgba(255,255,255,0.70);line-height:1.8;">
   {$detalhes}
 </div>
-<div style="background:rgba(248,162,60,0.10);border:1px solid rgba(248,162,60,0.30);border-radius:8px;padding:14px 18px;margin-bottom:0;">
+<div style="background:rgba({$GLOBALS['EMAIL_COR']['orange_rgb']},0.10);border:1px solid rgba({$GLOBALS['EMAIL_COR']['orange_rgb']},0.30);border-radius:8px;padding:14px 18px;margin-bottom:0;">
   <p style="margin:0;font-size:13px;color:rgba(255,255,255,0.65);line-height:1.6;">
-    <strong style="color:#F8A23C;">Lembrete importante:</strong>
+    <strong style="color:{$GLOBALS['EMAIL_COR']['orange']};">Lembrete importante:</strong>
     a reserva só fica garantida após o pagamento.
     Se ainda não pagou, acesse a
-    <a href="{$url}" style="color:#F8A23C;">área da pessoa atleta</a> e finalize agora — não deixa pra depois! 😉
+    <a href="{$url}" style="color:{$GLOBALS['EMAIL_COR']['orange']};">área da pessoa atleta</a> e finalize agora — não deixa pra depois! 😉
   </p>
 </div>
 HTML;
@@ -401,9 +413,9 @@ function cancellationTemplate(string $nome, bool $houvePagemento): string {
 
     if ($houvePagemento) {
         $blocoReembolso = <<<HTML
-<div style="background:rgba(248,162,60,0.10);border:1px solid rgba(248,162,60,0.30);border-radius:8px;padding:16px 20px;margin:20px 0;">
+<div style="background:rgba({$GLOBALS['EMAIL_COR']['orange_rgb']},0.10);border:1px solid rgba({$GLOBALS['EMAIL_COR']['orange_rgb']},0.30);border-radius:8px;padding:16px 20px;margin:20px 0;">
   <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.70);line-height:1.65;">
-    <strong style="color:#F8A23C;">Sobre o reembolso:</strong> identificamos pagamento(s) realizados
+    <strong style="color:{$GLOBALS['EMAIL_COR']['orange']};">Sobre o reembolso:</strong> identificamos pagamento(s) realizados
     nessa inscrição. Alguém da organização entrará em contato com você pelo WhatsApp ou email
     para solicitar sua chave PIX e processar o reembolso.
   </p>
@@ -418,7 +430,7 @@ HTML;
   Inscrição cancelada
 </p>
 <p style="margin:0 0 20px;font-size:15px;color:rgba(255,255,255,0.55);line-height:1.55;">
-  Oi <strong style="color:#fff;">{$primeiroNome}</strong>. Sua inscrição no Campeonato Brasileiro — Floripa 2026
+  Oi <strong style="color:#fff;">{$primeiroNome}</strong>. Sua inscrição no Pior Campeonato de Bici Polo — Curitiba 2026
   foi cancelada pela organização.
 </p>
 {$blocoReembolso}
@@ -456,19 +468,19 @@ HTML;
 </p>
 <p style="margin:0 0 24px;font-size:15px;color:rgba(255,255,255,0.55);line-height:1.55;">
   Oi <strong style="color:#fff;">{$primeiroNome}</strong>! Recebemos seu pagamento e sua compra na
-  Lojinha do Campeonato Brasileiro está confirmada.
+  Lojinha do Pior Campeonato de Bici Polo está confirmada.
 </p>
 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:20px;">
   {$linhasItens}
 </table>
 <p style="margin:0 0 24px;font-size:14px;color:rgba(255,255,255,0.55);text-align:right;">
-  Total pago: <strong style="color:#4CE0A8;font-size:18px;">{$v}</strong>
+  Total pago: <strong style="color:{$GLOBALS['EMAIL_COR']['magenta_light']};font-size:18px;">{$v}</strong>
 </p>
-<div style="background:rgba(248,162,60,0.10);border:1px solid rgba(248,162,60,0.35);border-radius:8px;padding:20px 24px;margin-bottom:20px;text-align:center;">
+<div style="background:rgba({$GLOBALS['EMAIL_COR']['orange_rgb']},0.10);border:1px solid rgba({$GLOBALS['EMAIL_COR']['orange_rgb']},0.35);border-radius:8px;padding:20px 24px;margin-bottom:20px;text-align:center;">
   <p style="margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.40);">
     Código de retirada
   </p>
-  <p style="margin:0;font-size:36px;font-weight:900;letter-spacing:0.20em;color:#F8A23C;">
+  <p style="margin:0;font-size:36px;font-weight:900;letter-spacing:0.20em;color:{$GLOBALS['EMAIL_COR']['orange']};">
     {$codigoRetirada}
   </p>
 </div>

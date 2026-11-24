@@ -4,14 +4,14 @@
    ============================================================ */
 
 .lojinha {
-  --loj-purple:  #3D1A6E;
-  --loj-purple2: #4D1D95;
-  --loj-orange:  #F8A23C;
-  --loj-green:   #4CE0A8;
+  --loj-purple:  var(--pal-purple-d90);
+  --loj-purple2: var(--pal-purple);
+  --loj-orange:  var(--pal-orange);
+  --loj-green:   var(--pal-magenta-l70);
   --loj-nav-h:   var(--site-nav-h, 56px);
   min-height: 100vh;
   background: var(--loj-purple);
-  color: #fff;
+  color: var(--pal-white);
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
 }
 
@@ -46,8 +46,8 @@
 
 /* ─── Manifesto — abertura da lojinha ────────────────────── */
 .loj-manifesto {
-  background: linear-gradient(135deg, rgba(248, 162, 60, 0.10), rgba(255, 255, 255, 0.04));
-  border: 1px solid rgba(248, 162, 60, 0.28);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--pal-orange) 10%, transparent), rgba(255, 255, 255, 0.04));
+  border: 1px solid color-mix(in srgb, var(--pal-orange) 28%, transparent);
   border-left: 3px solid var(--loj-orange);
   border-radius: 12px;
   margin-bottom: 28px;
@@ -67,7 +67,7 @@
 }
 .loj-manifesto summary::-webkit-details-marker { display: none; }
 .loj-manifesto summary span { flex: 1; }
-.loj-manifesto summary:hover { color: #fff; }
+.loj-manifesto summary:hover { color: var(--pal-white); }
 .loj-manifesto-chevron {
   color: rgba(255, 255, 255, 0.45);
   transition: transform 220ms ease;
@@ -88,7 +88,7 @@
   color: rgba(255, 255, 255, 0.78);
 }
 .loj-manifesto-signoff {
-  color: #fff;
+  color: var(--pal-white);
   font-weight: 600;
 }
 
@@ -153,7 +153,7 @@
 }
 .loj-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(248, 162, 60, 0.32);
+  border-color: color-mix(in srgb, var(--pal-orange) 32%, transparent);
   box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.6);
 }
 
@@ -181,7 +181,7 @@
   transform: translateY(-50%);
   background: rgba(0, 0, 0, 0.45);
   border: none;
-  color: #fff;
+  color: var(--pal-white);
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -211,7 +211,7 @@
   cursor: pointer;
   padding: 0;
 }
-.loj-carousel-dot--active { background: #fff; }
+.loj-carousel-dot--active { background: var(--pal-white); }
 
 .loj-card-body {
   padding: 16px 18px 18px;
@@ -273,8 +273,8 @@
   font-size: 0.74rem;
   padding: 4px 10px;
   border-radius: 999px;
-  background: rgba(248, 162, 60, 0.14);
-  border: 1px solid rgba(248, 162, 60, 0.35);
+  background: color-mix(in srgb, var(--pal-orange) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pal-orange) 35%, transparent);
   color: var(--loj-orange);
   font-weight: 700;
   white-space: nowrap;
@@ -301,17 +301,17 @@
 }
 .loj-tamanho-chip:hover {
   border-color: rgba(255, 255, 255, 0.32);
-  color: #fff;
+  color: var(--pal-white);
 }
 .loj-tamanho-chip--active {
   background: var(--loj-orange);
   color: var(--loj-purple);
   border-color: var(--loj-orange);
-  box-shadow: 0 6px 16px -8px rgba(248, 162, 60, 0.7);
+  box-shadow: 0 6px 16px -8px color-mix(in srgb, var(--pal-orange) 70%, transparent);
 }
 .loj-tamanho-chip--hasqtd:not(.loj-tamanho-chip--active) {
-  border-color: rgba(76, 224, 168, 0.5);
-  background: rgba(76, 224, 168, 0.08);
+  border-color: color-mix(in srgb, var(--pal-magenta-l70) 50%, transparent);
+  background: color-mix(in srgb, var(--pal-magenta-l70) 8%, transparent);
   color: rgba(255, 255, 255, 0.92);
 }
 .loj-tamanho-chip-badge {
@@ -323,7 +323,7 @@
   padding: 0 4px;
   border-radius: 999px;
   background: var(--loj-green);
-  color: #25503f;
+  color: var(--pal-magenta-d35);
   font-size: 0.64rem;
   font-weight: 800;
   display: inline-flex;
@@ -348,7 +348,7 @@
   color: rgba(255, 255, 255, 0.68);
 }
 .loj-tamanho-ativo-label strong {
-  color: #fff;
+  color: var(--pal-white);
   font-weight: 700;
   letter-spacing: 0.03em;
 }
@@ -365,7 +365,7 @@
   border-radius: 50%;
   border: 1.5px solid rgba(255, 255, 255, 0.25);
   background: transparent;
-  color: #fff;
+  color: var(--pal-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -384,7 +384,7 @@
   text-align: center;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--pal-white);
 }
 
 /* ─── Formulário ─────────────────────────────────────────── */
@@ -417,7 +417,7 @@
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 8px;
   padding: 10px 12px;
-  color: #fff;
+  color: var(--pal-white);
   font-size: 0.95rem;
   font-family: inherit;
 }
@@ -449,11 +449,11 @@
   font-size: 1.15rem;
   font-weight: 700;
   padding-top: 12px;
-  color: #fff;
+  color: var(--pal-white);
 }
 
 .loj-erro {
-  color: #FF6B6B;
+  color: var(--pal-red-100-3);
   font-size: 0.9rem;
   text-align: center;
   margin: 0 0 16px;

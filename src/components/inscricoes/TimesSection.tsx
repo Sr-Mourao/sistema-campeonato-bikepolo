@@ -21,11 +21,9 @@ interface TimeInfo {
 
 interface Props {
   misto: boolean
-  mtnb: boolean
   timeMisto: TimeState
-  timeMtnb: TimeState
-  onChange: (cat: 'misto' | 'mtnb', field: keyof TimeState, value: unknown) => void
-  errors?: { misto?: string; mtnb?: string }
+  onChange: (cat: 'misto', field: keyof TimeState, value: unknown) => void
+  errors?: { misto?: string }
 }
 
 function TeamBlock({
@@ -160,7 +158,7 @@ function TeamBlock({
               id={`ins-time-nome-${categoria}`}
               className="ins-input"
               type="text"
-              placeholder="Ex.: Floripa Polo, Os Incansáveis…"
+              placeholder="Ex.: Curitiba Polo, Os Incansáveis…"
               value={state.nome}
               onChange={e => onChange('nome', e.target.value)}
             />
@@ -236,9 +234,8 @@ function TeamBlock({
   )
 }
 
-export default function TimesSection({ misto, mtnb, timeMisto, timeMtnb, onChange, errors }: Props) {
+export default function TimesSection({ misto, timeMisto, onChange, errors }: Props) {
   const onChangeMisto = useCallback((f: keyof TimeState, v: unknown) => onChange('misto', f, v), [onChange])
-  const onChangeMtnb  = useCallback((f: keyof TimeState, v: unknown) => onChange('mtnb', f, v), [onChange])
 
   return (
     <section className="ins-card">
@@ -264,17 +261,6 @@ export default function TimesSection({ misto, mtnb, timeMisto, timeMtnb, onChang
           state={timeMisto}
           onChange={onChangeMisto}
           externalError={errors?.misto}
-        />
-      )}
-
-      {mtnb && (
-        <TeamBlock
-          categoria="mtnb"
-          label="Brasileiro MTNB"
-          limite={CONFIG.LIMITE_MTNB}
-          state={timeMtnb}
-          onChange={onChangeMtnb}
-          externalError={errors?.mtnb}
         />
       )}
     </section>

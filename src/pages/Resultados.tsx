@@ -6,10 +6,10 @@ import Avatar from '../components/equipes/Avatar'
 import { fmtHora, torneioPublico, type AwardResultadoPublico, type AwardVencedorPublico, type ColocacaoFinalPublica, type PessoaResultadoPublico, type ResultadosPublicos } from '../services/torneioPublico'
 import './Resultados.css'
 
-type Categoria = 'misto' | 'mtnb'
+type Categoria = 'misto'
 
 function categoriaInicial(): Categoria {
-  return new URLSearchParams(window.location.search).get('categoria') === 'mtnb' ? 'mtnb' : 'misto'
+  return 'misto'
 }
 
 function useReveal() {
@@ -163,7 +163,7 @@ function Awards({ data }: { data: ResultadosPublicos }) {
 }
 
 export default function Resultados() {
-  const [categoria, setCategoria] = useState<Categoria>(categoriaInicial)
+  const [categoria] = useState<Categoria>(categoriaInicial)
   const [data, setData] = useState<ResultadosPublicos | null>(null)
   const [erro, setErro] = useState('')
   useEffect(() => {
@@ -172,19 +172,12 @@ export default function Resultados() {
     return () => { ativo = false }
   }, [categoria])
   const podiumReady = useMemo(() => data?.classificacao_final.some(team => team.posicao === 1) ?? false, [data])
-  function trocarCategoria(nova: Categoria) {
-    if (nova === categoria) return
-    setData(null); setErro('')
-    setCategoria(nova)
-    const url = new URL(window.location.href); url.searchParams.set('categoria', nova); window.history.replaceState({}, '', url)
-  }
   return <div className={`res-page res-page--${categoria}`}>
     <SiteNavbar currentPath="/torneio/resultados" scrollThreshold={80} />
     <main>
       <header className="res-hero">
         <div className="res-hero-lines" aria-hidden="true"><i /><i /><i /></div>
-        <div className="res-hero-copy"><p>10º Brasileiro de Bike Polo · Floripa 2026</p><h1><span>Resultados</span><b>{categoria === 'mtnb' ? '4º Brasileiro MTNB' : '10º Brasileiro Misto'}</b></h1></div>
-        <div className="res-switch" role="group" aria-label="Categoria"><button className={categoria === 'misto' ? 'is-active' : ''} onClick={() => trocarCategoria('misto')}>Misto</button><button className={categoria === 'mtnb' ? 'is-active' : ''} onClick={() => trocarCategoria('mtnb')}>MTNB</button></div>
+        <div className="res-hero-copy"><p>2° Pior Campeonato de Bici Polo de Bike Polo · Curitiba 2026</p><h1><span>Resultados</span><b>2° Pior Campeonato de Bici Polo Misto</b></h1></div>
         {erro && <div className="res-error">{erro}</div>}
         {!data && !erro && <div className="res-loading">Consultando o registro oficial…</div>}
         {data && <><div className={`res-status ${data.classificacao_final_completa ? 'is-complete' : ''}`}>{data.classificacao_final_completa ? 'Campeonato encerrado' : 'Resultados em andamento'}</div><Podio data={data} /></>}
@@ -193,9 +186,9 @@ export default function Resultados() {
       {data && <div className="res-content">
         <Section kicker={podiumReady ? 'Registro definitivo' : 'Posições já definidas'} title="Classificação final" className="res-final-section"><div id="classificacao" className="res-anchor" /><p className="res-section-intro">Colocação esportiva e campanha são registros diferentes. Os números resumem a trajetória; não reordenam esta lista.</p>{data.metadata.zona_classificatoria && <a className="res-g5" href={data.metadata.zona_classificatoria.url} target="_blank" rel="noreferrer"><b>{data.metadata.zona_classificatoria.codigo}</b><span><strong>Zona classificatória</strong>{data.metadata.zona_classificatoria.nome}</span><ExternalLink /></a>}<FinalTable data={data} /></Section>
         <Section kicker="Entenda a ordem" title="Como a posição foi definida?"><div className="res-rule"><span>01</span><p>Primeiro, vale até onde cada equipe avançou.</p><i /><span>02</span><p>Na mesma etapa de eliminação, a melhor classificação da Primeira Fase ocupa a posição superior.</p></div></Section>
-        <Section kicker={categoria === 'mtnb' ? 'Round Robin · 5 equipes' : 'Suíço + Equalização · 13 equipes'} title="Primeira Fase"><PrimeiraFase data={data} /></Section>
+        <Section kicker="Suíço + Equalização · 13 equipes" title="Primeira Fase"><PrimeiraFase data={data} /></Section>
         <Awards data={data} />
-        <section className="res-closing res-reveal is-visible"><img src="/identidade/logo.svg" alt="Bike Polo Brasil" /><p>Floripa · 2026</p><strong>Um campeonato vira história quando sua trajetória continua acessível.</strong><a href={categoria === 'mtnb' ? '/torneio/mtnb' : '/torneio/misto'}>Rever o torneio <ExternalLink size={15} /></a></section>
+        <section className="res-closing res-reveal is-visible"><img src="/identidade/logo.svg" alt="Bike Polo Brasil" /><p>Curitiba 2026</p><strong>Um campeonato vira história quando sua trajetória continua acessível.</strong><a href="/torneio/misto">Rever o torneio <ExternalLink size={15} /></a></section>
       </div>}
     </main>
   </div>

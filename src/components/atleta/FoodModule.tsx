@@ -244,11 +244,11 @@ export default function FoodModule({
             />
 
             {!aberto && (
-              <p style={{ fontSize: 13, color: '#FFD54F', marginBottom: 10 }}>
+              <p style={{ fontSize: 13, color: 'var(--pal-yellow-100)', marginBottom: 10 }}>
                 A contratação de alimentação está temporariamente fechada — você ainda pode remover a seleção abaixo.
               </p>
             )}
-            {erro && <p style={{ color: '#FF8A80', fontSize: 13, marginTop: 8 }}>{erro}</p>}
+            {erro && <p style={{ color: 'var(--pal-red-100)', fontSize: 13, marginTop: 8 }}>{erro}</p>}
             <div className="atl-service-actions">
               {podeSalvar && (
                 <button className="atl-btn-save" onClick={salvar} disabled={salvando}>
@@ -281,7 +281,7 @@ export default function FoodModule({
                   <span className="atl-payment-pending-label">Pagamento gerado</span>
                   <span className="atl-payment-pending-val">{fmt(pagamento!.valor)}</span>
                 </div>
-                {erro && <p style={{ color: '#FF8A80', fontSize: 13 }}>{erro}</p>}
+                {erro && <p style={{ color: 'var(--pal-red-100)', fontSize: 13 }}>{erro}</p>}
                 <button className="atl-fin-pay-btn" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setCheckout(true)}>
                   <CreditCard size={13} /> Pagar agora
                 </button>
@@ -292,7 +292,7 @@ export default function FoodModule({
                 <p className="atl-payment-section-hint">
                   Alimentação selecionada mas ainda não paga.
                 </p>
-                {erro && <p style={{ color: '#FF8A80', fontSize: 13 }}>{erro}</p>}
+                {erro && <p style={{ color: 'var(--pal-red-100)', fontSize: 13 }}>{erro}</p>}
                 <button className="atl-fin-generate-btn" onClick={gerarPagamento} disabled={gerando}>
                   {gerando ? <span className="atl-spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /> : <CreditCard size={14} />}
                   {gerando ? 'Gerando…' : `Gerar pagamento — ${fmt(inicial.reduce((s, a) => s + (a.valor ?? 0), 0))}`}

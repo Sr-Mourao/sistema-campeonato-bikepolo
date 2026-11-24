@@ -283,7 +283,7 @@ export default function Checkin() {
               </div>
               <div className="adm-ck-row-actions">
                 {!a.alojamento_pago && (
-                  <span style={{ fontSize: '.72rem', color: '#FFD54F', marginRight: 6 }}>Pagamento pendente</span>
+                  <span style={{ fontSize: '.72rem', color: 'var(--pal-yellow-100)', marginRight: 6 }}>Pagamento pendente</span>
                 )}
                 <Btn
                   on={!!a.alojamento_confirmado}

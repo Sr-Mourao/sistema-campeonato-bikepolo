@@ -1,6 +1,6 @@
 /* ─── FAQ Section ─────────────────────────────────────────────── */
 .faq {
-  background: linear-gradient(165deg, #221055 0%, #180A44 50%, #100733 100%);
+  background: linear-gradient(165deg, var(--pal-purple-d65) 0%, var(--pal-purple-d55) 50%, var(--pal-purple-d40) 100%);
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   scroll-margin-top: var(--navbar-h, 56px);
   position: relative;
@@ -14,8 +14,8 @@
   display: flex;
   align-items: center;
   padding: 0 20px;
-  background: rgba(48, 14, 92, 0.95);
-  border-bottom: 1px solid rgba(248,162,60,0.22);
+  background: color-mix(in srgb, var(--pal-purple-d75) 95%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--pal-orange) 22%, transparent);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
@@ -47,29 +47,29 @@
 }
 
 .faq-nav-link:hover {
-  color: #fff;
+  color: var(--pal-white);
 }
 
 .faq-nav-cta {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
-  color: #fff;
-  border: 2px solid var(--orange, #F8A23C);
+  color: var(--pal-white);
+  border: 2px solid var(--orange, var(--pal-orange));
   padding: 6px 16px;
   text-transform: uppercase;
 }
 
 .faq-nav-cta:hover {
-  background: var(--orange, #F8A23C);
-  color: #221055;
+  background: var(--orange, var(--pal-orange));
+  color: var(--pal-purple-d65);
 }
 
 .home-links {
   background:
-    radial-gradient(circle at 14% 18%, rgba(248,162,60,0.16) 0%, transparent 28%),
-    radial-gradient(circle at 84% 78%, rgba(30,147,101,0.18) 0%, transparent 32%),
-    linear-gradient(180deg, #16083d 0%, #221055 52%, #130733 100%);
+    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--pal-orange) 16%, transparent) 0%, transparent 28%),
+    radial-gradient(circle at 84% 78%, color-mix(in srgb, var(--pal-magenta) 18%, transparent) 0%, transparent 32%),
+    linear-gradient(180deg, var(--pal-purple-d45) 0%, var(--pal-purple-d65) 52%, var(--pal-purple-d40) 100%);
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   position: relative;
 }
@@ -86,7 +86,7 @@
   font-weight: 700;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: rgba(248,162,60,0.75);
+  color: color-mix(in srgb, var(--pal-orange) 75%, transparent);
   text-align: center;
 }
 
@@ -98,7 +98,7 @@
   line-height: 0.98;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--pal-white);
   text-align: center;
 }
 
@@ -119,7 +119,7 @@
   overflow: hidden;
   isolation: isolate;
   border: 1px solid rgba(255,255,255,0.16);
-  box-shadow: 0 18px 40px rgba(7,3,22,0.28);
+  box-shadow: 0 18px 40px color-mix(in srgb, var(--pal-purple-d15) 28%, transparent);
   transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, filter 220ms ease;
 }
 
@@ -141,8 +141,8 @@
   inset: 0;
   z-index: -1;
   background:
-    linear-gradient(180deg, rgba(10,4,28,0.18) 0%, rgba(10,4,28,0.42) 34%, rgba(10,4,28,0.88) 100%),
-    linear-gradient(145deg, rgba(77,29,149,0.70) 0%, rgba(34,16,85,0.92) 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--pal-purple-d20) 18%, transparent) 0%, color-mix(in srgb, var(--pal-purple-d20) 42%, transparent) 34%, color-mix(in srgb, var(--pal-purple-d20) 88%, transparent) 100%),
+    linear-gradient(145deg, color-mix(in srgb, var(--pal-purple) 70%, transparent) 0%, color-mix(in srgb, var(--pal-purple-d65) 92%, transparent) 100%);
 }
 
 .home-link-card--orange::before {
@@ -151,8 +151,8 @@
 
 .home-link-card--orange::after {
   background:
-    linear-gradient(180deg, rgba(10,4,28,0.14) 0%, rgba(10,4,28,0.44) 38%, rgba(10,4,28,0.88) 100%),
-    linear-gradient(135deg, rgba(248,162,60,0.48) 0%, rgba(77,29,149,0.88) 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--pal-purple-d20) 14%, transparent) 0%, color-mix(in srgb, var(--pal-purple-d20) 44%, transparent) 38%, color-mix(in srgb, var(--pal-purple-d20) 88%, transparent) 100%),
+    linear-gradient(135deg, color-mix(in srgb, var(--pal-orange) 48%, transparent) 0%, color-mix(in srgb, var(--pal-purple) 88%, transparent) 100%);
 }
 
 .home-link-card--green::before {
@@ -161,8 +161,8 @@
 
 .home-link-card--green::after {
   background:
-    linear-gradient(180deg, rgba(8,4,25,0.18) 0%, rgba(8,4,25,0.44) 38%, rgba(8,4,25,0.88) 100%),
-    linear-gradient(135deg, rgba(30,147,101,0.50) 0%, rgba(77,29,149,0.90) 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--pal-purple-d15) 18%, transparent) 0%, color-mix(in srgb, var(--pal-purple-d15) 44%, transparent) 38%, color-mix(in srgb, var(--pal-purple-d15) 88%, transparent) 100%),
+    linear-gradient(135deg, color-mix(in srgb, var(--pal-magenta) 50%, transparent) 0%, color-mix(in srgb, var(--pal-purple) 90%, transparent) 100%);
 }
 
 .home-link-card--red::before {
@@ -171,26 +171,26 @@
 
 .home-link-card--red::after {
   background:
-    linear-gradient(180deg, rgba(10,4,28,0.18) 0%, rgba(10,4,28,0.44) 38%, rgba(10,4,28,0.88) 100%),
-    linear-gradient(135deg, rgba(244,75,58,0.48) 0%, rgba(77,29,149,0.90) 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--pal-purple-d20) 18%, transparent) 0%, color-mix(in srgb, var(--pal-purple-d20) 44%, transparent) 38%, color-mix(in srgb, var(--pal-purple-d20) 88%, transparent) 100%),
+    linear-gradient(135deg, color-mix(in srgb, var(--pal-pink) 48%, transparent) 0%, color-mix(in srgb, var(--pal-purple) 90%, transparent) 100%);
 }
 
 .home-link-card--purple::before {
   background-image: url('/imgs/lojinha/produto_6a70ae2d3c9896.65908292.png');
-  background-color: #3D1A6E;
+  background-color: var(--pal-purple-d90);
   background-size: cover;
   background-position: center 20%;
 }
 
 .home-link-card--purple::after {
   background:
-    linear-gradient(180deg, rgba(10,4,28,0.20) 0%, rgba(10,4,28,0.50) 38%, rgba(10,4,28,0.90) 100%),
-    linear-gradient(135deg, rgba(248,162,60,0.40) 0%, rgba(61,26,110,0.92) 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--pal-purple-d20) 20%, transparent) 0%, color-mix(in srgb, var(--pal-purple-d20) 50%, transparent) 38%, color-mix(in srgb, var(--pal-purple-d20) 90%, transparent) 100%),
+    linear-gradient(135deg, color-mix(in srgb, var(--pal-orange) 40%, transparent) 0%, color-mix(in srgb, var(--pal-purple-d90) 92%, transparent) 100%);
 }
 
 /* Card de destaque — Conheça as Equipes: tratamento mais chamativo que os demais */
 .home-link-card--teams {
-  border-color: rgba(244,75,58,0.38);
+  border-color: color-mix(in srgb, var(--pal-pink) 38%, transparent);
   animation: home-link-card-pulse 3200ms ease-in-out infinite;
 }
 .home-link-card--teams::before {
@@ -198,13 +198,13 @@
 }
 .home-link-card--teams::after {
   background:
-    linear-gradient(180deg, rgba(10,4,28,0.08) 0%, rgba(10,4,28,0.32) 40%, rgba(10,4,28,0.88) 100%),
-    linear-gradient(135deg, rgba(244,75,58,0.50) 0%, rgba(248,162,60,0.28) 46%, rgba(77,29,149,0.90) 100%);
+    linear-gradient(180deg, color-mix(in srgb, var(--pal-purple-d20) 8%, transparent) 0%, color-mix(in srgb, var(--pal-purple-d20) 32%, transparent) 40%, color-mix(in srgb, var(--pal-purple-d20) 88%, transparent) 100%),
+    linear-gradient(135deg, color-mix(in srgb, var(--pal-pink) 50%, transparent) 0%, color-mix(in srgb, var(--pal-orange) 28%, transparent) 46%, color-mix(in srgb, var(--pal-purple) 90%, transparent) 100%);
 }
-.home-link-card--teams:hover { border-color: rgba(244,75,58,0.65); }
+.home-link-card--teams:hover { border-color: color-mix(in srgb, var(--pal-pink) 65%, transparent); }
 @keyframes home-link-card-pulse {
-  0%, 100% { box-shadow: 0 18px 40px rgba(7,3,22,0.28), 0 0 0 0 rgba(244,75,58,0.0); }
-  50%       { box-shadow: 0 18px 40px rgba(7,3,22,0.28), 0 0 0 6px rgba(244,75,58,0.14); }
+  0%, 100% { box-shadow: 0 18px 40px color-mix(in srgb, var(--pal-purple-d15) 28%, transparent), 0 0 0 0 color-mix(in srgb, var(--pal-pink) 0%, transparent); }
+  50%       { box-shadow: 0 18px 40px color-mix(in srgb, var(--pal-purple-d15) 28%, transparent), 0 0 0 6px color-mix(in srgb, var(--pal-pink) 14%, transparent); }
 }
 
 /* ─── Hierarquia de tamanhos: hero > primário > secundário ────────── */
@@ -233,17 +233,17 @@
   top: 16px; right: 16px;
   z-index: 1;
   font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
-  color: #fff;
-  background: linear-gradient(120deg, #F44B3A, #F8A23C);
+  color: var(--pal-white);
+  background: linear-gradient(120deg, var(--pal-pink), var(--pal-orange));
   padding: 4px 11px;
   border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(244,75,58,0.35);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--pal-pink) 35%, transparent);
 }
 
 .home-link-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(248,162,60,0.42);
-  box-shadow: 0 22px 48px rgba(7,3,22,0.38);
+  border-color: color-mix(in srgb, var(--pal-orange) 42%, transparent);
+  box-shadow: 0 22px 48px color-mix(in srgb, var(--pal-purple-d15) 38%, transparent);
   filter: saturate(1.05);
 }
 
@@ -257,7 +257,7 @@
   height: 52px;
   align-items: center;
   justify-content: center;
-  color: var(--orange, #F8A23C);
+  color: var(--orange, var(--pal-orange));
   background: rgba(255,255,255,0.10);
   border: 1px solid rgba(255,255,255,0.20);
   backdrop-filter: blur(10px);
@@ -270,7 +270,7 @@
   line-height: 1;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--pal-white);
 }
 
 .home-link-description {
@@ -287,7 +287,7 @@
   top: 0; left: 0;
   width: min(50vw, 600px);
   height: 400px;
-  background: radial-gradient(ellipse at 0% 0%, rgba(248,162,60,0.07) 0%, transparent 65%);
+  background: radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--pal-orange) 7%, transparent) 0%, transparent 65%);
   pointer-events: none;
 }
 
@@ -321,7 +321,7 @@
   font-weight: 700;
   letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: rgba(248,162,60,0.75);
+  color: color-mix(in srgb, var(--pal-orange) 75%, transparent);
 }
 
 .faq-title {
@@ -331,9 +331,9 @@
   font-weight: 900;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--pal-white);
   line-height: 1;
-  text-shadow: 0 2px 20px rgba(10,2,30,0.60);
+  text-shadow: 0 2px 20px color-mix(in srgb, var(--pal-purple-d20) 60%, transparent);
 }
 
 /* orange underline accent */
@@ -342,10 +342,10 @@
   display: block;
   width: clamp(56px, 9vw, 84px);
   height: 4px;
-  background: var(--orange, #F8A23C);
+  background: var(--orange, var(--pal-orange));
   margin: 14px auto 0;
   border-radius: 2px;
-  box-shadow: 0 2px 16px rgba(248,162,60,0.60);
+  box-shadow: 0 2px 16px color-mix(in srgb, var(--pal-orange) 60%, transparent);
 }
 
 .faq-championships {
@@ -369,7 +369,7 @@
 .faq-champ-dot {
   width: 5px;
   height: 5px;
-  background: var(--orange, #F8A23C);
+  background: var(--orange, var(--pal-orange));
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -404,8 +404,8 @@
 }
 
 .faq-item--open {
-  box-shadow: inset 4px 0 0 var(--orange, #F8A23C);
-  background: rgba(248,162,60,0.035);
+  box-shadow: inset 4px 0 0 var(--orange, var(--pal-orange));
+  background: color-mix(in srgb, var(--pal-orange) 3.5%, transparent);
 }
 
 /* ─── Question button ─────────────────────────────────────────── */
@@ -430,7 +430,7 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  color: var(--orange, #F8A23C);
+  color: var(--orange, var(--pal-orange));
   transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -444,18 +444,18 @@
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--pal-white);
   line-height: 1.35;
   transition: color 180ms ease;
 }
 
 .faq-question:hover .faq-question-text {
-  color: var(--orange, #F8A23C);
+  color: var(--orange, var(--pal-orange));
 }
 
 .faq-chevron {
   flex-shrink: 0;
-  color: var(--orange, #F8A23C);
+  color: var(--orange, var(--pal-orange));
   opacity: 0.70;
   transition: transform 320ms cubic-bezier(0.4, 0, 0.2, 1),
               opacity 200ms ease;
@@ -499,7 +499,7 @@
 }
 
 .faq-answer-content strong {
-  color: #fff;
+  color: var(--pal-white);
   font-weight: 700;
 }
 
@@ -513,7 +513,7 @@
 }
 
 .faq-hi {
-  color: var(--orange, #F8A23C);
+  color: var(--orange, var(--pal-orange));
   font-weight: 700;
 }
 
@@ -538,18 +538,18 @@
 }
 
 .faq-map-link:hover {
-  color: var(--orange, #F8A23C);
+  color: var(--orange, var(--pal-orange));
 }
 
 .faq-inline-link {
-  color: var(--orange, #F8A23C);
+  color: var(--orange, var(--pal-orange));
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .faq-inline-link:hover {
-  color: #fff;
+  color: var(--pal-white);
 }
 
 

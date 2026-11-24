@@ -5,7 +5,7 @@
 .bcy-footer {
   display: grid; grid-template-columns: 1.3fr auto 1fr; align-items: stretch; gap: clamp(16px, 2.4vw, 40px);
   width: 100%; max-width: 1400px; margin: 0 auto;
-  background: linear-gradient(180deg, rgba(10,5,28,.82), rgba(10,5,28,.94));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--pal-purple-d20) 82%, transparent), color-mix(in srgb, var(--pal-purple-d20) 94%, transparent));
   border: 1px solid rgba(255,255,255,.12); border-radius: 14px;
   padding: clamp(12px, 1.8vh, 22px) clamp(18px, 2.4vw, 36px);
   box-shadow: 0 -8px 30px rgba(0,0,0,.25);

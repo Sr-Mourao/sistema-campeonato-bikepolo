@@ -15,17 +15,17 @@ export default function LatinoSection({ latino, nacionalidade, onChange }: Props
         <div className="ins-card-icon"><Globe size={18} /></div>
         <div>
           <div className="ins-card-title">Latinoamericano 2026</div>
-          <div className="ins-card-subtitle">Peru — vagas via Campeonato Brasileiro</div>
+          <div className="ins-card-subtitle">Peru — vagas via Pior Campeonato de Bici Polo</div>
         </div>
       </div>
 
       <p style={{ fontSize: 15, color: 'rgba(255,255,255,.65)', marginBottom: 16, lineHeight: 1.5 }}>
-        Você pretende disputar vaga para o <strong style={{ color: '#fff' }}>Latinoamericano 2026</strong> através deste campeonato?
+        Você pretende disputar vaga para o <strong style={{ color: 'var(--pal-white)' }}>Latinoamericano 2026</strong> através deste campeonato?
       </p>
 
       {estrangeira && (
         <div className="ins-info-box" style={{ marginBottom: 16 }}>
-          Pessoas estrangeiras também podem disputar vaga classificatória através do Campeonato Brasileiro,
+          Pessoas estrangeiras também podem disputar vaga classificatória através do Pior Campeonato de Bici Polo,
           <strong> desde que não possuam vaga garantida por seu país de origem</strong>.
           Ao optar por disputar vaga através do Brasileiro, a pessoa atleta não poderá disputar
           vaga classificatória por outro campeonato nacional.

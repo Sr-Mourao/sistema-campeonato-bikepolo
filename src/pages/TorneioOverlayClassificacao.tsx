@@ -38,14 +38,14 @@ export default function TorneioOverlayClassificacao() {
 
   const classificacao = classificacaoOficial(payload.classificacao)
   return (
-    <BroadcastFrame className={`tc-classificacao ${categoria === 'mtnb' ? 'tc-classificacao--mtnb' : ''}`} intro={intro}>
+    <BroadcastFrame className={`tc-classificacao ${false ? 'tc-classificacao--mtnb' : ''}`} intro={intro}>
       <section className="tc-standing-panel">
-        <BroadcastTitle eyebrow="Primeira fase" title="Classificação" subtitle={`${TOURNAMENT_PRESENTATION[categoria].short} · Floripa 2026`} />
+        <BroadcastTitle eyebrow="Primeira fase" title="Classificação" subtitle={`${TOURNAMENT_PRESENTATION[categoria].short} · Curitiba 2026`} />
         <div className="tc-standing-head"><span>Pos</span><b>Equipe</b><strong>Pts</strong><i>J</i><i>V</i><i>E</i><i>SG</i><i>BUCH</i><i>FP</i></div>
         <ol className="tc-standing-list">
           {classificacao.map((time, i) => (
             <li key={time.time_id} className={time.classificado_direto ? 'is-direct' : 'is-rep'} style={{ '--order': i } as CSSProperties}>
-              {i === 0 && <small className="tc-zone tc-zone--direct">{categoria === 'mtnb' ? 'Seeds da Double' : 'Classificação direta'}</small>}
+              {i === 0 && <small className="tc-zone tc-zone--direct">{false ? 'Seeds da Double' : 'Classificação direta'}</small>}
               {categoria === 'misto' && i === payload.torneio.classificados_diretos && <small className="tc-zone tc-zone--rep">Repescagem</small>}
               <span className="tc-pos">{time.posicao}<sup>º</sup></span>
               <span className="tc-team">

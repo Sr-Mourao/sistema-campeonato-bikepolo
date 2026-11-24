@@ -35,7 +35,7 @@ function WinnerCard({ winner, compact = false }: { winner: AwardWinner; compact?
 function Individual({ resultado, codigo }: { resultado?: AwardProjectionResult; codigo: AwardCode }) {
   const winners = resultadoVisivel(resultado)
   return <div className={`pra-individual pra-individual--${codigo}`}>
-    <header><span>Awards · 10º Brasileiro Misto</span><h1>{resultado?.nome ?? codigo}</h1><p>{SUBTITULOS[codigo]}</p></header>
+    <header><span>Awards · 2° Pior Campeonato de Bici Polo Misto</span><h1>{resultado?.nome ?? codigo}</h1><p>{SUBTITULOS[codigo]}</p></header>
     {winners.length === 0 ? <div className="pra-await"><span>Resultado ainda não disponível</span><strong>Aguardando votos</strong></div> : <>
       {resultado?.empate && <div className="pra-tie" style={{ top: '33vh', bottom: 'auto' }}>Empate · {resultado.maior_quantidade} {resultado.maior_quantidade === 1 ? 'voto cada' : 'votos cada'}</div>}
       <div className={`pra-winners pra-winners--${Math.min(winners.length, 4)}`}>{winners.map(w => <WinnerCard winner={w} key={w.pessoa_id} />)}</div>
@@ -45,7 +45,7 @@ function Individual({ resultado, codigo }: { resultado?: AwardProjectionResult; 
 }
 
 function Geral({ payload }: { payload: Payload | null }) {
-  return <div className="pra-general"><header><span>10º Campeonato Brasileiro · Misto</span><h1>Awards</h1><p>Os destaques de Floripa · 2026</p></header><div className="pra-general-grid">{CODIGOS.map(codigo => {
+  return <div className="pra-general"><header><span>2° Pior Campeonato de Bici Polo · Misto</span><h1>Awards</h1><p>Os destaques de Curitiba 2026</p></header><div className="pra-general-grid">{CODIGOS.map(codigo => {
     const resultado = payload?.categorias[codigo]
     const winners = resultadoVisivel(resultado)
     return <article className={`is-${codigo}`} key={codigo}><div className="pra-general-title"><span>{resultado?.nome ?? codigo}</span><small>{SUBTITULOS[codigo]}</small></div>{winners.length === 0 ? <p>Aguardando resultado</p> : <div className="pra-general-winners">{winners.map(w => <WinnerCard winner={w} compact key={w.pessoa_id} />)}</div>}{resultado?.empate && <b>Empate · {resultado.maior_quantidade} votos cada</b>}</article>

@@ -13,8 +13,8 @@
  */
 export const SITE = {
   /** Nome curto usado em títulos e overlays. */
-  evento: '10º Campeonato Brasileiro de Bike Polo',
-  eventoCurto: '10º CBBP',
+  evento: '2° Pior Campeonato de Bici Polo',
+  eventoCurto: '2° PCP',
   cidade: 'Florianópolis — SC',
 
   contato: {
@@ -31,7 +31,7 @@ export const SITE = {
    * Equipe de captação exibida em /apoie.
    *
    * ESVAZIADO NA PUBLICAÇÃO. Aqui havia nome e celular pessoal de seis pessoas
-   * da organização do 10º Brasileiro. Num repositório público esses números
+   * da organização do 2° Pior Campeonato de Bici Polo. Num repositório público esses números
    * ficariam indexáveis e seriam copiados para todo fork, para sempre — então
    * saíram daqui.
    *

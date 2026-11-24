@@ -21,7 +21,7 @@ export default function TorneioOverlayRepescagem() {
   const classificados = classificadosRepescagem(payload.repescagem)
   return (
     <BroadcastFrame className="tc-repescagem" intro={intro}>
-      <BroadcastTitle eyebrow="Última rota para a fase final" title="Repescagem" subtitle="10º CBBP · Floripa 2026" />
+      <BroadcastTitle eyebrow="Última rota para a fase final" title="Repescagem" subtitle="2° PCP · Curitiba 2026" />
       <div className="tr-bracket">
         <div className="tr-column tr-column--opening">
           <span className="tr-column-title">Primeira rodada</span>

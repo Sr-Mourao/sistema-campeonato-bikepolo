@@ -90,7 +90,7 @@ export default function Footer() {
           >
             <img
               src="/imgs/logos/bikeplofloripa.png"
-              alt="Bike Polo Floripa"
+              alt="Bike Polo"
               className="footer-logo"
               onError={imgFallback}
             />

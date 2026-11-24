@@ -12,7 +12,7 @@
 .evt-content { display: flex; align-items: center; gap: 6px; font-size: 13px; min-width: 0; }
 .evt-row--a .evt-content { grid-column: 1; justify-self: end; flex-direction: row-reverse; text-align: right; }
 .evt-row--b .evt-content { grid-column: 2; justify-self: start; text-align: left; }
-.evt-icon { flex-shrink: 0; display: inline-flex; color: #f8a23c; }
+.evt-icon { flex-shrink: 0; display: inline-flex; color: var(--pal-orange); }
 .evt-icon svg { display: block; }
 .evt-desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .evt-time { color: rgba(255, 255, 255, .45); font-variant-numeric: tabular-nums; font-size: 11px; flex-shrink: 0; }

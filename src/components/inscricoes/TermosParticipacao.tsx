@@ -18,7 +18,7 @@ export default function TermosParticipacao({ aceito, onChange, error }: Props) {
           <div className="ins-modal ins-modal--termos" onClick={e => e.stopPropagation()}>
             <div className="ins-modal-termos-header">
               <h2 className="ins-modal-termos-title">
-                Termos de Participação — 10º Campeonato Brasileiro de Bike Polo
+                Termos de Participação — 2° Pior Campeonato de Bici Polo
               </h2>
               <button type="button" className="ins-modal-termos-close" onClick={() => setModalAberto(false)}>
                 <X size={18} />

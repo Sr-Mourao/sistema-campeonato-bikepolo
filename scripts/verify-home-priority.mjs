@@ -19,7 +19,7 @@ for (const viewport of [{ name: 'desktop', width: 1366, height: 768 }, { name: '
     scrollWidth: document.documentElement.scrollWidth,
     viewportWidth: innerWidth,
   }))
-  if (links.title !== 'Acompanhe o Brasileiro de Bike Polo 2026') throw new Error(`Título incorreto: ${links.title}`)
+  if (links.title !== 'Acompanhe o 2° Pior Campeonato de Bici Polo 2026') throw new Error(`Título incorreto: ${links.title}`)
   if (JSON.stringify(links.primary) !== JSON.stringify(['/torneio/resultados', '/torneio', '/equipes'])) throw new Error(`CTAs principais incorretos: ${links.primary}`)
   if (JSON.stringify(links.operational) !== JSON.stringify(['/torneio/misto?aba=regulamento', '/minha-inscricao'])) throw new Error(`CTAs operacionais incorretos: ${links.operational}`)
   if (!links.more.includes('/carteira') || !links.more.includes('/inscricoes')) throw new Error('Acessos secundários ausentes')

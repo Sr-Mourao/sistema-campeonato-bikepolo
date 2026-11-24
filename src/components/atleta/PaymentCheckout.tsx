@@ -272,7 +272,7 @@ export default function PaymentCheckout({
         {/* Header */}
         <div className="chk-header">
           <div>
-            <p className="chk-header-eyebrow">10º Campeonato Brasileiro · Florianópolis 2026</p>
+            <p className="chk-header-eyebrow">2° Pior Campeonato de Bici Polo · Curitiba 2026</p>
             <p className="chk-header-title">{tituloHeader}</p>
           </div>
           <button className="chk-close" onClick={onClose} aria-label="Fechar"><X size={18} /></button>
@@ -290,8 +290,8 @@ export default function PaymentCheckout({
         {/* ── Rejeitado ────────────────────────────────── */}
         {estado === 'rejeitado' && (
           <div className="chk-success">
-            <AlertTriangle size={48} style={{ color: '#FF5252', marginBottom: 16 }} />
-            <p className="chk-success-title" style={{ color: '#FF5252' }}>Pagamento não aprovado</p>
+            <AlertTriangle size={48} style={{ color: 'var(--pal-red-100-2)', marginBottom: 16 }} />
+            <p className="chk-success-title" style={{ color: 'var(--pal-red-100-2)' }}>Pagamento não aprovado</p>
             <p className="chk-success-sub">{erroMsg || 'Tente novamente com outro cartão ou método.'}</p>
             <button
               className="chk-pay-btn"
@@ -309,8 +309,8 @@ export default function PaymentCheckout({
         {/* ── Erro geral ───────────────────────────────── */}
         {estado === 'erro' && (
           <div className="chk-success">
-            <AlertTriangle size={48} style={{ color: '#FF5252', marginBottom: 16 }} />
-            <p className="chk-success-title" style={{ color: '#FF5252' }}>Erro no checkout</p>
+            <AlertTriangle size={48} style={{ color: 'var(--pal-red-100-2)', marginBottom: 16 }} />
+            <p className="chk-success-title" style={{ color: 'var(--pal-red-100-2)' }}>Erro no checkout</p>
             <p className="chk-success-sub">{erroMsg}</p>
             <button
               className="chk-pay-btn"
@@ -332,7 +332,7 @@ export default function PaymentCheckout({
               <img
                 src={`data:image/png;base64,${pixData.qr_code_base64}`}
                 alt="QR Code PIX"
-                style={{ width: 200, height: 200, margin: '0 auto 16px', display: 'block', borderRadius: 8, background: '#fff', padding: 8 }}
+                style={{ width: 200, height: 200, margin: '0 auto 16px', display: 'block', borderRadius: 8, background: 'var(--pal-white)', padding: 8 }}
               />
             )}
             <div style={{ background: 'rgba(255,255,255,.06)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -340,11 +340,11 @@ export default function PaymentCheckout({
                 {pixData.qr_code}
               </code>
               <button onClick={copiarPix} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,.6)', flexShrink: 0 }}>
-                {copiado ? <Check size={16} color="#4CE0A8" /> : <Copy size={16} />}
+                {copiado ? <Check size={16} color="var(--pal-magenta-l70)" /> : <Copy size={16} />}
               </button>
             </div>
             <p style={{ fontSize: 13, color: 'rgba(255,255,255,.40)', marginBottom: 20 }}>
-              Total: <strong style={{ color: '#fff' }}>{fmt(valorBase)}</strong> · vence em 30 minutos
+              Total: <strong style={{ color: 'var(--pal-white)' }}>{fmt(valorBase)}</strong> · vence em 30 minutos
             </p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
               <span className="atl-spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
@@ -370,7 +370,7 @@ export default function PaymentCheckout({
                 </div>
             }
             {metodo === 'cartao' && (
-              <div className="chk-item" style={{ color: 'rgba(255,200,100,.85)' }}>
+              <div className="chk-item" style={{ color: 'color-mix(in srgb, var(--pal-amber-100) 85%, transparent)' }}>
                 <span>Taxa de cartão de crédito (5%)</span>
                 <span>{fmt(taxaValor)}</span>
               </div>
@@ -395,19 +395,19 @@ export default function PaymentCheckout({
               style={{
                 display: 'flex', alignItems: 'center', gap: 14, width: '100%',
                 padding: '14px 16px', marginBottom: 10,
-                background: 'rgba(76,224,168,.06)', border: '1.5px solid rgba(76,224,168,.3)',
-                borderRadius: 10, cursor: 'pointer', textAlign: 'left', color: '#fff',
+                background: 'color-mix(in srgb, var(--pal-magenta-l70) 6%, transparent)', border: '1.5px solid color-mix(in srgb, var(--pal-magenta-l70) 30%, transparent)',
+                borderRadius: 10, cursor: 'pointer', textAlign: 'left', color: 'var(--pal-white)',
               }}
             >
-              <div style={{ width: 38, height: 38, borderRadius: 8, background: 'rgba(76,224,168,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 20 }}>
+              <div style={{ width: 38, height: 38, borderRadius: 8, background: 'color-mix(in srgb, var(--pal-magenta-l70) 15%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 20 }}>
                 ✦
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 2, color: '#4CE0A8' }}>PIX</div>
+                <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 2, color: 'var(--pal-magenta-l70)' }}>PIX</div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)' }}>Confirmação instantânea · sem acréscimo</div>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: 16, color: '#4CE0A8' }}>{fmt(valorBase)}</div>
+                <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--pal-magenta-l70)' }}>{fmt(valorBase)}</div>
               </div>
             </button>
 
@@ -418,7 +418,7 @@ export default function PaymentCheckout({
                 display: 'flex', alignItems: 'center', gap: 14, width: '100%',
                 padding: '14px 16px',
                 background: 'rgba(255,255,255,.04)', border: '1.5px solid rgba(255,255,255,.12)',
-                borderRadius: 10, cursor: 'pointer', textAlign: 'left', color: '#fff',
+                borderRadius: 10, cursor: 'pointer', textAlign: 'left', color: 'var(--pal-white)',
               }}
             >
               <div style={{ width: 38, height: 38, borderRadius: 8, background: 'rgba(255,255,255,.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

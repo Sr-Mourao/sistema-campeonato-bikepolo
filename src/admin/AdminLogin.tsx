@@ -41,7 +41,7 @@ export default function AdminLogin({ onLogin }: Props) {
           <img src="/identidade/logo.svg" alt="CB10" onError={e => (e.currentTarget.style.display = 'none')} />
         </div>
         <h1>Painel Admin</h1>
-        <p>10º Brasileiro de Bike Polo · Floripa 2026</p>
+        <p>2° Pior Campeonato de Bici Polo de Bike Polo · Curitiba 2026</p>
         <form onSubmit={handleSubmit}>
           {error && <div className="adm-error-msg">{error}</div>}
           <div className="adm-field">

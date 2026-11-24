@@ -7,14 +7,14 @@
 .iv-overlay {
   position: fixed; inset: 0; overflow: hidden;
   background: transparent; pointer-events: none;
-  --roxo: #1a0845;
-  --roxo-fundo: #12052f;
-  --laranja: #f8a23c;
-  --verde: #1e9365;
-  --vermelho: #ef4b3a;
-  --gelo: #f4f1f7;
+  --roxo: var(--pal-purple-d55);
+  --roxo-fundo: var(--pal-purple-d35);
+  --laranja: var(--pal-orange);
+  --verde: var(--pal-magenta);
+  --vermelho: var(--pal-pink);
+  --gelo: var(--pal-beige);
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  color: #fff;
+  color: var(--pal-white);
 }
 
 /* Palco de 1920×1080 escalado inteiro: a composição de 1080p vale para qualquer saída. */
@@ -39,7 +39,7 @@
 }
 .iv-rule--topo::after {
   content: ''; position: absolute; top: 0; left: 0; width: 210px; height: 6px;
-  background: #fff;
+  background: var(--pal-white);
   animation: iv-varredura 9s 2s cubic-bezier(.6,0,.35,1) infinite;
 }
 .iv-hatch {
@@ -70,7 +70,7 @@
 .iv-titlebar {
   position: absolute; left: 0; top: 356px; width: 1190px; height: 172px;
   display: flex; align-items: center;
-  background: linear-gradient(148deg, #faa93e 0%, #d97618 100%);
+  background: linear-gradient(148deg, var(--pal-orange-l80) 0%, var(--pal-orange-d80) 100%);
   border-bottom: 7px solid var(--roxo-fundo);
   clip-path: polygon(0 0, 1190px 0, 1132px 172px, 0 172px);
   animation: iv-titulo 760ms 180ms cubic-bezier(.22,.9,.24,1) both;
@@ -93,7 +93,7 @@
 .iv-sub {
   position: absolute; left: 0; top: 700px; width: 664px; height: 66px;
   display: flex; align-items: center; padding-left: 96px;
-  background: var(--roxo-fundo); color: #e6dcf7;
+  background: var(--roxo-fundo); color: var(--pal-purple-l15);
   font-size: 29px; font-weight: 600; letter-spacing: .07em;
   clip-path: polygon(0 0, 664px 0, 630px 66px, 0 66px);
   animation: iv-estado 700ms 400ms cubic-bezier(.22,.9,.24,1) both;
@@ -125,9 +125,9 @@
   width: 250px; height: 240px; padding: 0 24px; background: var(--verde);
 }
 .iv-qr-tab strong { font-size: 30px; font-weight: 900; line-height: 1.06; letter-spacing: .12em; text-transform: uppercase; }
-.iv-qr-tab span { font-size: 20px; font-weight: 600; line-height: 1.25; letter-spacing: .03em; color: #d5f0e4; }
+.iv-qr-tab span { font-size: 20px; font-weight: 600; line-height: 1.25; letter-spacing: .03em; color: var(--pal-gray-94-2); }
 /* Placa branca sólida: nada de alpha, blur ou animação sobre os módulos do código. */
-.iv-qr-plate { display: grid; place-items: center; width: 240px; height: 240px; background: #fff; }
+.iv-qr-plate { display: grid; place-items: center; width: 240px; height: 240px; background: var(--pal-white); }
 
 /* ── Placa do apoiador: superfície realmente sólida, a marca nunca briga com a câmera ── */
 .iv-sponsor { position: absolute; left: 1200px; top: 556px; }
@@ -137,7 +137,7 @@
   font-size: 25px; font-weight: 900; letter-spacing: .26em; text-transform: uppercase;
   animation: iv-surge 620ms 520ms cubic-bezier(.22,.9,.24,1) both;
 }
-.iv-sponsor-tab b { font-size: 21px; font-weight: 700; letter-spacing: .12em; color: #bff0da; }
+.iv-sponsor-tab b { font-size: 21px; font-weight: 700; letter-spacing: .12em; color: var(--pal-mint-94); }
 .iv-sponsor-tab i { font-style: normal; margin: 0 4px; }
 .iv-sponsor-plate {
   position: relative; width: 656px; height: 384px; overflow: hidden;

@@ -1,0 +1,160 @@
+/*
+ * PALETA DE CORES — único arquivo para alterar as cores do projeto.
+ *
+ * Todo o CSS e o TSX usam apenas var(--pal-*). Nada fora daqui deve ter hexadecimal.
+ * Para trocar a identidade visual, edite as cores BASE abaixo: as derivadas
+ * (-dNN = NN% da cor + preto, -lNN = NN% da cor + branco) acompanham automaticamente.
+ *
+ * Exceção: public/api/email.php (e-mail não aceita var()) tem sua própria cópia no topo do arquivo.
+ */
+:root {
+  /* ===== Base (paleta do pôster) ===== */
+  --pal-magenta: #de04ac;  /* Magenta vibrante */
+  --pal-purple: #5a0781;  /* Roxo escuro */
+  --pal-orange: #ff931e;  /* Laranja PIOR */
+  --pal-pink: #e73697;  /* Rosa PIOR */
+  --pal-plum: #a50f8f;  /* Roxo/magenta */
+  --pal-wine: #691358;  /* Vinho escuro */
+  --pal-black: #070303;  /* Preto */
+  --pal-beige: #ebd7c8;  /* Bege principal */
+  --pal-beige-light: #e2cebf;  /* Bege claro */
+  --pal-beige-yellow: #d8c8a6;  /* Bege amarelado */
+  --pal-gray-light: #e4e4e4;  /* Cinza claro */
+  --pal-gray-beige: #ae9a93;  /* Cinza/bege */
+  --pal-gray-dark: #7e7365;  /* Cinza escuro */
+  --pal-brown-gray: #50463a;  /* Marrom acinzentado */
+  --pal-white: #ffffff;  /* Branco */
+  --pal-pure-black: #000000;
+
+  /* ===== Cores CHAMPS ===== */
+  --pal-pink-champs: #f900ca;  /* Rosa CHAMPS */
+  --pal-orange-champs: #f17405;  /* Laranja CHAMPS */
+  --pal-beige-champs: #feeddb;  /* Bege CHAMPS */
+  --pal-purple-champs: #6b04b5;  /* Roxo CHAMPS */
+  --pal-black-champs: #000000;  /* Preto CHAMPS */
+
+  /* ===== Derivadas das cores base (não editar; mudam sozinhas) ===== */
+  --pal-magenta-d10: color-mix(in srgb, var(--pal-magenta) 10%, var(--pal-black));
+  --pal-magenta-d15: color-mix(in srgb, var(--pal-magenta) 15%, var(--pal-black));
+  --pal-magenta-d25: color-mix(in srgb, var(--pal-magenta) 25%, var(--pal-black));
+  --pal-magenta-d35: color-mix(in srgb, var(--pal-magenta) 35%, var(--pal-black));
+  --pal-magenta-d40: color-mix(in srgb, var(--pal-magenta) 40%, var(--pal-black));
+  --pal-magenta-d50: color-mix(in srgb, var(--pal-magenta) 50%, var(--pal-black));
+  --pal-magenta-d75: color-mix(in srgb, var(--pal-magenta) 75%, var(--pal-black));
+  --pal-magenta-d80: color-mix(in srgb, var(--pal-magenta) 80%, var(--pal-black));
+  --pal-magenta-d85: color-mix(in srgb, var(--pal-magenta) 85%, var(--pal-black));
+  --pal-magenta-l90: color-mix(in srgb, var(--pal-magenta) 90%, var(--pal-white));
+  --pal-magenta-l75: color-mix(in srgb, var(--pal-magenta) 75%, var(--pal-white));
+  --pal-magenta-l70: color-mix(in srgb, var(--pal-magenta) 70%, var(--pal-white));
+  --pal-magenta-l65: color-mix(in srgb, var(--pal-magenta) 65%, var(--pal-white));
+  --pal-magenta-l60: color-mix(in srgb, var(--pal-magenta) 60%, var(--pal-white));
+  --pal-magenta-l55: color-mix(in srgb, var(--pal-magenta) 55%, var(--pal-white));
+  --pal-magenta-l50: color-mix(in srgb, var(--pal-magenta) 50%, var(--pal-white));
+  --pal-orange-d80: color-mix(in srgb, var(--pal-orange) 80%, var(--pal-black));
+  --pal-orange-l80: color-mix(in srgb, var(--pal-orange) 80%, var(--pal-white));
+  --pal-purple-d5: color-mix(in srgb, var(--pal-purple) 5%, var(--pal-black));
+  --pal-purple-d10: color-mix(in srgb, var(--pal-purple) 10%, var(--pal-black));
+  --pal-purple-d15: color-mix(in srgb, var(--pal-purple) 15%, var(--pal-black));
+  --pal-purple-d20: color-mix(in srgb, var(--pal-purple) 20%, var(--pal-black));
+  --pal-purple-d25: color-mix(in srgb, var(--pal-purple) 25%, var(--pal-black));
+  --pal-purple-d30: color-mix(in srgb, var(--pal-purple) 30%, var(--pal-black));
+  --pal-purple-d35: color-mix(in srgb, var(--pal-purple) 35%, var(--pal-black));
+  --pal-purple-d40: color-mix(in srgb, var(--pal-purple) 40%, var(--pal-black));
+  --pal-purple-d45: color-mix(in srgb, var(--pal-purple) 45%, var(--pal-black));
+  --pal-purple-d50: color-mix(in srgb, var(--pal-purple) 50%, var(--pal-black));
+  --pal-purple-d55: color-mix(in srgb, var(--pal-purple) 55%, var(--pal-black));
+  --pal-purple-d60: color-mix(in srgb, var(--pal-purple) 60%, var(--pal-black));
+  --pal-purple-d65: color-mix(in srgb, var(--pal-purple) 65%, var(--pal-black));
+  --pal-purple-d70: color-mix(in srgb, var(--pal-purple) 70%, var(--pal-black));
+  --pal-purple-d75: color-mix(in srgb, var(--pal-purple) 75%, var(--pal-black));
+  --pal-purple-d80: color-mix(in srgb, var(--pal-purple) 80%, var(--pal-black));
+  --pal-purple-d85: color-mix(in srgb, var(--pal-purple) 85%, var(--pal-black));
+  --pal-purple-d90: color-mix(in srgb, var(--pal-purple) 90%, var(--pal-black));
+  --pal-purple-d95: color-mix(in srgb, var(--pal-purple) 95%, var(--pal-black));
+  --pal-purple-l90: color-mix(in srgb, var(--pal-purple) 90%, var(--pal-white));
+  --pal-purple-l85: color-mix(in srgb, var(--pal-purple) 85%, var(--pal-white));
+  --pal-purple-l80: color-mix(in srgb, var(--pal-purple) 80%, var(--pal-white));
+  --pal-purple-l75: color-mix(in srgb, var(--pal-purple) 75%, var(--pal-white));
+  --pal-purple-l70: color-mix(in srgb, var(--pal-purple) 70%, var(--pal-white));
+  --pal-purple-l65: color-mix(in srgb, var(--pal-purple) 65%, var(--pal-white));
+  --pal-purple-l55: color-mix(in srgb, var(--pal-purple) 55%, var(--pal-white));
+  --pal-purple-l50: color-mix(in srgb, var(--pal-purple) 50%, var(--pal-white));
+  --pal-purple-l45: color-mix(in srgb, var(--pal-purple) 45%, var(--pal-white));
+  --pal-purple-l40: color-mix(in srgb, var(--pal-purple) 40%, var(--pal-white));
+  --pal-purple-l35: color-mix(in srgb, var(--pal-purple) 35%, var(--pal-white));
+  --pal-purple-l30: color-mix(in srgb, var(--pal-purple) 30%, var(--pal-white));
+  --pal-purple-l25: color-mix(in srgb, var(--pal-purple) 25%, var(--pal-white));
+  --pal-purple-l20: color-mix(in srgb, var(--pal-purple) 20%, var(--pal-white));
+  --pal-purple-l15: color-mix(in srgb, var(--pal-purple) 15%, var(--pal-white));
+
+  /* ===== Funcionais e neutros (erro, alerta, painel admin) ===== */
+  --pal-amber-15: #251300;
+  --pal-amber-23: #3a3018;
+  --pal-amber-23-2: #3a2a05;
+  --pal-amber-55: #8b4b00;
+  --pal-amber-90: #e5bd65;
+  --pal-amber-95: #f2cf69;
+  --pal-amber-96: #f59e0b;
+  --pal-amber-98: #fbbf24;
+  --pal-amber-98-2: #f97316;
+  --pal-amber-100: #ffc864;
+  --pal-amber-100-2: #ffc477;
+  --pal-blue-4: #05070b;
+  --pal-blue-8: #0d0f14;
+  --pal-blue-14: #151923;
+  --pal-blue-22: #242a38;
+  --pal-blue-28: #303747;
+  --pal-blue-32: #353b52;
+  --pal-blue-35: #3b4559;
+  --pal-blue-47: #555e78;
+  --pal-blue-53: #697387;
+  --pal-blue-56: #717b8e;
+  --pal-blue-60: #7e8799;
+  --pal-blue-65: #8992a5;
+  --pal-blue-69: #929caf;
+  --pal-blue-78: #aeb6c6;
+  --pal-blue-96: #3b82f6;
+  --pal-gray-7: #111111;
+  --pal-gray-13: #222222;
+  --pal-gray-33: #555555;
+  --pal-gray-60: #999999;
+  --pal-gray-73: #bbbbbb;
+  --pal-gray-80: #b9c0cd;
+  --pal-gray-83: #c2c8d3;
+  --pal-gray-85: #dac9cb;
+  --pal-gray-86: #cbd1dc;
+  --pal-gray-90: #d8dce5;
+  --pal-gray-94: #dce1f0;
+  --pal-gray-94-2: #d5f0e4;
+  --pal-gray-98: #f8f7fb;
+  --pal-mint-94: #bff0da;
+  --pal-red-15: #26171b;
+  --pal-red-36: #5b474a;
+  --pal-red-40: #67383d;
+  --pal-red-45: #74383d;
+  --pal-red-55: #8d3039;
+  --pal-red-71: #b42d37;
+  --pal-red-73: #bba3a6;
+  --pal-red-77: #c55760;
+  --pal-red-88: #e14c55;
+  --pal-red-94: #ef4444;
+  --pal-red-94-2: #ef8e8e;
+  --pal-red-95: #f19a94;
+  --pal-red-98: #fb7185;
+  --pal-red-99: #fca5a5;
+  --pal-red-100: #ff8a80;
+  --pal-red-100-2: #ff5252;
+  --pal-red-100-3: #ff6570;
+  --pal-red-100-4: #ff9c91;
+  --pal-red-100-5: #ff9298;
+  --pal-red-100-7: #fecaca;
+  --pal-red-100-8: #ff515e;
+  --pal-teal-83: #06b6d4;
+  --pal-yellow-10: #1a1400;
+  --pal-yellow-32: #514813;
+  --pal-yellow-95: #f1d33f;
+  --pal-yellow-96: #f5e27a;
+  --pal-yellow-100: #ffd54f;
+  --pal-yellow-100-2: #ffc800;
+  --pal-yellow-100-3: #ffed93;
+}

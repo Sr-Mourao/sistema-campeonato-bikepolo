@@ -1,17 +1,17 @@
 /* Card/modal público do time (seções 17-19 do brief de área pública). */
 
 .tmm-overlay {
-  position: fixed; inset: 0; background: rgba(10, 4, 30, .7); backdrop-filter: blur(2px);
+  position: fixed; inset: 0; background: color-mix(in srgb, var(--pal-purple-d20) 70%, transparent); backdrop-filter: blur(2px);
   display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px;
 }
 .tmm-modal {
-  background: #1c0f45; border: 1px solid rgba(255, 255, 255, .14); border-radius: 16px;
+  background: var(--pal-purple-d55); border: 1px solid rgba(255, 255, 255, .14); border-radius: 16px;
   padding: 24px; max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto;
-  position: relative; color: #fff; font-family: system-ui, sans-serif;
+  position: relative; color: var(--pal-white); font-family: system-ui, sans-serif;
 }
 .tmm-close {
   position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, .08); border: none;
-  color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px;
+  color: var(--pal-white); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px;
 }
 .tmm-close:hover { background: rgba(255, 255, 255, .16); }
 .tmm-hint { text-align: center; font-size: 13px; color: rgba(255, 255, 255, .55); }

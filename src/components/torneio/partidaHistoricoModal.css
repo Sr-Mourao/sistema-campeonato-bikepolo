@@ -1,20 +1,20 @@
 /* Modal de histórico de partida encerrada (seção 14 do brief de acabamento 3). */
 
 .phm-overlay {
-  position: fixed; inset: 0; background: rgba(10, 4, 30, .7); backdrop-filter: blur(2px);
+  position: fixed; inset: 0; background: color-mix(in srgb, var(--pal-purple-d20) 70%, transparent); backdrop-filter: blur(2px);
   display: flex; align-items: center; justify-content: center; z-index: 200; padding: 20px;
 }
 .phm-modal {
-  background: #1c0f45; border: 1px solid rgba(255, 255, 255, .14); border-radius: 16px;
+  background: var(--pal-purple-d55); border: 1px solid rgba(255, 255, 255, .14); border-radius: 16px;
   padding: 24px; max-width: 460px; width: 100%; max-height: 85vh; overflow-y: auto;
-  position: relative; color: #fff; font-family: system-ui, sans-serif;
+  position: relative; color: var(--pal-white); font-family: system-ui, sans-serif;
 }
 .phm-close {
   position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, .08); border: none;
-  color: #fff; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px;
+  color: var(--pal-white); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 14px;
 }
 .phm-close:hover { background: rgba(255, 255, 255, .16); }
-.phm-fase { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #f8a23c; text-align: center; }
+.phm-fase { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--pal-orange); text-align: center; }
 .phm-jogo { font-size: 20px; font-weight: 800; text-align: center; margin-top: 6px; font-family: 'Barlow Condensed', sans-serif; }
 .phm-jogo span { color: rgba(255, 255, 255, .4); font-weight: 400; margin: 0 8px; }
 .phm-placar { font-size: 34px; font-weight: 900; text-align: center; margin-top: 4px; font-variant-numeric: tabular-nums; }

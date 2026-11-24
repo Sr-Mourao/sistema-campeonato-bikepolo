@@ -8,7 +8,7 @@ import MinhaInscricao from './pages/MinhaInscricao'
 import { TournamentProvider, type TournamentCategory } from './contexts/TournamentContext'
 
 // Browser Source precisa nascer transparente, inclusive antes do chunk lazy do overlay.
-if (/^\/torneio\/(?:mtnb\/)?overlay\//.test(window.location.pathname)) {
+if (/^\/torneio\/overlay\//.test(window.location.pathname)) {
   document.documentElement.classList.add('obs-overlay-document')
   document.body.classList.add('obs-overlay-document')
 }
@@ -50,7 +50,7 @@ export default function App() {
 
   if (path.startsWith('/admin')) {
     return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0d0f14', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555e78', fontFamily: 'system-ui' }}>Carregando…</div>}>
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-blue-8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--pal-blue-47)', fontFamily: 'system-ui' }}>Carregando…</div>}>
         <AdminApp />
       </Suspense>
     )
@@ -68,18 +68,18 @@ export default function App() {
   if (path === '/inscricoes')       return <Inscricoes />
   if (path === '/minha-inscricao')  return <MinhaInscricao />
   if (path === '/carteira' || path === '/carteira/' || path === '/carteira/acesso' || path === '/carteira/acesso/' || path.startsWith('/carteira/q/')) {
-    return <Suspense fallback={<div style={{ minHeight: '100vh', background: '#16083d' }} />}><Carteira /></Suspense>
+    return <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d45)' }} />}><Carteira /></Suspense>
   }
   if (path === '/lojinha') {
     return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#160840' }} />}>
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d50)' }} />}>
         <Lojinha />
       </Suspense>
     )
   }
   if (path === '/equipes') {
     return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#16083d' }} />}>
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d45)' }} />}>
         <Equipes />
       </Suspense>
     )
@@ -100,13 +100,13 @@ export default function App() {
     return scoped('misto', <Suspense fallback={<div className="obs-overlay-fallback" />}><TorneioOverlayConfronto /></Suspense>)
   }
   if (path === '/overlays') {
-    return <Suspense fallback={<div style={{ minHeight: '100vh', background: '#11072a' }} />}><OverlaysCentral /></Suspense>
+    return <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d30)' }} />}><OverlaysCentral /></Suspense>
   }
   if (path === '/overlays/podio') {
-    return <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0d0326' }} />}><PremiacaoPodio /></Suspense>
+    return <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d25)' }} />}><PremiacaoPodio /></Suspense>
   }
   if (path === '/overlays/awards' || /^\/overlays\/awards\/(mvp|wow|revelacao|jesse)$/.test(path)) {
-    return <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0d0326' }} />}><PremiacaoAwards /></Suspense>
+    return <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d25)' }} />}><PremiacaoAwards /></Suspense>
   }
   if (path === '/torneio/overlay/classificacao') {
     return scoped('misto', <Suspense fallback={<div className="obs-overlay-fallback" />}><TorneioOverlayClassificacao /></Suspense>)
@@ -120,33 +120,26 @@ export default function App() {
   if (path === '/torneio/overlay/final') {
     return scoped('misto', <Suspense fallback={<div className="obs-overlay-fallback" />}><TorneioOverlayFinal /></Suspense>)
   }
-  const overlayMtnb = path.match(/^\/torneio\/mtnb\/overlay\/(placar|eventos|confronto|classificacao|double|final)$/)?.[1]
-  if (overlayMtnb) {
-    const Component = overlayMtnb === 'placar' ? TorneioOverlayPlacar : overlayMtnb === 'eventos' ? TorneioOverlayEventos : overlayMtnb === 'confronto' ? TorneioOverlayConfronto : overlayMtnb === 'classificacao' ? TorneioOverlayClassificacao : overlayMtnb === 'double' ? TorneioOverlayDouble : TorneioOverlayFinal
-    return scoped('mtnb', <Suspense fallback={<div className="obs-overlay-fallback" />}><Component /></Suspense>)
-  }
   if (path === '/torneio/placar') {
     return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#16083d' }} />}>
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d45)' }} />}>
         {scoped('misto', <TorneioPlacar />)}
       </Suspense>
     )
   }
   if (path === '/torneio/misto') {
     return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#16083d' }} />}>
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d45)' }} />}>
         {scoped('misto', <Torneio />)}
       </Suspense>
     )
   }
   if (path === '/torneio/resultados' || path === '/torneio/resultados/') {
-    return <Suspense fallback={<div style={{ minHeight: '100vh', background: '#11062e' }} />}><Resultados /></Suspense>
+    return <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d35)' }} />}><Resultados /></Suspense>
   }
-  if (path === '/torneio/mtnb/placar') return scoped('mtnb', <Suspense fallback={<div style={{ minHeight: '100vh', background: '#16083d' }} />}><TorneioPlacar /></Suspense>)
-  if (path === '/torneio/mtnb') return scoped('mtnb', <Suspense fallback={<div style={{ minHeight: '100vh', background: '#16083d' }} />}><Torneio /></Suspense>)
   if (path === '/torneio') {
     return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: '#16083d' }} />}>
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d45)' }} />}>
         <TorneioSeletor />
       </Suspense>
     )

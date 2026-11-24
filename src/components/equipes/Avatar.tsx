@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './avatarFallback.css'
 
 // Paleta restrita à identidade do site — nunca cor aleatória
-const CORES = ['#F8A23C', '#F44B3A', '#1E9365', '#4D1D95', '#C6472F']
+const CORES = ['var(--pal-orange)', 'var(--pal-pink)', 'var(--pal-magenta)', 'var(--pal-purple)', 'var(--pal-plum)']
 
 function corPara(nome: string): string {
   let hash = 0

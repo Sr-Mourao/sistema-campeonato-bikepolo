@@ -5,7 +5,7 @@
  */
 const TORNEIO_FORMATOS = [
     'misto_swiss_13' => [
-        'slug' => 'misto', 'nome' => '10º Brasileiro Misto',
+        'slug' => 'misto', 'nome' => '2° Pior Campeonato de Bici Polo Misto',
         'primeira_fase' => 'swiss', 'repescagem' => true,
         'rodadas' => 4, 'participantes' => 13,
     ],

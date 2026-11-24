@@ -1,4 +1,4 @@
-export type Torneio = 'brasileiro' | 'mtnb'
+export type Torneio = 'brasileiro'
 
 export interface Atleta {
   id: string

@@ -9,7 +9,7 @@ import './TorneioEmissora.css'
  * dimensiona é o OBS. O resto da viewport fica transparente.
  *
  * A placa inverte de polaridade entre os estados porque as marcas exigem isso: a Buena
- * Mira é arte branca (pede fundo escuro) e a Bike Polo Floripa é arte preta (pede fundo
+ * Mira é arte branca (pede fundo escuro) e a Bike Polo é arte preta (pede fundo
  * claro). Nenhuma das duas é alterada por filtro.
  */
 const BUENA_MIRA = '/imgs/logos/buena%20mira/BMSC_Negativo_Alternativo.png'
@@ -22,10 +22,10 @@ const REALIZACAO_MS = 5200
 const BUENA_MIN_MS = 45_000
 const BUENA_MAX_MS = 90_000
 
-type Marca = 'buena' | 'floripa'
+type Marca = 'buena' | 'curitiba'
 
 const proximaEspera = (marca: Marca) =>
-  marca === 'floripa' ? REALIZACAO_MS : BUENA_MIN_MS + Math.random() * (BUENA_MAX_MS - BUENA_MIN_MS)
+  marca === 'curitiba' ? REALIZACAO_MS : BUENA_MIN_MS + Math.random() * (BUENA_MAX_MS - BUENA_MIN_MS)
 
 export default function TorneioOverlayEmissora() {
   useObsDocument('OBS · Emissora')
@@ -40,7 +40,7 @@ export default function TorneioOverlayEmissora() {
 
   useEffect(() => {
     if (!trocando) return
-    const troca = setTimeout(() => setMarca(atual => (atual === 'buena' ? 'floripa' : 'buena')), LAMINA_MEIO_MS)
+    const troca = setTimeout(() => setMarca(atual => (atual === 'buena' ? 'curitiba' : 'buena')), LAMINA_MEIO_MS)
     const fim = setTimeout(() => setTrocando(false), LAMINA_MS)
     return () => { clearTimeout(troca); clearTimeout(fim) }
   }, [trocando])
@@ -60,8 +60,8 @@ export default function TorneioOverlayEmissora() {
             </div>
           </div>
         ) : (
-          <div className="em-conteudo" key="floripa">
-            <img src={BIKE_POLO_FLORIPA} alt="Bike Polo Floripa" className="em-marca em-marca--floripa" />
+          <div className="em-conteudo" key="curitiba">
+            <img src={BIKE_POLO_FLORIPA} alt="Bike Polo" className="em-marca em-marca--curitiba" />
             <div className="em-texto">
               <span className="em-papel">Realização</span>
             </div>

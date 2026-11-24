@@ -24,7 +24,7 @@ function FinalMatch({ estado, exiting = false }: { estado: Extract<EstadoFinal, 
   const placar = jogo ? jogoTemPlacar(jogo) : false
   return (
     <div className={`tf-match ${exiting ? 'tf-match--exit' : ''}`}>
-      <BroadcastTitle eyebrow="Decisão do campeonato" title="Grande Final" subtitle={jogo?.codigo === 'GF2' ? 'Jogo decisivo · GF2' : `${identidade.short} · Floripa 2026`} />
+      <BroadcastTitle eyebrow="Decisão do campeonato" title="Grande Final" subtitle={jogo?.codigo === 'GF2' ? 'Jogo decisivo · GF2' : `${identidade.short} · Curitiba 2026`} />
       <div className="tf-duel">
         <FinalTeam lado="a" jogo={jogo} />
         <div className="tf-score">
@@ -46,11 +46,11 @@ function ChampionHero({ nome, logo, elenco }: { nome: string; logo: string | nul
     <section className="tf-champion">
       <div className="tf-champion-mass" aria-hidden="true" />
       <div className="tf-champion-lines" aria-hidden="true" />
-      <div className="tf-champion-brand"><img src="/identidade/logo.svg" alt="" /><span>{identidade.official}<br />Floripa · 2026</span></div>
+      <div className="tf-champion-brand"><img src="/identidade/logo.svg" alt="" /><span>{identidade.official}<br />Curitiba 2026</span></div>
       <div className="tf-champion-crest"><Crest nome={nome} logo={logo} /></div>
-      <div className="tf-champion-copy"><small>{categoria === 'mtnb' ? identidade.official : 'Campeão Brasileiro'}</small><strong>{categoria === 'mtnb' ? 'Floripa · 2026' : 'de Bike Polo'}</strong><b>{nome}</b></div>
+      <div className="tf-champion-copy"><small>{false ? identidade.official : 'Campeão Brasileiro'}</small><strong>{false ? 'Curitiba 2026' : 'de Bike Polo'}</strong><b>{nome}</b></div>
       <ChampionRoster className="tf-roster" atletas={elenco} />
-      <img className="tf-floripa" src="/imgs/logos/bikeplofloripabranco.png" alt="Bike Polo Floripa" />
+      <img className="tf-floripa" src="/imgs/logos/bikeplofloripabranco.png" alt="Bike Polo" />
     </section>
   )
 }

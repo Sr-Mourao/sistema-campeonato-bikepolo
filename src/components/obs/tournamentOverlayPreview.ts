@@ -67,7 +67,7 @@ const double = [
 ]
 
 export const PREVIEW_BROADCAST: BroadcastTorneioPublico = {
-  torneio: { id: 1, nome: '10º Campeonato Brasileiro de Bike Polo', categoria: 'misto', formato: 'misto_swiss_13', estado: 'DOUBLE', classificados_diretos: 6, vagas_repescagem: 2 },
+  torneio: { id: 1, nome: '2° Pior Campeonato de Bici Polo', categoria: 'misto', formato: 'misto_swiss_13', estado: 'DOUBLE', classificados_diretos: 6, vagas_repescagem: 2 },
   classificacao: nomes.map(row), rodadas, repescagem, double, campeao: null,
 }
 

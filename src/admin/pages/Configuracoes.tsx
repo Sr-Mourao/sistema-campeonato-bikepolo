@@ -165,7 +165,7 @@ export default function Configuracoes() {
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '.88rem', fontWeight: 600, marginBottom: 2 }}>{campo.label}</div>
                   {mudado && !emEdicao && (
-                    <div style={{ fontSize: '.74rem', color: '#FFD54F' }}>Padrão: {def}</div>
+                    <div style={{ fontSize: '.74rem', color: 'var(--pal-yellow-100)' }}>Padrão: {def}</div>
                   )}
                 </div>
 
@@ -176,7 +176,7 @@ export default function Configuracoes() {
                       step="0.01"
                       value={editando[chave]}
                       onChange={e => setEditando(prev => ({ ...prev, [chave]: e.target.value }))}
-                      style={{ width: 100, padding: '5px 8px', background: 'var(--adm-input-bg, rgba(255,255,255,.07))', border: '1px solid var(--adm-border)', color: '#fff', borderRadius: 6, fontSize: '.88rem' }}
+                      style={{ width: 100, padding: '5px 8px', background: 'var(--adm-input-bg, rgba(255,255,255,.07))', border: '1px solid var(--adm-border)', color: 'var(--pal-white)', borderRadius: 6, fontSize: '.88rem' }}
                       autoFocus
                     />
                     <button
@@ -192,7 +192,7 @@ export default function Configuracoes() {
                   </>
                 ) : (
                   <>
-                    <span style={{ fontSize: '.9rem', fontWeight: 700, color: mudado ? '#FFD54F' : 'var(--adm-text-2)', minWidth: 60, textAlign: 'right' }}>
+                    <span style={{ fontSize: '.9rem', fontWeight: 700, color: mudado ? 'var(--pal-yellow-100)' : 'var(--adm-text-2)', minWidth: 60, textAlign: 'right' }}>
                       {campo.chave === 'desconto_primeiro_torneio'
                         ? `${(campo.valor * 100).toFixed(0)}%`
                         : `R$ ${campo.valor.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`
@@ -210,7 +210,7 @@ export default function Configuracoes() {
                 )}
 
                 {msg?.chave === chave && (
-                  <span style={{ fontSize: '.78rem', color: msg.ok ? '#4CE0A8' : '#FF5252', minWidth: 80 }}>
+                  <span style={{ fontSize: '.78rem', color: msg.ok ? 'var(--pal-magenta-l70)' : 'var(--pal-red-100-2)', minWidth: 80 }}>
                     {msg.texto}
                   </span>
                 )}

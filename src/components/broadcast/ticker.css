@@ -3,12 +3,12 @@
 .bcy-ticker {
   display: flex; align-items: center; gap: 14px; width: 100%; box-sizing: border-box;
   padding: 10px clamp(16px, 3vw, 40px);
-  background: rgba(8,4,22,.75); border-top: 1px solid rgba(255,255,255,.1);
+  background: color-mix(in srgb, var(--pal-purple-d15) 75%, transparent); border-top: 1px solid rgba(255,255,255,.1);
   font-family: system-ui, sans-serif;
 }
 .bcy-ticker-rotulo {
   flex-shrink: 0; font-size: 11px; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .12em; color: rgba(248,162,60,.75);
+  letter-spacing: .12em; color: color-mix(in srgb, var(--pal-orange) 75%, transparent);
 }
 
 .bcy-ticker-trilho { flex: 1; min-width: 0; overflow: hidden; }
@@ -18,7 +18,7 @@
   display: inline-flex; align-items: center; gap: 10px; padding: 0 26px;
   font-size: clamp(12.5px, 1.05vw, 15px); color: rgba(255,255,255,.72); white-space: nowrap;
 }
-.bcy-ticker-bolinha { color: #f8a23c; font-size: 8px; }
+.bcy-ticker-bolinha { color: var(--pal-orange); font-size: 8px; }
 
 @keyframes bcy-ticker-scroll {
   from { transform: translateX(0); }

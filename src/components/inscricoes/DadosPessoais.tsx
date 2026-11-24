@@ -332,7 +332,7 @@ export default function DadosPessoais({ values, errors, onChange }: Props) {
           )}
         </div>
         {values.clubeId && (
-          <p style={{ fontSize: 12, color: '#4CE0A8', marginTop: 5 }}>
+          <p style={{ fontSize: 12, color: 'var(--pal-magenta-l70)', marginTop: 5 }}>
             ✓ {values.clubeNome}
           </p>
         )}
@@ -347,7 +347,7 @@ export default function DadosPessoais({ values, errors, onChange }: Props) {
               id="ins-cidade"
               className="ins-input"
               type="text"
-              placeholder="Florianópolis/SC"
+              placeholder="Curitiba/PR"
               value={values.cidade}
               onChange={e => handleCidadeInput(e.target.value)}
               onFocus={() => cidadeOnFocus(values.cidade)}

@@ -75,7 +75,7 @@ export default function Hero() {
 
           <div className="illustration-wrapper">
             <img
-              src="/identidade/logo.svg"
+              src="/identidade/lobo.svg"
               alt=""
               className="hero-illustration"
               aria-hidden="true"
@@ -83,9 +83,9 @@ export default function Hero() {
           </div>
 
           <div className="event-meta-bar">
-            <img src="/identidade/data.svg"    alt="5-7 SET 2026" className="meta-img" />
+            <img src="/identidade/data.svg" alt="12-13 DEZ 2026" className="meta-img" />
             <div className="meta-sep" aria-hidden="true" />
-            <img src="/identidade/floripa.svg" alt="Floripa-SC"   className="meta-img meta-img-loc" />
+            <img src="/identidade/curitiba.svg" alt="Curitiba-PR" className="meta-img meta-img-loc" />
           </div>
 
         </div>
@@ -95,34 +95,23 @@ export default function Hero() {
           <div className="zone zone-orange">
             <img
               src="/identidade/10BR.svg"
-              alt="10° Campeonato Brasileiro de Bike Polo"
+              alt="2° Pior Campeonato de Bici Polo"
               className="title-img"
             />
           </div>
 
-          <div className="zone zone-green">
-            <img
-              src="/identidade/4mtnb.svg"
-              alt="4° MTNB Brasileiro"
-              className="title-img"
-            />
-          </div>
-        </div>
-
-        {/* ── CTA + Apoiadores ──────────────────────────── */}
-        <div className="zone zone-red" id="apoie">
-          <div className="red-zone-inner">
-
-            <div className="red-zone-supporters">
-              <span className="red-zone-label">Apoiadores</span>
-              <div className="red-zone-sep" aria-hidden="true" />
-              {comLogo.length > 0 && (
-                <div className="red-zone-marquee">
-                  <div className="red-zone-marquee-track">
-                    {[0, 1].map(group => (
-                      <div
-                        key={group}
-                        className="red-zone-marquee-group"
+          <div className="zone zone-red" id="apoie">
+            <div className="red-zone-inner">
+              <div className="red-zone-supporters">
+                <span className="red-zone-label">Apoiadores</span>
+                <div className="red-zone-sep" aria-hidden="true" />
+                {comLogo.length > 0 && (
+                  <div className="red-zone-marquee">
+                    <div className="red-zone-marquee-track">
+                      {[0, 1].map(group => (
+                        <div
+                          key={group}
+                          className="red-zone-marquee-group"
                         aria-hidden={group === 1 ? 'true' : undefined}
                       >
                         {comLogo.map(p => (
@@ -142,7 +131,7 @@ export default function Hero() {
             </div>
 
             <a href="/apoie" className="cta-btn">APOIE</a>
-
+            </div>
           </div>
         </div>
 

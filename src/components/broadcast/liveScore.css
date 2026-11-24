@@ -5,15 +5,15 @@
 .bcy-score-num {
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   font-size: clamp(72px, 9vw, 160px); font-weight: 900; line-height: 1;
-  font-variant-numeric: tabular-nums; color: #fff;
-  text-shadow: 0 4px 24px rgba(248,162,60,.35);
+  font-variant-numeric: tabular-nums; color: var(--pal-white);
+  text-shadow: 0 4px 24px color-mix(in srgb, var(--pal-orange) 35%, transparent);
   display: inline-block; min-width: 1.1ch; text-align: center;
   transition: transform .18s ease-out;
 }
 .bcy-score-num--pulse { animation: bcy-score-pulse 450ms ease-out; }
 @keyframes bcy-score-pulse {
   0% { transform: scale(1); }
-  35% { transform: scale(1.12); color: #f8a23c; }
+  35% { transform: scale(1.12); color: var(--pal-orange); }
   100% { transform: scale(1); }
 }
 .bcy-score-x { font-size: clamp(28px, 3vw, 52px); color: rgba(255,255,255,.35); font-weight: 400; }

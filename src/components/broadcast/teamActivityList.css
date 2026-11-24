@@ -31,7 +31,7 @@
 .bcy-atividade-avatar.eq-avatar--fallback { font-size: clamp(16px, 1.4vw, 22px); }
 
 .bcy-atividade-nome {
-  flex: 0 1 auto; min-width: 0; color: #fff; font-weight: 700;
+  flex: 0 1 auto; min-width: 0; color: var(--pal-white); font-weight: 700;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
@@ -39,11 +39,11 @@
    uma coluna separada de eventos. */
 .bcy-atividade-badges { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .bcy-atividade-badge {
-  display: inline-flex; align-items: center; gap: 4px; line-height: 1; color: #f8a23c;
+  display: inline-flex; align-items: center; gap: 4px; line-height: 1; color: var(--pal-orange);
   font-size: 0.78em; font-weight: 800; font-variant-numeric: tabular-nums;
 }
 .bcy-atividade-badge svg { display: block; flex-shrink: 0; }
-.bcy-atividade-badge--falta { color: #fbbf24; }
+.bcy-atividade-badge--falta { color: var(--pal-amber-98); }
 
 .bcy-atividade-extra {
   display: flex; flex-direction: column; gap: 4px; margin-top: 10px; padding-top: 10px;

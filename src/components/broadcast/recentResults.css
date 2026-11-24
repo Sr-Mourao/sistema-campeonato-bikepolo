@@ -1,7 +1,7 @@
 .bcy-recentes-lista { display: flex; flex-direction: column; gap: 6px; }
 .bcy-recente-item {
   display: grid; grid-template-columns: 22px 1fr auto 1fr 22px; align-items: center; gap: 8px;
-  font-family: system-ui, sans-serif; font-size: clamp(12px, 1vw, 15px); color: #fff;
+  font-family: system-ui, sans-serif; font-size: clamp(12px, 1vw, 15px); color: var(--pal-white);
 }
 /* Chip claro atrás do brasão — muitos brasões têm fundo escuro e somem no rodapé escuro
    em tamanho mini (achado ao testar com dados reais). */
@@ -15,4 +15,4 @@
 }
 .bcy-recente-nome:first-of-type { text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bcy-recente-nome:last-of-type { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bcy-recente-placar { font-weight: 800; font-variant-numeric: tabular-nums; color: #f8a23c; padding: 0 4px; }
+.bcy-recente-placar { font-weight: 800; font-variant-numeric: tabular-nums; color: var(--pal-orange); padding: 0 4px; }

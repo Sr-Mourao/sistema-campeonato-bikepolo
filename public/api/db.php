@@ -514,7 +514,7 @@ function initSchema(PDO $pdo): void {
     ");
 
     // Migrations seguras (ignoram se coluna já existir)
-    // Awards do 10º Brasileiro MISTO. A elegibilidade nunca é uma lista paralela:
+    // Awards do 2° Pior Campeonato de Bici Polo MISTO. A elegibilidade nunca é uma lista paralela:
     // deriva sempre das inscrições oficiais na categoria `misto`.
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS awards_config (

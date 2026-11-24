@@ -88,7 +88,7 @@ define('RESEND_API_KEY', 're_COLOQUE_SUA_CHAVE_AQUI');
 
 // Remetente. O domínio precisa estar verificado no Resend.
 define('EMAIL_FROM', 'noreply@exemplo.com.br');
-define('EMAIL_FROM_NAME', 'Campeonato de Bike Polo');
+define('EMAIL_FROM_NAME', '2° Pior Campeonato de Bici Polo');
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mercado Pago

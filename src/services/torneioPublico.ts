@@ -5,7 +5,7 @@ export interface FasePublica { tipo: string; rodada: number | null; rotulo: stri
 
 export interface TorneioResumo {
   torneio: {
-    id: number; nome: string; categoria: string; formato: 'misto_swiss_13' | 'mtnb_round_robin_5'; estado: string
+    id: number; nome: string; categoria: string; formato: 'misto_swiss_13'; estado: string
     classificados_diretos: number; vagas_repescagem: number; rodadas_swiss: number
     pontos_vitoria: number; pontos_empate: number; pontos_derrota: number
   }
@@ -64,7 +64,7 @@ export interface PodioTimePublico {
 
 export interface BroadcastTorneioPublico {
   torneio: {
-    id: number; nome: string; categoria: string; formato: 'misto_swiss_13' | 'mtnb_round_robin_5'; estado: string
+    id: number; nome: string; categoria: string; formato: 'misto_swiss_13'; estado: string
     classificados_diretos: number; vagas_repescagem: number
   }
   classificacao: StandingRowPublico[]
@@ -109,7 +109,7 @@ export interface AwardResultadoPublico {
 }
 
 export interface ResultadosPublicos {
-  competicao: { id: number; categoria: 'misto' | 'mtnb'; nome: string; titulo_publico: string; estado: string; encerrado: boolean }
+  competicao: { id: number; categoria: 'misto'; nome: string; titulo_publico: string; estado: string; encerrado: boolean }
   campeao_definido: boolean; classificacao_final_completa: boolean
   classificacao_final: ColocacaoFinalPublica[]
   primeira_fase: {
@@ -193,7 +193,7 @@ async function get<T>(action: string, params: Record<string, string | number> = 
 }
 
 export const torneioPublico = {
-  resultados: (categoria: 'misto' | 'mtnb' = 'misto') => get<ResultadosPublicos>('resultados', { categoria }),
+  resultados: (categoria: 'misto' = 'misto') => get<ResultadosPublicos>('resultados', { categoria }),
   broadcast: (categoria = 'misto') => get<BroadcastTorneioPublico>('broadcast', { categoria }),
   resumo: (categoria = 'misto') => get<TorneioResumo>('resumo', { categoria }),
   classificacao: (categoria = 'misto') => get<{ classificacao: StandingRowPublico[]; criterios: string[] }>('classificacao', { categoria }),

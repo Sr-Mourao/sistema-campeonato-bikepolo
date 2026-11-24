@@ -1,10 +1,10 @@
 /* ─── Tokens ─────────────────────────────────────────── */
 :root {
-  --purple: #4D1D95;
-  --green:  #1E9365;
-  --orange: #F8A23C;
-  --red:    #F44B3A;
-  --white:  #FFFFFF;
+  --purple: var(--pal-purple);
+  --green:  var(--pal-magenta);
+  --orange: var(--pal-orange);
+  --red:    var(--pal-pink);
+  --white:  var(--pal-white);
   --navbar-h: var(--site-nav-h, 56px);
 }
 
@@ -31,8 +31,8 @@
   to   { transform: scale(1.07); }
 }
 @keyframes pulseBorder {
-  0%, 100% { box-shadow: 0 0 0 0    rgba(248,162,60,0.50); }
-  50%       { box-shadow: 0 0 0 16px rgba(248,162,60,0);   }
+  0%, 100% { box-shadow: 0 0 0 0    color-mix(in srgb, var(--pal-orange) 50%, transparent); }
+  50%       { box-shadow: 0 0 0 16px color-mix(in srgb, var(--pal-orange) 0%, transparent);   }
 }
 
 /* ─── Page ───────────────────────────────────────────── */
@@ -41,7 +41,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: var(--purple);
+  background: var(--pal-beige);
   font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
 }
 
@@ -65,10 +65,10 @@
 }
 
 .navbar--scrolled {
-  background: rgba(48, 14, 92, 0.95);
+  background: color-mix(in srgb, var(--pal-purple-d75) 95%, transparent);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid rgba(248,162,60,0.28);
+  border-bottom: 1px solid color-mix(in srgb, var(--pal-orange) 28%, transparent);
 }
 
 .navbar--hidden {
@@ -171,12 +171,12 @@
   opacity: 1;
 }
 
-/* overlay roxo sobre a foto — vignette para dramaticidade */
+/* overlay bege sobre a foto */
 .bg-overlay {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 90% 85% at 50% 48%, rgba(70,24,140,0.60) 0%, rgba(12,3,35,0.98) 100%);
+    radial-gradient(ellipse 90% 85% at 50% 48%, color-mix(in srgb, var(--pal-beige) 45%, transparent) 0%, color-mix(in srgb, var(--pal-beige-light) 70%, transparent) 100%);
 }
 
 /* ─── Ilustração ──────────────────────────────────────── */
@@ -191,7 +191,7 @@
   content: '';
   position: absolute;
   inset: -55% -65%;
-  background: radial-gradient(circle at 50% 50%, rgba(248,162,60,0.18) 0%, transparent 62%);
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--pal-orange) 18%, transparent) 0%, transparent 62%);
   pointer-events: none;
   z-index: -1;
 }
@@ -201,12 +201,11 @@
 
 .hero-illustration {
   display: block;
-  max-height: clamp(120px, 34dvh, 260px);
-  max-width: clamp(120px, 60vw, 300px);
+  height: clamp(160px, 38dvh, 340px);
+  max-width: 80vw;
   width: auto;
-  height: auto;
   animation: float 5s 900ms ease-in-out infinite;
-  filter: drop-shadow(0 0 28px rgba(248,162,60,0.32)) drop-shadow(0 4px 16px rgba(0,0,0,0.50));
+  filter: drop-shadow(0 0 28px color-mix(in srgb, var(--pal-orange) 32%, transparent)) drop-shadow(0 4px 16px rgba(0,0,0,0.50));
 }
 
 /* ─── Barra data + local ─────────────────────────────── */
@@ -218,15 +217,10 @@
   justify-content: center;
   gap: clamp(10px, 2.5vw, 24px);
   animation: fadeUp 500ms 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.16);
-  padding: clamp(8px,1.6vh,12px) clamp(16px,4vw,30px);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .meta-img {
-  height: clamp(20px, 4vw, 34px);
+  height: clamp(32px, 7vw, 60px);
   width: auto;
   display: block;
   transition: transform 220ms ease, filter 220ms ease;
@@ -237,16 +231,16 @@
 }
 
 .meta-img-loc {
-  height: clamp(15px, 3.2vw, 26px);
+  height: clamp(38px, 8.5vw, 74px);
 }
 
 .meta-sep {
   width: 2px;
-  height: clamp(18px, 3.5vh, 30px);
+  height: clamp(30px, 5.5vh, 50px);
   background: var(--orange);
   opacity: 0.75;
   flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(248,162,60,0.50);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--pal-orange) 50%, transparent);
 }
 
 /* ─── Wrapper das faixas de título ───────────────────── */
@@ -268,7 +262,7 @@
 .zone-orange {
   flex: 0 0 auto;
   height: clamp(54px, 15dvh, 120px);
-  background: linear-gradient(148deg, #FAA93E 0%, #D97618 100%);
+  background: linear-gradient(148deg, var(--pal-orange-l80) 0%, var(--pal-orange-d80) 100%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.24), inset 0 -4px 0 rgba(0,0,0,0.20);
   animation: fadeUp 480ms 320ms ease both;
   transition: filter 220ms ease;
@@ -278,7 +272,7 @@
 .zone-green {
   flex: 0 0 auto;
   height: clamp(46px, 13dvh, 100px);
-  background: linear-gradient(148deg, #23B87C 0%, #10563A 100%);
+  background: linear-gradient(148deg, var(--pal-magenta-d85) 0%, var(--pal-magenta-d40) 100%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.20), inset 0 -4px 0 rgba(0,0,0,0.22);
   animation: fadeUp 480ms 400ms ease both;
   transition: filter 220ms ease;
@@ -287,7 +281,7 @@
 
 .zone-red {
   flex: 0 0 auto;
-  background: linear-gradient(148deg, #F75B4A 0%, #B01E10 100%);
+  background: linear-gradient(148deg, var(--pal-pink) 0%, var(--pal-wine) 100%);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.20), inset 0 -4px 0 rgba(0,0,0,0.25);
   animation: fadeUp 480ms 480ms ease both;
   transition: filter 220ms ease;
@@ -429,8 +423,8 @@
   .navbar-cta  { font-size: 13px; padding: 7px 20px; }
 
   .hero-illustration {
-    max-height: clamp(165px, 40dvh, 300px);
-    max-width: clamp(165px, 46vw, 345px);
+    height: clamp(220px, 46dvh, 440px);
+    max-width: 60vw;
   }
 
   /* Faixas laranja + verde ficam lado a lado */
@@ -488,8 +482,8 @@
 /* ─── Desktop largo (1200px+) ────────────────────────── */
 @media (min-width: 1200px) {
   .hero-illustration {
-    max-height: clamp(195px, 44dvh, 345px);
-    max-width: clamp(195px, 38vw, 385px);
+    height: clamp(260px, 50dvh, 520px);
+    max-width: 45vw;
   }
 
   .hero-titles { height: clamp(90px, 21dvh, 180px); }

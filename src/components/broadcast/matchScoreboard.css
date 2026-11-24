@@ -7,7 +7,7 @@
 .bcy-scoreboard-cabecalho { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .bcy-fase {
   font-family: system-ui, sans-serif; font-size: clamp(13px, 1.2vw, 18px); font-weight: 700;
-  text-transform: uppercase; letter-spacing: .12em; color: #f8a23c;
+  text-transform: uppercase; letter-spacing: .12em; color: var(--pal-orange);
 }
 .bcy-fase span { color: rgba(255,255,255,.35); margin: 0 2px; }
 

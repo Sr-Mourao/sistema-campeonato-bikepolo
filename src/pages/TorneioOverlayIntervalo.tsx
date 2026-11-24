@@ -31,26 +31,26 @@ export default function TorneioOverlayIntervalo() {
         <div className="iv-rule iv-rule--base" aria-hidden="true" />
         <div className="iv-hatch" aria-hidden="true" />
 
-        <section className="iv-slab" aria-label="10º Campeonato Brasileiro de Bike Polo">
+        <section className="iv-slab" aria-label="2° Pior Campeonato de Bici Polo">
           <img src="/identidade/logo.svg" alt="" className="iv-symbol" aria-hidden="true" />
-          <p className="iv-kicker">Floripa · 2026</p>
+          <p className="iv-kicker">Curitiba 2026</p>
           <div className="iv-meta">
             <span className="iv-meta-rule" aria-hidden="true" />
-            <img src="/identidade/data.svg" alt="5 a 7 de setembro de 2026" className="iv-meta-data" />
-            <img src="/identidade/floripa.svg" alt="Florianópolis, Santa Catarina" className="iv-meta-local" />
+            <img src="/identidade/data.svg" alt="12 a 13 de dezembro de 2026" className="iv-meta-data" />
+            <img src="/identidade/curitiba.svg" width="54" alt="Curitiba, Paraná" className="iv-meta-local" />
           </div>
         </section>
 
         {/* A faixa laranja é o berço original do wordmark roxo — mesma lógica de cor do site. */}
         <div className="iv-titlebar">
-          <img src="/identidade/10BR.svg" alt="10º Campeonato Brasileiro de Bike Polo" className="iv-wordmark" />
+          <img src="/identidade/10BR.svg" alt="2° Pior Campeonato de Bici Polo" className="iv-wordmark" />
         </div>
 
         <div className="iv-state">
           <span className="iv-pulse" aria-hidden="true" />
           Intervalo
         </div>
-        <p className="iv-sub">Em instantes, mais bike polo.</p>
+        <p className="iv-sub">Em instantes, mais bici polo.</p>
         <div className="iv-connector" aria-hidden="true" />
 
         <IntervalQr />

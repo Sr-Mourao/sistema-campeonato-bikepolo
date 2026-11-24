@@ -21,7 +21,7 @@ export default function OverlaysCentral() {
 
   useEffect(() => {
     const tituloAnterior = document.title
-    document.title = 'Central de overlays · 10º CBBP'
+    document.title = 'Central de overlays · 2° PCP'
     return () => { document.title = tituloAnterior }
   }, [])
 
@@ -46,7 +46,7 @@ export default function OverlaysCentral() {
   return (
     <main className="ovc-page">
       <header className="ovc-header">
-        <div><span>10º CBBP · Transmissão</span><h1>Central de overlays</h1></div>
+        <div><span>2° PCP · Transmissão</span><h1>Central de overlays</h1></div>
         <p>URLs read-only para o OBS e para as telas de projeção da cerimônia.</p>
       </header>
 

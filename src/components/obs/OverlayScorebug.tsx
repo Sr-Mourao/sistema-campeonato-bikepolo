@@ -26,7 +26,7 @@ export default function OverlayScorebug({ jogo }: { jogo: JogoPublico | null }) 
         <Team lado="b" nome={jogo.time_b_nome ?? 'A definir'} logo={jogo.time_b_logo} />
       </div>
       <div className="obs-scorebug-meta">
-        <span className="obs-scorebug-brand">10º CBBP <i>·</i> FLORIPA 2026</span>
+        <span className="obs-scorebug-brand">2° PCP <i>·</i> FLORIPA 2026</span>
         <span className="obs-scorebug-context">{jogo.fase_rotulo} <i>·</i> {jogo.codigo}</span>
         <LiveStatus status={jogo.status} />
       </div>

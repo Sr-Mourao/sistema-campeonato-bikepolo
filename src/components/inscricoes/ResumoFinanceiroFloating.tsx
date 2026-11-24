@@ -1,7 +1,7 @@
 import { calcTotal, type PacoteAlim } from '../../inscricoes.config'
 
 interface CalcInput {
-  misto: boolean; mtnb: boolean
+  misto: boolean
   acaoPreta: boolean; acaoParda: boolean
   acaoIndigena: boolean; acaoPrimeiroTorneio: boolean
   alimentacaoDia5: PacoteAlim; alimentacaoDia6: PacoteAlim; alimentacaoDia7: PacoteAlim
@@ -18,9 +18,9 @@ function fmt(v: number) {
 
 export default function ResumoFinanceiroFloating({ state }: Props) {
   const {
-    valorMistoBase, valorMtnbBase,
+    valorMistoBase,
     descontoValor, descontoTipo,
-    temPPI, temIncentivoMtnb, temPrimeiroTorneio,
+    temPPI, temPrimeiroTorneio,
     valorAlim, diasAlim, valorAloj, diasAloj, total,
   } = calcTotal(state)
 
@@ -28,7 +28,6 @@ export default function ResumoFinanceiroFloating({ state }: Props) {
 
   const DESCONTO_LABEL: Record<string, string> = {
     ppi:             'Isenção ações afirmativas',
-    mtnb:            'Incentivo MTNB no Misto',
     primeiroTorneio: 'Desconto primeiro torneio',
   }
 
@@ -44,12 +43,6 @@ export default function ResumoFinanceiroFloating({ state }: Props) {
             <div className="ins-float-row">
               <span className="ins-float-row-label">Brasileiro Misto</span>
               <span className="ins-float-row-val">{fmt(valorMistoBase)}</span>
-            </div>
-          )}
-          {state.mtnb && (
-            <div className="ins-float-row">
-              <span className="ins-float-row-label">Brasileiro MTNB</span>
-              <span className="ins-float-row-val">{fmt(valorMtnbBase)}</span>
             </div>
           )}
 
@@ -81,9 +74,6 @@ export default function ResumoFinanceiroFloating({ state }: Props) {
 
           {temPPI && (
             <p className="ins-float-discount-tag">💛 Isenção ações afirmativas</p>
-          )}
-          {temIncentivoMtnb && !temPPI && (
-            <p className="ins-float-discount-tag">✨ Incentivo MTNB aplicado</p>
           )}
           {temPrimeiroTorneio && !temPPI && (
             <p className="ins-float-discount-tag">🌟 Desconto primeiro torneio</p>

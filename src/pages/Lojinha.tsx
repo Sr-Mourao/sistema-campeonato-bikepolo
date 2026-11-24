@@ -307,7 +307,7 @@ export default function Lojinha() {
       <main className="loj-main">
         <div className="loj-header">
           <h1>Lojinha</h1>
-          <p>Garanta já sua camiseta ou boné do 10º Campeonato Brasileiro de Bike Polo — retirada no evento.</p>
+          <p>Garanta já sua camiseta ou boné do 2° Pior Campeonato de Bici Polo — retirada no evento.</p>
         </div>
 
         <details className="loj-manifesto">
@@ -318,7 +318,7 @@ export default function Lojinha() {
           </summary>
           <div className="loj-manifesto-body">
             <p>A lojinha do campeonato existe por um motivo simples: ajudar a fazer esse evento acontecer.</p>
-            <p>Quando você compra um cap ou uma camiseta, não está levando só um produto exclusivo do 10º Campeonato Brasileiro de Bike Polo. Está contribuindo diretamente para a infraestrutura do evento.</p>
+            <p>Quando você compra um cap ou uma camiseta, não está levando só um produto exclusivo do 2° Pior Campeonato de Bici Polo. Está contribuindo diretamente para a infraestrutura do evento.</p>
             <p>Todo o lucro da lojinha é reinvestido no campeonato: quadra, estrutura, materiais, recepção e todos aqueles detalhes que fazem a diferença para quem joga, para quem acompanha e para quem constrói esse encontro.</p>
             <p>Então, se você curtiu alguma peça, saiba que ela vem com um bônus: ajudar a fortalecer o Bike Polo brasileiro.</p>
             <p className="loj-manifesto-signoff">Obrigado por vestir essa ideia. 💜</p>
