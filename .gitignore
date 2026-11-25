@@ -116,3 +116,6 @@ prompt_*.txt
 *.transcript.*
 
 .worktrees/
+
+# Estado do servidor de streaming (scripts/servidor_streaming.py)
+/data/

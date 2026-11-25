@@ -65,6 +65,9 @@ export function useStreamingSync() {
   const channelRef = useRef<BroadcastChannel | null>(null)
   const undoStackRef = useRef<string[]>([])
   const sendingRef = useRef(false)
+  const pendingPushRef = useRef<StreamingState | null>(null)
+  const lastPushedRevRef = useRef<number | null>(null)
+  const pushToServerRef = useRef<((st: StreamingState) => Promise<void>) | null>(null)
   const serverRevRef = useRef<number | null>(null)
   const clockOffsetRef = useRef(0)
 
@@ -95,22 +98,29 @@ export function useStreamingSync() {
   }, [device.id])
 
   // HTTP API Push
+  // Um envio por vez. Mutações que chegam durante um envio não são
+  // descartadas: guardamos só a mais recente e mandamos assim que o envio
+  // atual terminar (antes, o segundo clique rápido nunca chegava ao servidor
+  // e o OBS ficava com o placar defasado).
   const pushToServer = useCallback(async (st: StreamingState) => {
-    if (typeof window === 'undefined' || sendingRef.current) return
+    if (typeof window === 'undefined') return
+    if (sendingRef.current) {
+      if (!pendingPushRef.current || st.rev > pendingPushRef.current.rev) pendingPushRef.current = st
+      return
+    }
+    // O updater do setState pode rodar duas vezes (StrictMode): não reenvia a mesma revisão.
+    if (lastPushedRevRef.current !== null && st.rev <= lastPushedRevRef.current) return
     sendingRef.current = true
+    lastPushedRevRef.current = st.rev
     try {
       const t0 = Date.now()
       const res = await fetch('/api/streaming/state', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(st),
-      }).catch(() => fetch('/api/state', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(st),
-      }))
+      })
 
-      if (res && res.headers.has('X-Server-Time')) {
+      if (res.headers.has('X-Server-Time')) {
         const srv = Number(res.headers.get('X-Server-Time'))
         if (srv) {
           const off = srv - (t0 + Date.now()) / 2
@@ -119,24 +129,35 @@ export function useStreamingSync() {
         }
       }
 
-      if (res && res.ok) {
+      if (res.ok) {
         serverRevRef.current = st.rev
         setServerOnline(true)
-      } else if (res && res.status === 409) {
-        // Conflito de versão: carrega o mais novo
+      } else if (res.status === 409) {
+        // Conflito de versão: carrega o mais novo e descarta o pendente, que era baseado no antigo
         const fresh = await res.json()
         const hydrated = hydrateStreamingState(fresh)
         serverRevRef.current = hydrated.rev
+        lastPushedRevRef.current = hydrated.rev
+        pendingPushRef.current = null
         setState(hydrated)
         broadcastAndSave(hydrated)
         setServerOnline(true)
+      } else {
+        setServerOnline(false)
       }
     } catch {
       setServerOnline(false)
     } finally {
       sendingRef.current = false
+      const pending = pendingPushRef.current
+      pendingPushRef.current = null
+      if (pending) void pushToServerRef.current?.(pending)
     }
   }, [broadcastAndSave])
+
+  useEffect(() => {
+    pushToServerRef.current = pushToServer
+  }, [pushToServer])
 
   // Realiza uma mutação de estado
   const mutate = useCallback((fn: (prev: StreamingState) => StreamingState, opts: { undoable?: boolean; stampDomain?: string } = {}) => {
@@ -204,8 +225,13 @@ export function useStreamingSync() {
 
     window.addEventListener('storage', onStorage)
 
-    // Polling opcional no servidor para presença e sincronização externa
+    // Polling no servidor de streaming: é o que leva o estado da mesa até
+    // navegadores separados (OBS, celulares). 1 s para gols e relógio
+    // aparecerem rápido na transmissão.
+    let polling = false
     const interval = setInterval(async () => {
+      if (polling) return
+      polling = true
       try {
         const ping = await fetch('/api/streaming/ping').catch(() => fetch('/api/ping')).catch(() => null)
         if (ping && ping.ok) {
@@ -247,8 +273,10 @@ export function useStreamingSync() {
         }
       } catch {
         setServerOnline(false)
+      } finally {
+        polling = false
       }
-    }, 3000)
+    }, 1000)
 
     return () => {
       if (channelRef.current) channelRef.current.close()
@@ -329,7 +357,7 @@ export function useStreamingSync() {
 
   // Adiciona gol ou falta
   const addEvent = useCallback((type: 'goal' | 'foul', side: 'a' | 'b', pid?: string | null) => {
-    let newEventId = uid()
+    const newEventId = uid()
     mutate(s => {
       const team = s[side]
       const player = pid ? team.players.find(p => p.id === pid) : null
