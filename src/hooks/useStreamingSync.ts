@@ -4,6 +4,7 @@ import {
   DEFAULT_STREAMING_TEAMS,
   SIMULATION_TEAMS,
   calculateElapsed,
+  emptyPauses,
   getClockDisplayText,
   getStreamingDevice,
   hydrateStreamingState,
@@ -618,9 +619,69 @@ export function useStreamingSync() {
       s.a.fouls = 0
       s.b.score = 0
       s.b.fouls = 0
+      s.pauses = emptyPauses()
       return s
     }, { stampDomain: 'jogo' })
   }, [mutate, teams])
+
+  // ── Pausas dos times (técnica limitada, mecânica ilimitada) ─────────────
+  const startPause = useCallback((side: 'a' | 'b', kind: 'tech' | 'mech') => {
+    mutate(s => {
+      const ps = s.pauses[side]
+      if (ps.active) return s
+      if (kind === 'tech' && ps.techUsed >= (s.settings.techMax ?? 2)) return s
+      const now = Date.now() + clockOffsetRef.current
+      // Para o relógio do jogo durante a pausa
+      if (s.clock.running) {
+        s.clock = { running: false, elapsed: calculateElapsed(s.clock, clockOffsetRef.current), startedAt: 0 }
+      }
+      const min = kind === 'tech' ? s.settings.techMin ?? 2 : s.settings.mechMin ?? 5
+      ps.active = { kind, durMs: min * 60000, elapsed: 0, startedAt: now, running: true }
+      if (kind === 'tech') ps.techUsed++
+      else ps.mechUsed++
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const togglePauseTimer = useCallback((side: 'a' | 'b') => {
+    mutate(s => {
+      const p = s.pauses[side].active
+      if (!p) return s
+      const now = Date.now() + clockOffsetRef.current
+      if (p.running) {
+        p.elapsed += now - p.startedAt
+        p.running = false
+        p.startedAt = 0
+      } else {
+        p.running = true
+        p.startedAt = now
+      }
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  /** Ajusta o tempo restante da pausa em `sec` segundos (+ dá mais tempo) */
+  const adjustPause = useCallback((side: 'a' | 'b', sec: number) => {
+    mutate(s => {
+      const p = s.pauses[side].active
+      if (p) p.durMs = Math.max(0, p.durMs + sec * 1000)
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  /** Encerra a pausa. refund=true anula (devolve a pausa ao time, para corrigir engano) */
+  const endPause = useCallback((side: 'a' | 'b', refund = false) => {
+    mutate(s => {
+      const ps = s.pauses[side]
+      if (!ps.active) return s
+      if (refund) {
+        if (ps.active.kind === 'tech') ps.techUsed = Math.max(0, ps.techUsed - 1)
+        else ps.mechUsed = Math.max(0, ps.mechUsed - 1)
+      }
+      ps.active = null
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
 
   const resetAllMatch = useCallback(() => {
     mutate(s => {
@@ -631,6 +692,7 @@ export function useStreamingSync() {
       s.a.fouls = 0
       s.b.score = 0
       s.b.fouls = 0
+      s.pauses = emptyPauses()
       return s
     }, { stampDomain: 'jogo' })
   }, [mutate])
@@ -699,6 +761,10 @@ export function useStreamingSync() {
     addScheduleGame,
     nextGame,
     resetAllMatch,
+    startPause,
+    togglePauseTimer,
+    adjustPause,
+    endPause,
     addPlayerToTeam,
     undo,
   }

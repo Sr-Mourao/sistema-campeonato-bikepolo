@@ -37,6 +37,32 @@ export interface StreamingSettings {
   autoPause: boolean
   autoPauseMin: number
   brand: string
+  /** Pausas técnicas por time por jogo */
+  techMax: number
+  /** Duração da pausa técnica (min) */
+  techMin: number
+  /** Duração da pausa mecânica (min, sem limite de quantidade) */
+  mechMin: number
+}
+
+/** Pausa em andamento de um time, com cronômetro próprio */
+export interface TeamPause {
+  kind: 'tech' | 'mech'
+  durMs: number
+  elapsed: number
+  startedAt: number
+  running: boolean
+}
+
+export interface TeamPauseState {
+  techUsed: number
+  mechUsed: number
+  active: TeamPause | null
+}
+
+export interface StreamingPauses {
+  a: TeamPauseState
+  b: TeamPauseState
 }
 
 export interface StreamingTextItem {
@@ -127,6 +153,7 @@ export interface StreamingState {
   schedule: StreamingScheduleItem[]
   current: number
   history: StreamingHistoryItem[]
+  pauses: StreamingPauses
   rev: number
   by?: string
 }
@@ -295,6 +322,9 @@ export const DEFAULT_STREAMING_STATE: StreamingState = {
     autoPause: true,
     autoPauseMin: 2,
     brand: '#ff931e',
+    techMax: 2,
+    techMin: 2,
+    mechMin: 5,
   },
   texts: {
     items: [
@@ -313,7 +343,32 @@ export const DEFAULT_STREAMING_STATE: StreamingState = {
   schedule: [],
   current: -1,
   history: [],
+  pauses: {
+    a: { techUsed: 0, mechUsed: 0, active: null },
+    b: { techUsed: 0, mechUsed: 0, active: null },
+  },
   rev: 0,
+}
+
+export function emptyPauses(): StreamingPauses {
+  return {
+    a: { techUsed: 0, mechUsed: 0, active: null },
+    b: { techUsed: 0, mechUsed: 0, active: null },
+  }
+}
+
+export function pauseElapsedMs(p: TeamPause, serverOffset = 0): number {
+  return p.elapsed + (p.running ? Date.now() + serverOffset - p.startedAt : 0)
+}
+
+/** Tempo restante da pausa; negativo quando estourou */
+export function pauseRemainingMs(p: TeamPause, serverOffset = 0): number {
+  return p.durMs - pauseElapsedMs(p, serverOffset)
+}
+
+/** "01:42", ou "+00:12" quando passou do tempo */
+export function formatPauseTime(remainingMs: number): string {
+  return remainingMs >= 0 ? formatClockTime(remainingMs) : `+${formatClockTime(-remainingMs)}`
 }
 
 export function uid(): string {
@@ -387,6 +442,11 @@ export function hydrateStreamingState(o: unknown): StreamingState {
 
   d.texts.on = Object.assign({ lower: null, center: null, ticker: null, badge: null }, d.texts?.on || {})
   d.texts.at = d.texts.at || {}
+
+  const basePauses = emptyPauses()
+  for (const side of ['a', 'b'] as const) {
+    d.pauses[side] = { ...basePauses[side], ...(d.pauses?.[side] || {}) }
+  }
 
   for (const side of ['a', 'b'] as const) {
     d[side].players = normPlayers(d[side].players)

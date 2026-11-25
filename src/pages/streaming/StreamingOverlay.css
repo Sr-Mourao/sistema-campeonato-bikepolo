@@ -826,3 +826,27 @@
 .str-annul .t { font-size: 54px; font-weight: 900; letter-spacing: .04em; color: #ff3b3b; }
 .str-annul .s { font-size: 28px; font-weight: 700; opacity: .9; }
 @keyframes str-annul-shake { 0%, 100% { margin-left: 0 } 20%, 60% { margin-left: -14px } 40%, 80% { margin-left: 14px } }
+
+/* Pausas dos times, sob o placar */
+.str-pauses { display: flex; flex-direction: column; gap: calc(6px * var(--str-s, 1)); margin-top: calc(6px * var(--str-s, 1)); }
+.str-pause {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: calc(10px * var(--str-s, 1));
+  padding: calc(8px * var(--str-s, 1)) calc(14px * var(--str-s, 1)) calc(11px * var(--str-s, 1));
+  background: rgba(14, 6, 20, .9); border-left: calc(6px * var(--str-s, 1)) solid var(--tc);
+  border-radius: calc(8px * var(--str-s, 1)); color: #fff; text-transform: uppercase;
+  font-size: calc(20px * var(--str-s, 1)); font-weight: 800; letter-spacing: .03em;
+  animation: str-pause-in .45s cubic-bezier(.2, .9, .3, 1.2);
+}
+.str-pause .dot { width: calc(12px * var(--str-s, 1)); height: calc(12px * var(--str-s, 1)); border-radius: 50%; background: var(--tc); animation: str-pause-dot 1s infinite; }
+.str-pause .k { background: var(--tc); color: #fff; padding: 0 .45em; border-radius: .25em; text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
+.str-pause .tm { opacity: .9; }
+.str-pause .tt { margin-left: auto; font-size: 1.35em; font-weight: 900; font-variant-numeric: tabular-nums; }
+.str-pause .bar { position: absolute; left: 0; right: 0; bottom: 0; height: calc(4px * var(--str-s, 1)); background: rgba(255, 255, 255, .12); }
+.str-pause .bar b { display: block; height: 100%; background: var(--tc); transition: width .25s linear; }
+.str-pause.held .tt { opacity: .55; }
+.str-pause.held .dot { animation: none; opacity: .5; }
+.str-pause.over { border-left-color: #ff3b3b; }
+.str-pause.over .tt { color: #ff3b3b; animation: str-pause-dot .6s infinite; }
+@keyframes str-pause-in { from { transform: translateY(-12px); opacity: 0; } }
+@keyframes str-pause-dot { 50% { opacity: .25; } }
