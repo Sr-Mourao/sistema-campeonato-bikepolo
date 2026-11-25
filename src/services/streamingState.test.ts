@@ -163,3 +163,15 @@ describe('cartão da jogadora', () => {
     expect(playerStatsFor(s, 'Ana', 'T2').matchGoals).toBe(1)
   })
 })
+
+describe('lance pendente', () => {
+  it('não soma no placar até escolher a jogadora', () => {
+    const s = hydrateStreamingState({})
+    s.events = [
+      { id: '1', type: 'goal', side: 'a', teamId: null, team: 'T1', pid: null, player: '', clock: '', gt: 0, at: 0, fxPending: true },
+      { id: '2', type: 'goal', side: 'a', teamId: null, team: 'T1', pid: null, player: 'Ana', clock: '', gt: 0, at: 0 },
+    ]
+    recomputeScores(s)
+    expect(s.a.score).toBe(1)
+  })
+})

@@ -710,7 +710,7 @@ export default function StreamingMesa() {
                 </span>
                 <span className="tm">{ev.team}</span>
                 <span style={{ flex: 1, fontWeight: 700 }}>
-                  {ev.player || 'Sem autoria'}
+                  {ev.fxPending ? '⏳ aguardando jogadora (✎)' : ev.player || 'Sem autoria'}
                   {ev.own && ev.playerTeam && <small style={{ fontWeight: 400, opacity: 0.7 }}> ({ev.playerTeam})</small>}
                 </span>
                 <button

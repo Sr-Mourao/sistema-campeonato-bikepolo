@@ -379,18 +379,22 @@ export function useStreamingSync() {
         at: currentTime,
       }
 
+      // Sem jogadora definida, o lance fica pendente: não soma no placar nem
+      // dispara animação até a mesa escolher quem fez (assignPlayer).
+      if (!player) event.fxPending = true
       s.events.push(event)
 
-      // Efeito visual imediato
-      s.fx = {
-        id: newEventId,
-        type,
-        side,
-        at: currentTime,
-        team: team.name,
-        short: team.short,
-        color: team.color,
-        player: player ? player.name : '',
+      if (player) {
+        s.fx = {
+          id: newEventId,
+          type,
+          side,
+          at: currentTime,
+          team: team.name,
+          short: team.short,
+          color: team.color,
+          player: player.name,
+        }
       }
 
       // Regra de auto-pause nos minutos finais
@@ -413,7 +417,8 @@ export function useStreamingSync() {
     mutate(s => {
       const ev = s.events.find(e => e.id === eventId)
       s.events = s.events.filter(e => e.id !== eventId)
-      if (ev) {
+      // Lance pendente nunca apareceu no overlay: não há o que anunciar como anulado
+      if (ev && !ev.fxPending) {
         s.fx = {
           id: uid(),
           type: 'cancel',
@@ -491,10 +496,25 @@ export function useStreamingSync() {
         delete ev.own
         delete ev.playerTeam
       }
-      if (s.fx && s.fx.id === eventId) {
+      if (ev.fxPending) {
+        // Jogadora escolhida: agora sim o lance conta e a animação sai
+        delete ev.fxPending
+        const team = s[ev.side]
+        s.fx = {
+          id: ev.id,
+          type: ev.type,
+          side: ev.side,
+          at: Date.now() + clockOffsetRef.current,
+          team: team.name,
+          short: team.short,
+          color: team.color,
+          player: ev.player,
+          own: !!ev.own,
+        }
+      } else if (s.fx && s.fx.id === eventId) {
+        // Correção de um lance já anunciado: atualiza o nome sem repetir a animação
         s.fx.player = ev.player
         s.fx.own = !!ev.own
-        s.fx.pat = Date.now() + clockOffsetRef.current
       }
       return s
     }, { stampDomain: 'jogo' })
