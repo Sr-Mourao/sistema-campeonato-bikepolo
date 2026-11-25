@@ -616,3 +616,14 @@
 .stm-confirm p { margin: 0 0 16px; font-size: 15px; line-height: 1.4; }
 .stm-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
 .stm-confirm-actions .stm-btn { min-height: 44px; padding: 0 18px; }
+
+/* Modal: quem fez o lance */
+.stm-attr-modal { max-width: 560px; width: calc(100vw - 32px); }
+.stm-attr-modal h3 { display: flex; align-items: center; gap: 10px; font-size: 20px; margin: 0 0 4px; }
+.stm-attr-modal .stm-attr-q { margin: 14px 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; opacity: .8; }
+.stm-attr-modal .stm-attr-q.own { color: #ff6b6b; opacity: 1; }
+.stm-attr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.stm-attr-grid .stm-btn { min-height: 56px; font-size: 17px; font-weight: 800; }
+.stm-btn.own { background: rgba(255, 107, 107, .12); border-color: #ff6b6b; color: #ffb3b3; }
+.stm-attr-other { display: flex; gap: 8px; margin: 14px 0; }
+.stm-attr-other .stm-input { flex: 1; min-height: 44px; }

@@ -474,15 +474,25 @@ export function useStreamingSync() {
     }, { stampDomain: 'jogo' })
   }, [mutate])
 
-  const assignPlayer = useCallback((eventId: string, pid: string | null, customName?: string) => {
+  // own = gol contra: a jogadora é do time adversário ao lado que pontuou
+  const assignPlayer = useCallback((eventId: string, pid: string | null, customName?: string, own = false) => {
     mutate(s => {
       const ev = s.events.find(e => e.id === eventId)
       if (!ev) return s
-      const p = pid ? s[ev.side]?.players.find(x => x.id === pid) : null
+      const playerSide = own ? (ev.side === 'a' ? 'b' : 'a') : ev.side
+      const p = pid ? s[playerSide]?.players.find(x => x.id === pid) : null
       ev.pid = p ? p.id : (pid || null)
       ev.player = p ? p.name : (customName || '')
+      if (own && ev.type === 'goal') {
+        ev.own = true
+        ev.playerTeam = s[playerSide].name
+      } else {
+        delete ev.own
+        delete ev.playerTeam
+      }
       if (s.fx && s.fx.id === eventId) {
         s.fx.player = ev.player
+        s.fx.own = !!ev.own
       }
       return s
     }, { stampDomain: 'jogo' })

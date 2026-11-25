@@ -187,10 +187,11 @@ export default function StreamingMesa() {
   // Adição de lance com verificação de jogadoras
   const handleAddEvent = (type: 'goal' | 'foul', side: 'a' | 'b') => {
     const team = state[side]
-    if (team.players.length === 1) {
-      // Apenas um jogador: atribui diretamente
+    // Falta com uma única jogadora: atribui direto. Gol sempre abre a seleção
+    // (pode ser gol contra, feito por jogadora do outro time).
+    if (type === 'foul' && team.players.length === 1) {
       addEvent(type, side, team.players[0].id)
-      showToast(`${type === 'goal' ? 'GOL' : 'FALTA'}: ${team.players[0].name}`)
+      showToast(`FALTA: ${team.players[0].name}`)
       return
     }
 
@@ -198,13 +199,13 @@ export default function StreamingMesa() {
     setAttrPrompt({ id: eventId, type, side })
   }
 
-  // Confirma atribuição de jogador
-  const handleConfirmAttr = (pid: string | null, customName?: string) => {
+  // Confirma atribuição de jogador (own = gol contra)
+  const handleConfirmAttr = (pid: string | null, customName?: string, own = false) => {
     if (!attrPrompt) return
-    assignPlayer(attrPrompt.id, pid, customName)
+    assignPlayer(attrPrompt.id, pid, customName, own)
     setAttrPrompt(null)
     setCustomPlayerInput('')
-    showToast('Lance atribuído com sucesso')
+    showToast(own ? 'Gol contra registrado' : 'Lance atribuído')
   }
 
   // Exportar Poloperator CSV
@@ -233,29 +234,20 @@ export default function StreamingMesa() {
 
   // Artilharia agregada e faltas
   const playerStats = useMemo(() => {
-    const stats: Record<string, { name: string; team: string; goals: number; fouls: number }> = {}
+    const stats: Record<string, { name: string; team: string; goals: number; ownGoals: number; fouls: number }> = {}
 
-    for (const ev of state.events) {
+    const all = [...state.events, ...state.history.flatMap(h => h.events || [])]
+    for (const ev of all) {
       if (!ev.player) continue
-      const key = `${ev.teamId || ev.team}_${ev.player}`
+      // Gol contra conta para a jogadora no time dela (playerTeam), não no que pontuou
+      const team = ev.own ? ev.playerTeam || ev.team : ev.team
+      const key = `${team}_${ev.player}`
       if (!stats[key]) {
-        stats[key] = { name: ev.player, team: ev.team, goals: 0, fouls: 0 }
+        stats[key] = { name: ev.player, team, goals: 0, ownGoals: 0, fouls: 0 }
       }
-      if (ev.type === 'goal') stats[key].goals++
+      if (ev.type === 'goal' && ev.own) stats[key].ownGoals++
+      else if (ev.type === 'goal') stats[key].goals++
       if (ev.type === 'foul') stats[key].fouls++
-    }
-
-    for (const h of state.history) {
-      if (!h.events) continue
-      for (const ev of h.events) {
-        if (!ev.player) continue
-        const key = `${ev.teamId || ev.team}_${ev.player}`
-        if (!stats[key]) {
-          stats[key] = { name: ev.player, team: ev.team, goals: 0, fouls: 0 }
-        }
-        if (ev.type === 'goal') stats[key].goals++
-        if (ev.type === 'foul') stats[key].fouls++
-      }
     }
 
     return Object.values(stats).sort((x, y) => y.goals - x.goals || x.fouls - y.fouls)
@@ -503,58 +495,6 @@ export default function StreamingMesa() {
             </div>
           </div>
 
-          {/* Prompt de Atribuição: Quem marcou? */}
-          {attrPrompt && (
-            <div className="stm-attr-box">
-              <span className={`stm-tag ${attrPrompt.type}`}>
-                {attrPrompt.type === 'goal' ? 'GOL' : 'FALTA'}
-              </span>
-              <span className="stm-attr-q">
-                Quem marcou? · {state[attrPrompt.side].name}
-              </span>
-              {state[attrPrompt.side].players.map(p => (
-                <button
-                  key={p.id}
-                  type="button"
-                  className="stm-btn mini primary"
-                  onClick={() => handleConfirmAttr(p.id)}
-                >
-                  {p.name}
-                </button>
-              ))}
-              <input
-                type="text"
-                className="stm-input"
-                placeholder="Outro jogador..."
-                value={customPlayerInput}
-                onChange={e => setCustomPlayerInput(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && customPlayerInput.trim()) {
-                    handleConfirmAttr(null, customPlayerInput.trim())
-                  }
-                }}
-                style={{ width: 140 }}
-              />
-              <button
-                type="button"
-                className="stm-btn mini"
-                onClick={() => handleConfirmAttr(null)}
-              >
-                Depois
-              </button>
-              <button
-                type="button"
-                className="stm-btn mini danger"
-                onClick={() => {
-                  removeEvent(attrPrompt.id)
-                  setAttrPrompt(null)
-                }}
-              >
-                Cancelar Lance
-              </button>
-            </div>
-          )}
-
           {/* Elencos Ao Vivo com botões rápidos */}
           <div className="stm-rosters">
             {/* Roster A */}
@@ -719,10 +659,13 @@ export default function StreamingMesa() {
               <div key={ev.id} className="stm-ev">
                 <span className="t">{ev.clock}</span>
                 <span className={`stm-tag ${ev.type}`}>
-                  {ev.type === 'goal' ? 'GOL' : 'FALTA'}
+                  {ev.type === 'goal' ? (ev.own ? 'GOL CONTRA' : 'GOL') : 'FALTA'}
                 </span>
                 <span className="tm">{ev.team}</span>
-                <span style={{ flex: 1, fontWeight: 700 }}>{ev.player || 'Sem autoria'}</span>
+                <span style={{ flex: 1, fontWeight: 700 }}>
+                  {ev.player || 'Sem autoria'}
+                  {ev.own && ev.playerTeam && <small style={{ fontWeight: 400, opacity: 0.7 }}> ({ev.playerTeam})</small>}
+                </span>
                 <button
                   type="button"
                   className="stm-btn mini danger"
@@ -1146,6 +1089,7 @@ export default function StreamingMesa() {
                         <th style={{ padding: 4 }}>Atleta</th>
                         <th style={{ padding: 4 }}>Time</th>
                         <th style={{ padding: 4, textAlign: 'center' }}>Gols</th>
+                        <th style={{ padding: 4, textAlign: 'center' }} title="Gols contra">GC</th>
                         <th style={{ padding: 4, textAlign: 'center' }}>Faltas</th>
                       </tr>
                     </thead>
@@ -1155,12 +1099,13 @@ export default function StreamingMesa() {
                           <td style={{ padding: 4, fontWeight: 700 }}>{st.name}</td>
                           <td style={{ padding: 4, color: 'var(--pal-beige, #ebd7c8)' }}>{st.team}</td>
                           <td style={{ padding: 4, textAlign: 'center', color: '#55e68b', fontWeight: 800 }}>{st.goals}</td>
+                          <td style={{ padding: 4, textAlign: 'center', color: '#ff6b6b', fontWeight: 800 }}>{st.ownGoals || ''}</td>
                           <td style={{ padding: 4, textAlign: 'center', color: 'var(--pal-amber-96, #f59e0b)', fontWeight: 800 }}>{st.fouls}</td>
                         </tr>
                       ))}
                       {playerStats.length === 0 && (
                         <tr>
-                          <td colSpan={4} style={{ color: 'var(--pal-gray-60, #888)', padding: 8 }}>
+                          <td colSpan={5} style={{ color: 'var(--pal-gray-60, #888)', padding: 8 }}>
                             Nenhum lance com autoria registrado.
                           </td>
                         </tr>
@@ -1406,6 +1351,84 @@ export default function StreamingMesa() {
           </div>
         </div>
       )}
+
+      {/* Modal: Quem fez o lance? */}
+      {attrPrompt && (() => {
+        const side = attrPrompt.side
+        const other = side === 'a' ? 'b' : 'a'
+        const isGoal = attrPrompt.type === 'goal'
+        return (
+          <div className="stm-modal-backdrop">
+            <div className="stm-modal-box stm-attr-modal" role="dialog" aria-modal="true">
+              <h3>
+                <span className={`stm-tag ${attrPrompt.type}`}>{isGoal ? 'GOL' : 'FALTA'}</span>
+                <span className="stm-chip" style={{ background: state[side].color }} />
+                {state[side].name}
+              </h3>
+              <p className="stm-attr-q">{isGoal ? 'Quem marcou?' : 'Quem cometeu?'}</p>
+              <div className="stm-attr-grid">
+                {state[side].players.map(p => (
+                  <button key={p.id} type="button" className="stm-btn primary" onClick={() => handleConfirmAttr(p.id)}>
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+
+              {isGoal && state[other].players.length > 0 && (
+                <>
+                  <p className="stm-attr-q own">Gol contra · jogadora do {state[other].name}</p>
+                  <div className="stm-attr-grid">
+                    {state[other].players.map(p => (
+                      <button key={p.id} type="button" className="stm-btn own" onClick={() => handleConfirmAttr(p.id, undefined, true)}>
+                        {p.name}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <div className="stm-attr-other">
+                <input
+                  type="text"
+                  className="stm-input"
+                  placeholder="Outra jogadora..."
+                  value={customPlayerInput}
+                  onChange={e => setCustomPlayerInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && customPlayerInput.trim()) handleConfirmAttr(null, customPlayerInput.trim())
+                  }}
+                />
+                <button
+                  type="button"
+                  className="stm-btn"
+                  disabled={!customPlayerInput.trim()}
+                  onClick={() => handleConfirmAttr(null, customPlayerInput.trim())}
+                >
+                  OK
+                </button>
+              </div>
+
+              <div className="stm-confirm-actions">
+                <button
+                  type="button"
+                  className="stm-btn danger"
+                  onClick={() => {
+                    removeEvent(attrPrompt.id)
+                    setAttrPrompt(null)
+                    setCustomPlayerInput('')
+                    showToast('Lance cancelado')
+                  }}
+                >
+                  Cancelar lance
+                </button>
+                <button type="button" className="stm-btn" onClick={() => handleConfirmAttr(null)}>
+                  Sem autoria
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Modal: Confirmação de exclusão/anulação */}
       {confirmDlg && (
