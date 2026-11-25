@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useStreamingSync } from '../../hooks/useStreamingSync'
 import {
   PALETTE_STREAMING,
@@ -78,7 +78,31 @@ export default function StreamingMesa() {
     setTimeout(() => setToastMessage(m => (m === msg ? null : m)), 2200)
   }
 
-  // Relógio display
+  // Prévia responsiva: mede o container para escalar o iframe 1920x1080 proporcionalmente
+  const previewRef = useRef<HTMLDivElement>(null)
+  const [previewScale, setPreviewScale] = useState(0.3)
+
+  useEffect(() => {
+    if (previewSize === 'off') return
+    const el = previewRef.current
+    if (!el) return
+
+    const updateScale = () => {
+      const w = el.clientWidth
+      if (w > 0) {
+        setPreviewScale(w / 1920)
+      }
+    }
+
+    updateScale()
+    const ro = new ResizeObserver(updateScale)
+    ro.observe(el)
+    window.addEventListener('resize', updateScale)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', updateScale)
+    }
+  }, [previewSize])
   const [clockTick, setClockTick] = useState(0)
   useEffect(() => {
     const timer = setInterval(() => setClockTick(t => t + 1), 250)
@@ -301,8 +325,12 @@ export default function StreamingMesa() {
           </h2>
 
           {/* Sticky Overlay Preview */}
-          <div className={`stm-preview ${previewSize}`}>
-            <iframe src="/streaming/overlay?preview=1" title="Prévia Overlay" />
+          <div ref={previewRef} className={`stm-preview ${previewSize}`}>
+            <iframe
+              src="/streaming/overlay?preview=1"
+              title="Prévia Overlay"
+              style={{ transform: `scale(${previewScale})` }}
+            />
           </div>
 
           {/* Placar & Controles */}
