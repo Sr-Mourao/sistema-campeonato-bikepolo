@@ -37,6 +37,23 @@ const StreamingMesa = lazy(() => import('./pages/streaming/StreamingMesa'))
 const StreamingOverlay = lazy(() => import('./pages/streaming/StreamingOverlay'))
 const StreamingOverlayAjustado = lazy(() => import('./pages/streaming/StreamingOverlayAjustado'))
 
+/** Gate that checks admin auth before rendering children; redirects to /admin on failure */
+function StreamingAuthGate({ children }: { children: ReactNode }) {
+  const [status, setStatus] = useState<'loading' | 'ok' | 'denied'>('loading')
+  useEffect(() => {
+    fetch('/api/admin/auth.php', { credentials: 'include' })
+      .then(r => r.json())
+      .then(d => setStatus(d.autenticado ? 'ok' : 'denied'))
+      .catch(() => setStatus('denied'))
+  }, [])
+  if (status === 'loading') return <div style={{ minHeight: '100vh', background: 'var(--pal-black)' }} />
+  if (status === 'denied') {
+    window.location.href = '/admin/streaming'
+    return <div style={{ minHeight: '100vh', background: 'var(--pal-black)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'system-ui' }}>Redirecionando para login…</div>
+  }
+  return <>{children}</>
+}
+
 function usePath() {
   const [path, setPath] = useState(() => window.location.pathname)
   useEffect(() => {
@@ -90,7 +107,9 @@ export default function App() {
   if (path === '/streaming/mesa' || path === '/streaming' || path === '/streaming/') {
     return (
       <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-black)' }} />}>
-        <StreamingMesa />
+        <StreamingAuthGate>
+          <StreamingMesa />
+        </StreamingAuthGate>
       </Suspense>
     )
   }
