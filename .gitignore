@@ -114,3 +114,5 @@ public/docs/
 prompt_*.txt
 *.transcript
 *.transcript.*
+
+.worktrees/
