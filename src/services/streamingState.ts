@@ -43,6 +43,13 @@ export interface StreamingSettings {
   techMin: number
   /** Duração da pausa mecânica (min, sem limite de quantidade) */
   mechMin: number
+  /** Cartão da jogadora após o gol (canto do overlay) */
+  pcOn: boolean
+  pcSecs: number
+  pcMatchGoals: boolean
+  pcMatchFouls: boolean
+  pcChampGoals: boolean
+  pcChampFouls: boolean
 }
 
 /** Pausa em andamento de um time, com cronômetro próprio */
@@ -96,6 +103,8 @@ export interface StreamingFx {
   of?: 'goal' | 'foul'
   /** Gol contra: player é do time adversário ao que pontuou */
   own?: boolean
+  /** Quando a autoria foi definida (para o cartão da jogadora) */
+  pat?: number
 }
 
 export interface StreamingEvent {
@@ -325,6 +334,12 @@ export const DEFAULT_STREAMING_STATE: StreamingState = {
     techMax: 2,
     techMin: 2,
     mechMin: 5,
+    pcOn: true,
+    pcSecs: 7,
+    pcMatchGoals: true,
+    pcMatchFouls: true,
+    pcChampGoals: true,
+    pcChampFouls: false,
   },
   texts: {
     items: [
@@ -465,6 +480,36 @@ export function hydrateStreamingState(o: unknown): StreamingState {
 
 export function calculateElapsed(clock: StreamingClock, serverOffset = 0): number {
   return clock.elapsed + (clock.running ? Date.now() + serverOffset - clock.startedAt : 0)
+}
+
+export interface PlayerStats {
+  matchGoals: number
+  matchFouls: number
+  matchOwnGoals: number
+  champGoals: number
+  champFouls: number
+}
+
+/** Time de quem fez o lance (no gol contra é o adversário de quem pontuou) */
+export function eventPlayerTeam(ev: StreamingEvent): string {
+  return ev.own ? ev.playerTeam || ev.team : ev.team
+}
+
+/**
+ * Números da jogadora no jogo atual e no campeonato (jogo atual + histórico
+ * desta mesa). Identifica pela dupla nome + time.
+ */
+export function playerStatsFor(state: StreamingState, player: string, team: string): PlayerStats {
+  const mine = (ev: StreamingEvent) => ev.player === player && eventPlayerTeam(ev) === team
+  const match = state.events.filter(mine)
+  const champ = [...match, ...state.history.flatMap(h => h.events || []).filter(mine)]
+  return {
+    matchGoals: match.filter(e => e.type === 'goal' && !e.own).length,
+    matchFouls: match.filter(e => e.type === 'foul').length,
+    matchOwnGoals: match.filter(e => e.type === 'goal' && e.own).length,
+    champGoals: champ.filter(e => e.type === 'goal' && !e.own).length,
+    champFouls: champ.filter(e => e.type === 'foul').length,
+  }
 }
 
 /** Há quantos ms o efeito aconteceu, no relógio do servidor */

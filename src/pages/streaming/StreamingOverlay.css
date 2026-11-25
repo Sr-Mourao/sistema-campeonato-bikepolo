@@ -850,3 +850,19 @@
 .str-pause.over .tt { color: #ff3b3b; animation: str-pause-dot .6s infinite; }
 @keyframes str-pause-in { from { transform: translateY(-12px); opacity: 0; } }
 @keyframes str-pause-dot { 50% { opacity: .25; } }
+
+/* Cartão da jogadora após o gol (canto inferior direito) */
+.str-pcard {
+  position: absolute; right: 48px; bottom: 150px; min-width: 340px; max-width: 520px;
+  padding: 16px 22px 16px 26px; border-radius: 14px;
+  background: rgba(14, 6, 20, .93); border-left: 8px solid var(--tc);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .5); color: #fff; text-transform: uppercase;
+  opacity: 0; transform: translateX(40px); transition: opacity .35s, transform .35s cubic-bezier(.2, .9, .3, 1.2);
+  pointer-events: none;
+}
+.str-pcard.on { opacity: 1; transform: none; }
+.str-pcard .k { display: inline-block; background: var(--tc); padding: 2px 10px; border-radius: 5px; font-size: 18px; font-weight: 900; letter-spacing: .08em; text-shadow: 0 1px 2px rgba(0, 0, 0, .5); }
+.str-pcard .n { font-size: 46px; font-weight: 900; line-height: 1.05; margin-top: 8px; }
+.str-pcard .tm { font-size: 20px; font-weight: 700; opacity: .75; }
+.str-pcard .st { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .15); font-size: 18px; font-weight: 700; }
+.str-pcard .st b { font-size: 28px; font-weight: 900; color: var(--tc); filter: brightness(1.35); margin-right: 2px; }

@@ -1200,6 +1200,36 @@ export default function StreamingMesa() {
                   <span>min (sem limite de quantidade)</span>
                 </div>
 
+                <span>Cartão da jogadora</span>
+                <div style={{ display: 'flex', gap: '6px 12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <label style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                    <input type="checkbox" checked={state.settings.pcOn ?? true} onChange={e => updateSettings({ pcOn: e.target.checked })} />
+                    mostrar após o gol por
+                  </label>
+                  <input
+                    type="number" min={2} max={30} className="stm-input" style={{ width: 60 }}
+                    value={state.settings.pcSecs ?? 7}
+                    onChange={e => updateSettings({ pcSecs: Math.max(2, Number(e.target.value) || 7) })}
+                  />
+                  <span>s</span>
+                  {([
+                    ['pcMatchGoals', 'gols no jogo'],
+                    ['pcMatchFouls', 'faltas no jogo'],
+                    ['pcChampGoals', 'gols no campeonato'],
+                    ['pcChampFouls', 'faltas no campeonato'],
+                  ] as const).map(([key, label]) => (
+                    <label key={key} style={{ display: 'flex', gap: 4, alignItems: 'center', opacity: state.settings.pcOn === false ? 0.5 : 1 }}>
+                      <input
+                        type="checkbox"
+                        disabled={state.settings.pcOn === false}
+                        checked={!!state.settings[key]}
+                        onChange={e => updateSettings({ [key]: e.target.checked })}
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+
                 <span>Duração do jogo</span>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <input

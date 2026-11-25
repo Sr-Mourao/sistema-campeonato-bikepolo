@@ -3,6 +3,8 @@ import { useObsDocument } from '../../hooks/useObsDocument'
 import { useStreamingSync } from '../../hooks/useStreamingSync'
 import {
   calculateElapsed,
+  eventPlayerTeam,
+  playerStatsFor,
   formatPauseTime,
   fxAgeMs,
   pauseRemainingMs,
@@ -129,6 +131,27 @@ export default function StreamingOverlay() {
 
   // Aviso grande de lance anulado (derivado do fx; o ticker de 250 ms re-renderiza)
   const annul = state.fx?.type === 'cancel' && fxAgeMs(state.fx, clockOffset) < 4500 ? state.fx : null
+
+  // Cartão da jogadora: depois da animação de gol (ou de quando a autoria foi escolhida)
+  const card = (() => {
+    const fx = state.fx
+    const st = state.settings
+    if (!st.pcOn || !fx || fx.type !== 'goal' || !fx.player) return null
+    const ev = state.events.find(e => e.id === fx.id)
+    if (!ev || !ev.player) return null
+    const now = fx.at + fxAgeMs(fx, clockOffset)
+    const start = Math.max(fx.at + (st.goalAnim === 'full' ? 4200 : 0), fx.pat ?? fx.at)
+    if (now < start || now > start + (st.pcSecs || 7) * 1000) return null
+    const team = eventPlayerTeam(ev)
+    const color = team === state.b.name ? state.b.color : state.a.color
+    const s = playerStatsFor(state, ev.player, team)
+    const items: [number, string][] = []
+    if (st.pcMatchGoals) items.push([s.matchGoals, s.matchGoals === 1 ? 'gol no jogo' : 'gols no jogo'])
+    if (st.pcMatchFouls) items.push([s.matchFouls, s.matchFouls === 1 ? 'falta no jogo' : 'faltas no jogo'])
+    if (st.pcChampGoals) items.push([s.champGoals, s.champGoals === 1 ? 'gol no campeonato' : 'gols no campeonato'])
+    if (st.pcChampFouls) items.push([s.champFouls, s.champFouls === 1 ? 'falta no campeonato' : 'faltas no campeonato'])
+    return { name: ev.player, team, color, own: !!ev.own, items }
+  })()
 
   // Textos na tela ativos
   const activeTexts = useMemo(() => {
@@ -270,6 +293,20 @@ export default function StreamingOverlay() {
         <div className="x">✕</div>
         <div className="t">{annul?.of === 'foul' ? 'Falta anulada' : 'Gol anulado'}</div>
         <div className="s">{[annul?.team, annul?.player].filter(Boolean).join(' · ')}</div>
+      </div>
+
+      {/* Cartão da jogadora */}
+      <div className={`str-pcard ${card ? 'on' : ''}`} style={{ '--tc': card?.color || '#ff931e' } as React.CSSProperties}>
+        <div className="k">{card?.own ? 'Gol contra' : 'Gol'}</div>
+        <div className="n">{card?.name}</div>
+        <div className="tm">{card?.team}</div>
+        {card && card.items.length > 0 && (
+          <div className="st">
+            {card.items.map(([v, label]) => (
+              <span key={label}><b>{v}</b> {label}</span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Animação de GOL em tela cheia */}
