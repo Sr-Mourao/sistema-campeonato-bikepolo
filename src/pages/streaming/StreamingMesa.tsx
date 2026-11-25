@@ -256,19 +256,18 @@ export default function StreamingMesa() {
 
   // Artilharia agregada e faltas
   const playerStats = useMemo(() => {
-    const stats: Record<string, { name: string; team: string; goals: number; ownGoals: number; fouls: number }> = {}
+    const stats: Record<string, { name: string; team: string; goals: number; fouls: number }> = {}
 
     const all = [...state.events, ...state.history.flatMap(h => h.events || [])]
     for (const ev of all) {
-      if (!ev.player) continue
-      // Gol contra conta para a jogadora no time dela (playerTeam), não no que pontuou
-      const team = ev.own ? ev.playerTeam || ev.team : ev.team
+      // Gol contra é do time, não tem autora: fica fora da artilharia
+      if (!ev.player || ev.own) continue
+      const team = ev.team
       const key = `${team}_${ev.player}`
       if (!stats[key]) {
-        stats[key] = { name: ev.player, team, goals: 0, ownGoals: 0, fouls: 0 }
+        stats[key] = { name: ev.player, team, goals: 0, fouls: 0 }
       }
-      if (ev.type === 'goal' && ev.own) stats[key].ownGoals++
-      else if (ev.type === 'goal') stats[key].goals++
+      if (ev.type === 'goal') stats[key].goals++
       if (ev.type === 'foul') stats[key].fouls++
     }
 
@@ -710,8 +709,7 @@ export default function StreamingMesa() {
                 </span>
                 <span className="tm">{ev.team}</span>
                 <span style={{ flex: 1, fontWeight: 700 }}>
-                  {ev.fxPending ? '⏳ aguardando jogadora (✎)' : ev.player || 'Sem autoria'}
-                  {ev.own && ev.playerTeam && <small style={{ fontWeight: 400, opacity: 0.7 }}> ({ev.playerTeam})</small>}
+                  {ev.fxPending ? '⏳ aguardando jogadora (✎)' : ev.own ? `contra do ${ev.playerTeam || 'adversário'}` : ev.player || 'Sem autoria'}
                 </span>
                 <button
                   type="button"
@@ -1144,7 +1142,6 @@ export default function StreamingMesa() {
                         <th style={{ padding: 4 }}>Atleta</th>
                         <th style={{ padding: 4 }}>Time</th>
                         <th style={{ padding: 4, textAlign: 'center' }}>Gols</th>
-                        <th style={{ padding: 4, textAlign: 'center' }} title="Gols contra">GC</th>
                         <th style={{ padding: 4, textAlign: 'center' }}>Faltas</th>
                       </tr>
                     </thead>
@@ -1154,7 +1151,6 @@ export default function StreamingMesa() {
                           <td style={{ padding: 4, fontWeight: 700 }}>{st.name}</td>
                           <td style={{ padding: 4, color: 'var(--pal-beige, #ebd7c8)' }}>{st.team}</td>
                           <td style={{ padding: 4, textAlign: 'center', color: '#55e68b', fontWeight: 800 }}>{st.goals}</td>
-                          <td style={{ padding: 4, textAlign: 'center', color: '#ff6b6b', fontWeight: 800 }}>{st.ownGoals || ''}</td>
                           <td style={{ padding: 4, textAlign: 'center', color: 'var(--pal-amber-96, #f59e0b)', fontWeight: 800 }}>{st.fouls}</td>
                         </tr>
                       ))}
@@ -1204,10 +1200,18 @@ export default function StreamingMesa() {
                 <div style={{ display: 'flex', gap: '6px 12px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <label style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                     <input type="checkbox" checked={state.settings.pcOn ?? true} onChange={e => updateSettings({ pcOn: e.target.checked })} />
-                    mostrar após o gol por
+                    mostrar
                   </label>
                   <input
+                    type="number" min={0} max={30} className="stm-input" style={{ width: 60 }}
+                    aria-label="Segundos depois da animação de gol"
+                    value={state.settings.pcDelay ?? 5}
+                    onChange={e => updateSettings({ pcDelay: Math.min(30, Math.max(0, Number(e.target.value) || 0)) })}
+                  />
+                  <span>s depois da animação de gol, por</span>
+                  <input
                     type="number" min={2} max={30} className="stm-input" style={{ width: 60 }}
+                    aria-label="Segundos na tela"
                     value={state.settings.pcSecs ?? 7}
                     onChange={e => updateSettings({ pcSecs: Math.max(2, Number(e.target.value) || 7) })}
                   />
@@ -1486,17 +1490,10 @@ export default function StreamingMesa() {
                 ))}
               </div>
 
-              {isGoal && state[other].players.length > 0 && (
-                <>
-                  <p className="stm-attr-q own">Gol contra · jogadora do {state[other].name}</p>
-                  <div className="stm-attr-grid">
-                    {state[other].players.map(p => (
-                      <button key={p.id} type="button" className="stm-btn own" onClick={() => handleConfirmAttr(p.id, undefined, true)}>
-                        {p.name}
-                      </button>
-                    ))}
-                  </div>
-                </>
+              {isGoal && (
+                <button type="button" className="stm-btn own stm-attr-own" onClick={() => handleConfirmAttr(null, undefined, true)}>
+                  Gol contra do {state[other].name}
+                </button>
               )}
 
               <div className="stm-attr-other">

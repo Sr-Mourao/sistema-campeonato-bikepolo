@@ -132,16 +132,16 @@ export default function StreamingOverlay() {
   // Aviso grande de lance anulado (derivado do fx; o ticker de 250 ms re-renderiza)
   const annul = state.fx?.type === 'cancel' && fxAgeMs(state.fx, clockOffset) < 4500 ? state.fx : null
 
-  // Cartão da jogadora: sobe 5 s depois da animação de gol / gol contra
+  // Cartão da jogadora: sobe pcDelay s depois da animação de gol (gol contra não tem autora)
   const card = (() => {
     const fx = state.fx
     const st = state.settings
-    if (!st.pcOn || !fx || fx.type !== 'goal' || !fx.player) return null
+    if (!st.pcOn || !fx || fx.type !== 'goal' || fx.own || !fx.player) return null
     const ev = state.events.find(e => e.id === fx.id)
     if (!ev || !ev.player) return null
     const now = fx.at + fxAgeMs(fx, clockOffset)
-    // 5 s depois que a animação de gol sai (o fx nasce quando a jogadora é escolhida)
-    const start = fx.at + 5000
+    // o fx nasce quando a jogadora é escolhida, junto com a animação
+    const start = fx.at + Math.max(0, st.pcDelay ?? 5) * 1000
     if (now < start || now > start + (st.pcSecs || 7) * 1000) return null
     const team = eventPlayerTeam(ev)
     const color = team === state.b.name ? state.b.color : state.a.color
