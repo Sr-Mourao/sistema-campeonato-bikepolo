@@ -52,10 +52,21 @@ export default function OverlaysCentral() {
 
       <section className="ovc-group">
         <h2>Transmissão ao Vivo (POLOStreaming)</h2>
+        <p style={{ margin: '0 0 16px', color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
+          Sistema autônomo com mesa de controle manual, relógio sincronizado e placar animado.
+        </p>
         {cards(STREAMING_OVERLAY_CATALOG)}
       </section>
 
-      <section className="ovc-group"><h2>MISTO</h2></section>
+      <div style={{ margin: '36px 0 20px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '24px' }}>
+        <h2 style={{ fontSize: '18px', color: 'var(--pal-green-mint, #29e7a5)', margin: '0 0 8px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          Overlays Oficiais do Torneio (Misto)
+        </h2>
+        <p style={{ margin: '0 0 20px', color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
+          Conectados ao banco do torneio. Dica: adicione <code>?preview=1</code> na URL para visualizar com dados simulados de teste.
+        </p>
+      </div>
+
       {GRUPOS.map(grupo => (
         <section className={`ovc-group ${grupo === 'Projeção / Palco' ? 'ovc-group--stage' : ''}`} key={grupo}>
           <h2>{grupo}{grupo === 'Projeção / Palco' && <span>Projetor</span>}</h2>
