@@ -67,56 +67,24 @@ export default function StreamingOverlay() {
     prevFouls.current = { a: state.a.fouls, b: state.b.fouls }
   }, [state.a.score, state.b.score, state.a.fouls, state.b.fouls])
 
-  // Alerta de lance na faixa inferior (Strip)
-  const [strip, setStrip] = useState<{ show: boolean; cancel: boolean; html: string }>({
-    show: false,
-    cancel: false,
-    html: '',
-  })
-  const lastFxId = useRef<string | null>(null)
-
-  useEffect(() => {
+  // Alerta de lance na faixa inferior (Strip). Derivado da idade do fx: antes
+  // havia um setTimeout que qualquer atualização de estado cancelava, e a faixa
+  // ficava presa na tela.
+  const strip = (() => {
     const fx = state.fx
-    if (!fx || fx.id === lastFxId.current) return
-    lastFxId.current = fx.id
-    // Ao abrir/recarregar o overlay (OBS), não repete lances antigos
-    if (fxAgeMs(fx, clockOffset) > 6000) return
-
-    if (fx.type === 'foul') {
-      const teamName = fx.short || fx.team || ''
-      const playerName = fx.player ? ` · ${fx.player}` : ''
-      setStrip({
-        show: true,
-        cancel: false,
-        html: `<span class="tag">FALTA</span> <span>${teamName}${playerName}</span>`,
-      })
-      const timer = setTimeout(() => setStrip(s => ({ ...s, show: false })), 4800)
-      return () => clearTimeout(timer)
+    if (!fx) return null
+    const age = fxAgeMs(fx, clockOffset)
+    const team = fx.short || fx.team || ''
+    const who = fx.player ? ` · ${fx.player}` : ''
+    if (fx.type === 'foul' && age < 4800) return { cancel: false, tag: 'FALTA', cls: '', text: team + who }
+    if (fx.type === 'goal' && state.settings.goalAnim === 'bar' && age < 4800) {
+      return { cancel: false, tag: fx.own ? 'GOL CONTRA' : 'GOL', cls: 'goal', text: team + who }
     }
-
-    if (fx.type === 'goal' && state.settings.goalAnim === 'bar') {
-      const teamName = fx.short || fx.team || ''
-      const playerName = fx.player ? ` · ${fx.player}` : ''
-      setStrip({
-        show: true,
-        cancel: false,
-        html: `<span class="tag goal">${fx.own ? 'GOL CONTRA' : 'GOL'}</span> <span>${teamName}${playerName}</span>`,
-      })
-      const timer = setTimeout(() => setStrip(s => ({ ...s, show: false })), 4800)
-      return () => clearTimeout(timer)
+    if (fx.type === 'cancel' && age < 3600) {
+      return { cancel: true, tag: `✕ ${fx.of === 'goal' ? 'GOL CANCELADO' : 'FALTA CANCELADA'}`, cls: 'cancel', text: '' }
     }
-
-    if (fx.type === 'cancel') {
-      const label = fx.of === 'goal' ? 'GOL CANCELADO' : 'FALTA CANCELADA'
-      setStrip({
-        show: true,
-        cancel: true,
-        html: `<span class="tag cancel">✕ ${label}</span>`,
-      })
-      const timer = setTimeout(() => setStrip(s => ({ ...s, show: false })), 3600)
-      return () => clearTimeout(timer)
-    }
-  }, [state.fx, state.settings.goalAnim, clockOffset])
+    return null
+  })()
 
   // Animação de GOL em tela cheia (GFX)
   const [goalGfx, setGoalGfx] = useState<{
@@ -235,11 +203,11 @@ export default function StreamingOverlay() {
         </div>
 
         {/* Faixa inferior de alerta sob o placar */}
-        <div className={`str-strip ${strip.show ? 'show' : ''} ${strip.cancel ? 'cancel' : ''}`}>
-          <div
-            className="str-strip-inner"
-            dangerouslySetInnerHTML={{ __html: strip.html }}
-          />
+        <div className={`str-strip ${strip ? 'show' : ''} ${strip?.cancel ? 'cancel' : ''}`}>
+          <div className="str-strip-inner">
+            {strip && <span className={`tag ${strip.cls}`}>{strip.tag}</span>}{' '}
+            {strip?.text && <span>{strip.text}</span>}
+          </div>
         </div>
         {/* Pausas dos times: cronômetro de cada time em pausa */}
         <div className="str-pauses">
