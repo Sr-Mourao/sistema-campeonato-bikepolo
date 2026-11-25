@@ -1,0 +1,667 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  DEFAULT_STREAMING_STATE,
+  DEFAULT_STREAMING_TEAMS,
+  SIMULATION_TEAMS,
+  calculateElapsed,
+  getClockDisplayText,
+  getStreamingDevice,
+  hydrateStreamingState,
+  normTeams,
+  recomputeScores,
+  setStreamingDevice,
+  uid,
+  type StreamingDevice,
+  type StreamingEvent,
+  type StreamingPlayer,
+  type StreamingSettings,
+  type StreamingState,
+  type StreamingTeam,
+  type StreamingTextItem,
+} from '../services/streamingState'
+
+const STORAGE_STATE_KEY = 'polo.streaming.state.v2'
+const STORAGE_TEAMS_KEY = 'polo.streaming.teams.v2'
+const CHANNEL_NAME = 'polo_streaming_sync'
+
+export interface PeerDevice {
+  id: string
+  name: string
+  role: string
+  seen: number
+}
+
+export function useStreamingSync() {
+  const [device, setDevice] = useState<StreamingDevice>(() => getStreamingDevice())
+  const [state, setState] = useState<StreamingState>(() => {
+    if (typeof window === 'undefined') return DEFAULT_STREAMING_STATE
+    try {
+      const raw = localStorage.getItem(STORAGE_STATE_KEY)
+      if (raw) return hydrateStreamingState(JSON.parse(raw))
+    } catch {
+      // ignore
+    }
+    return DEFAULT_STREAMING_STATE
+  })
+
+  const [teams, setTeams] = useState<StreamingTeam[]>(() => {
+    if (typeof window === 'undefined') return DEFAULT_STREAMING_TEAMS
+    try {
+      const raw = localStorage.getItem(STORAGE_TEAMS_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.length > 0) return normTeams(parsed)
+      }
+    } catch {
+      // ignore
+    }
+    return SIMULATION_TEAMS
+  })
+
+  const [serverOnline, setServerOnline] = useState(false)
+  const [peers, setPeers] = useState<PeerDevice[]>([])
+  const [clockOffset, setClockOffset] = useState(0)
+
+  const channelRef = useRef<BroadcastChannel | null>(null)
+  const undoStackRef = useRef<string[]>([])
+  const sendingRef = useRef(false)
+  const serverRevRef = useRef<number | null>(null)
+  const clockOffsetRef = useRef(0)
+
+
+  // Atualiza persistência e BroadcastChannel
+  const broadcastAndSave = useCallback((newState: StreamingState, newTeams?: StreamingTeam[]) => {
+    try {
+      localStorage.setItem(STORAGE_STATE_KEY, JSON.stringify(newState))
+      if (newTeams) {
+        localStorage.setItem(STORAGE_TEAMS_KEY, JSON.stringify(newTeams))
+      }
+    } catch {
+      // ignore storage quota error
+    }
+
+    if (channelRef.current) {
+      try {
+        channelRef.current.postMessage({
+          type: 'SYNC_STATE',
+          state: newState,
+          teams: newTeams,
+          sender: device.id,
+        })
+      } catch {
+        // channel error
+      }
+    }
+  }, [device.id])
+
+  // HTTP API Push
+  const pushToServer = useCallback(async (st: StreamingState) => {
+    if (typeof window === 'undefined' || sendingRef.current) return
+    sendingRef.current = true
+    try {
+      const t0 = Date.now()
+      const res = await fetch('/api/streaming/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(st),
+      }).catch(() => fetch('/api/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(st),
+      }))
+
+      if (res && res.headers.has('X-Server-Time')) {
+        const srv = Number(res.headers.get('X-Server-Time'))
+        if (srv) {
+          const off = srv - (t0 + Date.now()) / 2
+          clockOffsetRef.current = off
+          setClockOffset(off)
+        }
+      }
+
+      if (res && res.ok) {
+        serverRevRef.current = st.rev
+        setServerOnline(true)
+      } else if (res && res.status === 409) {
+        // Conflito de versão: carrega o mais novo
+        const fresh = await res.json()
+        const hydrated = hydrateStreamingState(fresh)
+        serverRevRef.current = hydrated.rev
+        setState(hydrated)
+        broadcastAndSave(hydrated)
+        setServerOnline(true)
+      }
+    } catch {
+      setServerOnline(false)
+    } finally {
+      sendingRef.current = false
+    }
+  }, [broadcastAndSave])
+
+  // Realiza uma mutação de estado
+  const mutate = useCallback((fn: (prev: StreamingState) => StreamingState, opts: { undoable?: boolean; stampDomain?: string } = {}) => {
+    setState(current => {
+      if (opts.undoable !== false) {
+        undoStackRef.current.push(JSON.stringify(current))
+        if (undoStackRef.current.length > 50) undoStackRef.current.shift()
+      }
+
+      const next = fn(JSON.parse(JSON.stringify(current)))
+      next.rev = (next.rev || 0) + 1
+      next.by = device.id
+
+      if (opts.stampDomain) {
+        next.lastBy = next.lastBy || {}
+        next.lastBy[opts.stampDomain] = {
+          id: device.id,
+          name: device.name,
+          role: device.role,
+          at: Date.now() + clockOffsetRef.current,
+        }
+      }
+
+      recomputeScores(next)
+      broadcastAndSave(next)
+      pushToServer(next)
+      return next
+    })
+  }, [broadcastAndSave, device.id, device.name, device.role, pushToServer])
+
+  // Inicializa BroadcastChannel e event listeners
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    if ('BroadcastChannel' in window) {
+      const bc = new BroadcastChannel(CHANNEL_NAME)
+      channelRef.current = bc
+
+      bc.onmessage = (event) => {
+        const data = event.data
+        if (!data || data.sender === device.id) return
+        if (data.type === 'SYNC_STATE' && data.state) {
+          setState(hydrateStreamingState(data.state))
+          if (data.teams) setTeams(normTeams(data.teams))
+        }
+      }
+    }
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_STATE_KEY && e.newValue) {
+        try {
+          setState(hydrateStreamingState(JSON.parse(e.newValue)))
+        } catch {
+          // ignore
+        }
+      }
+      if (e.key === STORAGE_TEAMS_KEY && e.newValue) {
+        try {
+          setTeams(normTeams(JSON.parse(e.newValue)))
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    window.addEventListener('storage', onStorage)
+
+    // Polling opcional no servidor para presença e sincronização externa
+    const interval = setInterval(async () => {
+      try {
+        const ping = await fetch('/api/streaming/ping').catch(() => fetch('/api/ping')).catch(() => null)
+        if (ping && ping.ok) {
+          setServerOnline(true)
+          // envia hello
+          const helloRes = await fetch('/api/streaming/hello', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: device.id, name: device.name, role: device.role }),
+          }).catch(() => fetch('/api/hello', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: device.id, name: device.name, role: device.role }),
+          })).catch(() => null)
+
+          if (helloRes && helloRes.ok) {
+            const peerList = await helloRes.json()
+            if (Array.isArray(peerList)) setPeers(peerList)
+          }
+
+          // pull state if higher rev
+          const stRes = await fetch('/api/streaming/state').catch(() => fetch('/api/state')).catch(() => null)
+          if (stRes && stRes.ok) {
+            const remote = await stRes.json()
+            if (remote && remote.rev && (!serverRevRef.current || remote.rev > serverRevRef.current)) {
+              serverRevRef.current = remote.rev
+              setState(current => {
+                if (remote.rev > current.rev) {
+                  const hyd = hydrateStreamingState(remote)
+                  broadcastAndSave(hyd)
+                  return hyd
+                }
+                return current
+              })
+            }
+          }
+        } else {
+          setServerOnline(false)
+        }
+      } catch {
+        setServerOnline(false)
+      }
+    }, 3000)
+
+    return () => {
+      if (channelRef.current) channelRef.current.close()
+      window.removeEventListener('storage', onStorage)
+      clearInterval(interval)
+    }
+  }, [broadcastAndSave, device.id, device.name, device.role])
+
+  // Desfazer (Undo)
+  const undo = useCallback(() => {
+    const prev = undoStackRef.current.pop()
+    if (!prev) return false
+    try {
+      const parsed = JSON.parse(prev)
+      const hyd = hydrateStreamingState(parsed)
+      hyd.rev = (state.rev || 0) + 1
+      hyd.by = device.id
+      setState(hyd)
+      broadcastAndSave(hyd)
+      pushToServer(hyd)
+      return true
+    } catch {
+      return false
+    }
+  }, [broadcastAndSave, device.id, pushToServer, state.rev])
+
+  // Relógio
+  const toggleClock = useCallback(() => {
+    mutate(s => {
+      const isRunning = !s.clock.running
+      if (!isRunning && s.clock.running) {
+        s.clock = {
+          running: false,
+          elapsed: calculateElapsed(s.clock, clockOffsetRef.current),
+          startedAt: 0,
+        }
+      } else if (isRunning && !s.clock.running) {
+        const durMs = (s.settings.durMin || 18) * 60000
+        const currentElapsed = s.clock.elapsed
+        if (s.settings.mode !== 'up' && currentElapsed >= durMs) {
+          s.clock.elapsed = 0
+        }
+        s.clock.running = true
+        s.clock.startedAt = Date.now() + clockOffsetRef.current
+      }
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const adjustClock = useCallback((sec: number) => {
+    mutate(s => {
+      const durMs = (s.settings.durMin || 18) * 60000
+      const down = s.settings.mode !== 'up'
+      const extra = s.clock.running ? Date.now() + clockOffsetRef.current - s.clock.startedAt : 0
+      let nextElapsed = s.clock.elapsed + (down ? -sec : sec) * 1000
+      nextElapsed = Math.max(-extra, nextElapsed)
+      if (down) nextElapsed = Math.min(durMs - extra, nextElapsed)
+      s.clock.elapsed = nextElapsed
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const resetClock = useCallback(() => {
+    mutate(s => {
+      s.clock = { running: false, elapsed: 0, startedAt: 0 }
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const swapSides = useCallback(() => {
+    mutate(s => {
+      const prevA = s.a
+      s.a = s.b
+      s.b = prevA
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  // Adiciona gol ou falta
+  const addEvent = useCallback((type: 'goal' | 'foul', side: 'a' | 'b', pid?: string | null) => {
+    let newEventId = uid()
+    mutate(s => {
+      const team = s[side]
+      const player = pid ? team.players.find(p => p.id === pid) : null
+      const clockStr = getClockDisplayText(s.clock, s.settings, clockOffsetRef.current)
+      const currentElapsed = calculateElapsed(s.clock, clockOffsetRef.current)
+      const currentTime = Date.now() + clockOffsetRef.current
+
+      const event: StreamingEvent = {
+        id: newEventId,
+        type,
+        side,
+        teamId: team.id,
+        team: team.name,
+        pid: player ? player.id : null,
+        player: player ? player.name : '',
+        clock: clockStr,
+        gt: Math.round(Math.max(0, currentElapsed)),
+        at: currentTime,
+      }
+
+      s.events.push(event)
+
+      // Efeito visual imediato
+      s.fx = {
+        id: newEventId,
+        type,
+        side,
+        at: currentTime,
+        team: team.name,
+        short: team.short,
+        color: team.color,
+        player: player ? player.name : '',
+      }
+
+      // Regra de auto-pause nos minutos finais
+      const durMs = (s.settings.durMin || 18) * 60000
+      const remainingMs = durMs - currentElapsed
+      if (s.settings.autoPause && s.clock.running && remainingMs > 0 && remainingMs <= (s.settings.autoPauseMin || 2) * 60000) {
+        s.clock = {
+          running: false,
+          elapsed: currentElapsed,
+          startedAt: 0,
+        }
+      }
+
+      return s
+    }, { stampDomain: 'jogo' })
+    return newEventId
+  }, [mutate])
+
+  const removeEvent = useCallback((eventId: string) => {
+    mutate(s => {
+      const ev = s.events.find(e => e.id === eventId)
+      s.events = s.events.filter(e => e.id !== eventId)
+      if (ev) {
+        s.fx = {
+          id: uid(),
+          type: 'cancel',
+          of: ev.type,
+          side: ev.side,
+          at: Date.now() + clockOffsetRef.current,
+          team: ev.team,
+          color: (s[ev.side] || {}).color || '#ff931e',
+          player: ev.player || '',
+        }
+      }
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const removeLast = useCallback((type: 'goal' | 'foul', side: 'a' | 'b') => {
+    mutate(s => {
+      for (let i = s.events.length - 1; i >= 0; i--) {
+        const ev = s.events[i]
+        if (ev.type === type && ev.side === side) {
+          s.events.splice(i, 1)
+          s.fx = {
+            id: uid(),
+            type: 'cancel',
+            of: ev.type,
+            side: ev.side,
+            at: Date.now() + clockOffsetRef.current,
+            team: ev.team,
+            color: (s[ev.side] || {}).color || '#ff931e',
+            player: ev.player || '',
+          }
+          break
+        }
+      }
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const removeLastOf = useCallback((type: 'goal' | 'foul', side: 'a' | 'b', pid: string | null) => {
+    mutate(s => {
+      for (let i = s.events.length - 1; i >= 0; i--) {
+        const ev = s.events[i]
+        if (ev.type === type && ev.side === side && (pid ? ev.pid === pid : !ev.pid)) {
+          s.events.splice(i, 1)
+          s.fx = {
+            id: uid(),
+            type: 'cancel',
+            of: ev.type,
+            side: ev.side,
+            at: Date.now() + clockOffsetRef.current,
+            team: ev.team,
+            color: (s[ev.side] || {}).color || '#ff931e',
+            player: ev.player || '',
+          }
+          break
+        }
+      }
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const assignPlayer = useCallback((eventId: string, pid: string | null, customName?: string) => {
+    mutate(s => {
+      const ev = s.events.find(e => e.id === eventId)
+      if (!ev) return s
+      const p = pid ? s[ev.side]?.players.find(x => x.id === pid) : null
+      ev.pid = p ? p.id : (pid || null)
+      ev.player = p ? p.name : (customName || '')
+      if (s.fx && s.fx.id === eventId) {
+        s.fx.player = ev.player
+      }
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const setTeam = useCallback((side: 'a' | 'b', teamData: Partial<StreamingTeam>) => {
+    mutate(s => {
+      s[side] = {
+        ...s[side],
+        ...teamData,
+        players: teamData.players ? normTeams([{ ...s[side], ...teamData }])[0].players : s[side].players,
+      }
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const updateSettings = useCallback((newSettings: Partial<StreamingSettings>) => {
+    mutate(s => {
+      s.settings = { ...s.settings, ...newSettings }
+      return s
+    }, { stampDomain: 'ov' })
+  }, [mutate])
+
+  const setTextActive = useCallback((tpl: 'lower' | 'center' | 'ticker' | 'badge', textId: string | null) => {
+    mutate(s => {
+      s.texts.on[tpl] = textId
+      if (textId) {
+        s.texts.at[tpl] = Date.now() + clockOffsetRef.current
+      } else {
+        delete s.texts.at[tpl]
+      }
+      return s
+    }, { stampDomain: 'ov' })
+  }, [mutate])
+
+  const addTextItem = useCallback((item: Omit<StreamingTextItem, 'id'>) => {
+    mutate(s => {
+      s.texts.items.push({ ...item, id: uid() })
+      return s
+    }, { stampDomain: 'ov' })
+  }, [mutate])
+
+  const updateTextItem = useCallback((id: string, updates: Partial<StreamingTextItem>) => {
+    mutate(s => {
+      const target = s.texts.items.find(t => t.id === id)
+      if (target) Object.assign(target, updates)
+      return s
+    }, { stampDomain: 'ov' })
+  }, [mutate])
+
+  const removeTextItem = useCallback((id: string) => {
+    mutate(s => {
+      s.texts.items = s.texts.items.filter(t => t.id !== id)
+      for (const tpl of ['lower', 'center', 'ticker', 'badge'] as const) {
+        if (s.texts.on[tpl] === id) s.texts.on[tpl] = null
+      }
+      return s
+    }, { stampDomain: 'ov' })
+  }, [mutate])
+
+  const hideAllTexts = useCallback(() => {
+    mutate(s => {
+      s.texts.on = { lower: null, center: null, ticker: null, badge: null }
+      s.texts.at = {}
+      return s
+    }, { stampDomain: 'ov' })
+  }, [mutate])
+
+  const setHidden = useCallback((hidden: boolean) => {
+    mutate(s => {
+      s.hidden = hidden
+      return s
+    }, { stampDomain: 'ov' })
+  }, [mutate])
+
+  const setLabel = useCallback((label: string) => {
+    mutate(s => {
+      s.label = label
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const addScheduleGame = useCallback((aId: string, bId: string, label: string) => {
+    mutate(s => {
+      s.schedule.push({ id: uid(), a: aId, b: bId, label })
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const nextGame = useCallback(() => {
+    mutate(s => {
+      // Salva o jogo atual no histórico se houver lances
+      if (s.events.length > 0 || s.a.score > 0 || s.b.score > 0) {
+        s.history.unshift({
+          label: s.label || 'Jogo',
+          a: s.a.name,
+          b: s.b.name,
+          sa: s.a.score,
+          sb: s.b.score,
+          at: Date.now() + clockOffsetRef.current,
+          events: [...s.events],
+        })
+      }
+
+      // Avança na agenda se houver próximo
+      const nextIdx = s.current + 1
+      if (nextIdx < s.schedule.length) {
+        const match = s.schedule[nextIdx]
+        const teamA = teams.find(t => t.id === match.a)
+        const teamB = teams.find(t => t.id === match.b)
+        if (teamA) s.a = { ...teamA, score: 0, fouls: 0 }
+        if (teamB) s.b = { ...teamB, score: 0, fouls: 0 }
+        s.label = match.label
+        s.current = nextIdx
+        match.done = true
+      }
+
+      // Zera cronômetro e eventos
+      s.clock = { running: false, elapsed: 0, startedAt: 0 }
+      s.events = []
+      s.fx = null
+      s.a.score = 0
+      s.a.fouls = 0
+      s.b.score = 0
+      s.b.fouls = 0
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate, teams])
+
+  const resetAllMatch = useCallback(() => {
+    mutate(s => {
+      s.clock = { running: false, elapsed: 0, startedAt: 0 }
+      s.events = []
+      s.fx = null
+      s.a.score = 0
+      s.a.fouls = 0
+      s.b.score = 0
+      s.b.fouls = 0
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const addPlayerToTeam = useCallback((teamId: string, name: string) => {
+    if (!name.trim()) return null
+    const newPlayer: StreamingPlayer = { id: uid(), name: name.trim() }
+    setTeams(prev => {
+      const updated = prev.map(t => {
+        if (t.id === teamId) {
+          return { ...t, players: [...t.players, newPlayer] }
+        }
+        return t
+      })
+      broadcastAndSave(state, updated)
+      return updated
+    })
+
+    // Sincroniza se o time for o time A ou time B ativo
+    mutate(s => {
+      for (const side of ['a', 'b'] as const) {
+        if (s[side].id === teamId) {
+          s[side].players = [...s[side].players, newPlayer]
+        }
+      }
+      return s
+    })
+
+    return newPlayer
+  }, [broadcastAndSave, mutate, state])
+
+  const updateDevice = useCallback((updated: Partial<StreamingDevice>) => {
+    const nextDev = { ...device, ...updated }
+    setDevice(nextDev)
+    setStreamingDevice(nextDev)
+  }, [device])
+
+  return {
+    state,
+    teams,
+    setTeams,
+    device,
+    updateDevice,
+    serverOnline,
+    peers,
+    clockOffset,
+    // Actions
+    toggleClock,
+    adjustClock,
+    resetClock,
+    swapSides,
+    addEvent,
+    removeEvent,
+    removeLast,
+    removeLastOf,
+    assignPlayer,
+    setTeam,
+    updateSettings,
+    setTextActive,
+    addTextItem,
+    updateTextItem,
+    removeTextItem,
+    hideAllTexts,
+    setHidden,
+    setLabel,
+    addScheduleGame,
+    nextGame,
+    resetAllMatch,
+    addPlayerToTeam,
+    undo,
+  }
+}
