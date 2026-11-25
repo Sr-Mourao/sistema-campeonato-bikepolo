@@ -95,7 +95,7 @@ export default function StreamingOverlay() {
       setStrip({
         show: true,
         cancel: false,
-        html: `<span class="tag goal">GOL</span> <span>${teamName}${playerName}</span>`,
+        html: `<span class="tag goal">${fx.own ? 'GOL CONTRA' : 'GOL'}</span> <span>${teamName}${playerName}</span>`,
       })
       const timer = setTimeout(() => setStrip(s => ({ ...s, show: false })), 4800)
       return () => clearTimeout(timer)
@@ -116,12 +116,14 @@ export default function StreamingOverlay() {
   // Animação de GOL em tela cheia (GFX)
   const [goalGfx, setGoalGfx] = useState<{
     play: boolean
+    id: string
     team: string
     player: string
     score: string
     color: string
   }>({
     play: false,
+    id: '',
     team: '',
     player: '',
     score: '',
@@ -134,6 +136,7 @@ export default function StreamingOverlay() {
 
     setGoalGfx({
       play: true,
+      id: fx.id,
       team: fx.team || '',
       player: fx.player || '',
       score: `${state.a.score} x ${state.b.score}`,
@@ -146,6 +149,9 @@ export default function StreamingOverlay() {
 
     return () => clearTimeout(timer)
   }, [state.fx?.id, state.settings.goalAnim])
+
+  // Jogadora pode ser escolhida na mesa depois que a animação começou: lê do fx atual
+  const liveFx = state.fx && state.fx.id === goalGfx.id ? state.fx : null
 
   // Textos na tela ativos
   const activeTexts = useMemo(() => {
@@ -271,9 +277,9 @@ export default function StreamingOverlay() {
         <div className="rings"><i /><i /><i /></div>
         <div className="flash" />
         <div className="core">
-          <div className="gol">GOL!</div>
+          <div className="gol">{liveFx?.own ? 'GOL CONTRA' : 'GOL!'}</div>
           <div className="tm">{goalGfx.team}</div>
-          {goalGfx.player && <div className="pl on">{goalGfx.player}</div>}
+          {(liveFx?.player || goalGfx.player) && <div className="pl on">{liveFx?.player || goalGfx.player}</div>}
           <div className="sc"><b>{goalGfx.score}</b></div>
         </div>
       </div>

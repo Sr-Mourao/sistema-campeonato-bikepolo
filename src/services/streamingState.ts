@@ -68,6 +68,8 @@ export interface StreamingFx {
   color?: string
   player?: string
   of?: 'goal' | 'foul'
+  /** Gol contra: player é do time adversário ao que pontuou */
+  own?: boolean
 }
 
 export interface StreamingEvent {
@@ -81,6 +83,10 @@ export interface StreamingEvent {
   clock: string
   gt: number
   at: number
+  /** Gol contra: conta para `side`, mas quem fez (player) é do outro time */
+  own?: boolean
+  /** Time de quem fez o lance, quando difere de `team` (gol contra) */
+  playerTeam?: string
 }
 
 export interface StreamingScheduleItem {
@@ -418,7 +424,7 @@ export function getClockDisplayText(clock: StreamingClock, settings: StreamingSe
 }
 
 export function exportPoloperatorCsv(events: StreamingEvent[], _state?: StreamingState): string {
-  const header = ['id', 'tipo', 'tempo_jogo_ms', 'relogio', 'lado', 'time_id', 'time_nome', 'atleta_id', 'atleta_nome', 'data_hora_epoch'].join(',')
+  const header = ['id', 'tipo', 'tempo_jogo_ms', 'relogio', 'lado', 'time_id', 'time_nome', 'atleta_id', 'atleta_nome', 'data_hora_epoch', 'gol_contra'].join(',')
   const rows = events.map(e => {
     return [
       `"${e.id}"`,
@@ -431,6 +437,7 @@ export function exportPoloperatorCsv(events: StreamingEvent[], _state?: Streamin
       `"${e.pid || ''}"`,
       `"${(e.player || '').replace(/"/g, '""')}"`,
       e.at,
+      e.own ? 1 : 0,
     ].join(',')
   })
   return [header, ...rows].join('\n')
