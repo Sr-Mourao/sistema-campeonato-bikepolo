@@ -694,3 +694,7 @@
 .role-overlays .stm-log-title,
 .role-overlays .stm-log { display: none; }
 .stm-attr-modal .stm-attr-own { width: 100%; margin-top: 10px; padding: 12px; font-weight: 800; }
+/* Linha de lance: o nome encolhe/quebra, os botões ✎ ✕ nunca saem da tela */
+.stm-ev > span:nth-child(4) { min-width: 0; overflow-wrap: anywhere; }
+.stm-ev .stm-btn { flex-shrink: 0; }
+@media (max-width: 520px) { .stm-ev .tm { min-width: 0; } }
