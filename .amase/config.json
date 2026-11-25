@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "mode": "manual",
+  "concurrency": "sequential",
+  "model_tier": "pro",
+  "ui": {
+    "builder_visible_tab": true,
+    "target_url": ""
+  },
+  "discovery": {
+    "enabled": false,
+    "max_slices": 2
+  }
+}
