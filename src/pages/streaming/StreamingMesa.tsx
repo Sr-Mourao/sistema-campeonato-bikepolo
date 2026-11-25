@@ -28,6 +28,7 @@ export default function StreamingMesa() {
     addEvent,
     removeEvent,
     assignPlayer,
+    moveEventSide,
     setTeam,
     updateSettings,
     setTextActive,
@@ -71,7 +72,8 @@ export default function StreamingMesa() {
   const [deviceForm, setDeviceForm] = useState({ name: device.name, role: device.role })
 
   // Atribuição de lance pendente ("Quem marcou?")
-  const [attrPrompt, setAttrPrompt] = useState<{ id: string; type: 'goal' | 'foul'; side: 'a' | 'b' } | null>(null)
+  // edit = corrigindo um lance já registrado (não é lance novo)
+  const [attrPrompt, setAttrPrompt] = useState<{ id: string; type: 'goal' | 'foul'; side: 'a' | 'b'; edit?: boolean } | null>(null)
   const [customPlayerInput, setCustomPlayerInput] = useState('')
 
   // Novo texto na tela
@@ -225,7 +227,7 @@ export default function StreamingMesa() {
     assignPlayer(attrPrompt.id, pid, customName, own)
     setAttrPrompt(null)
     setCustomPlayerInput('')
-    showToast(own ? 'Gol contra registrado' : 'Lance atribuído')
+    showToast(attrPrompt.edit ? 'Lance corrigido' : own ? 'Gol contra registrado' : 'Lance atribuído')
   }
 
   // Exportar Poloperator CSV
@@ -711,6 +713,14 @@ export default function StreamingMesa() {
                   {ev.player || 'Sem autoria'}
                   {ev.own && ev.playerTeam && <small style={{ fontWeight: 400, opacity: 0.7 }}> ({ev.playerTeam})</small>}
                 </span>
+                <button
+                  type="button"
+                  className="stm-btn mini"
+                  onClick={() => setAttrPrompt({ id: ev.id, type: ev.type, side: ev.side, edit: true })}
+                  title="Corrigir lance (jogadora ou time)"
+                >
+                  ✎
+                </button>
                 <button
                   type="button"
                   className="stm-btn mini danger"
@@ -1432,6 +1442,7 @@ export default function StreamingMesa() {
           <div className="stm-modal-backdrop">
             <div className="stm-modal-box stm-attr-modal" role="dialog" aria-modal="true">
               <h3>
+                {attrPrompt.edit && <span>Corrigir</span>}
                 <span className={`stm-tag ${attrPrompt.type}`}>{isGoal ? 'GOL' : 'FALTA'}</span>
                 <span className="stm-chip" style={{ background: state[side].color }} />
                 {state[side].name}
@@ -1479,6 +1490,28 @@ export default function StreamingMesa() {
                 </button>
               </div>
 
+              {attrPrompt.edit ? (
+                <div className="stm-confirm-actions">
+                  <button
+                    type="button"
+                    className="stm-btn"
+                    title="O lance foi registrado no time errado"
+                    onClick={() => {
+                      moveEventSide(attrPrompt.id)
+                      setAttrPrompt({ ...attrPrompt, side: other })
+                      showToast(`Lance movido para ${state[other].name}`)
+                    }}
+                  >
+                    ⇄ Mover para {state[other].name}
+                  </button>
+                  <button type="button" className="stm-btn" onClick={() => handleConfirmAttr(null)}>
+                    Sem autoria
+                  </button>
+                  <button type="button" className="stm-btn primary" onClick={() => setAttrPrompt(null)}>
+                    Fechar
+                  </button>
+                </div>
+              ) : (
               <div className="stm-confirm-actions">
                 <button
                   type="button"
@@ -1496,6 +1529,7 @@ export default function StreamingMesa() {
                   Sem autoria
                 </button>
               </div>
+              )}
             </div>
           </div>
         )
