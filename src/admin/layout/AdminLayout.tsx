@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, Users, Shield, DollarSign,
-  CheckSquare, UtensilsCrossed, BedDouble, LogOut, Menu, X, Settings, ShoppingBag, AlertTriangle, Copy, Check, Trophy, WalletCards, Award
+  CheckSquare, UtensilsCrossed, BedDouble, LogOut, Menu, X, Settings, ShoppingBag, AlertTriangle, Copy, Check, Trophy, WalletCards, Award, Radio
 } from 'lucide-react'
 import { navigate } from '../adminApi'
 import Dashboard from '../pages/Dashboard'
@@ -16,6 +16,7 @@ import Lojinha from '../pages/lojinha'
 import TorneioAdmin from '../torneio'
 import CarteiraAdmin from '../pages/Carteira'
 import AwardsAdmin from '../pages/Awards'
+import StreamingAdmin from '../pages/Streaming'
 
 const NAV = [
   { path: '/admin',                label: 'Dashboard',     icon: LayoutDashboard },
@@ -23,6 +24,7 @@ const NAV = [
   { path: '/admin/times',          label: 'Times',         icon: Shield },
   { path: '/admin/torneio',        label: 'Torneio',       icon: Trophy },
   { path: '/admin/awards',         label: 'Awards',        icon: Award },
+  { path: '/admin/streaming',      label: 'Streaming',     icon: Radio },
   { path: '/admin/financeiro',     label: 'Financeiro',    icon: DollarSign },
   { path: '/admin/carteira',       label: 'Carteiras',     icon: WalletCards },
   { path: '/admin/checkin',        label: 'Check-in',      icon: CheckSquare },
@@ -98,6 +100,7 @@ export default function AdminLayout({ path, onLogout }: Props) {
     if (path.startsWith('/admin/inscricoes')) return <Inscricoes />
     if (path.startsWith('/admin/times'))      return <Times />
     if (path.startsWith('/admin/awards'))     return <AwardsAdmin />
+    if (path.startsWith('/admin/streaming'))  return <StreamingAdmin />
     if (path.startsWith('/admin/torneio'))    return <TorneioAdmin />
     if (path.startsWith('/admin/financeiro')) return <Financeiro />
     if (path.startsWith('/admin/carteira'))   return <CarteiraAdmin />
