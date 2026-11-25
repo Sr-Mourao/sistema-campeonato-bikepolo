@@ -21,6 +21,7 @@ import {
   ShoppingBag,
   Users,
   Medal,
+  Tv,
 } from 'lucide-react'
 import './FAQ.css'
 import './HomeQuickLinks.css'
@@ -379,6 +380,7 @@ export function HomeQuickLinks() {
     },
   ]
   const mais = [
+    { href: '/overlays', label: 'Overlays & Live', icon: <Tv size={19} /> },
     { href: '/lojinha', label: 'Lojinha', icon: <ShoppingBag size={19} /> },
     { href: '/apoie', label: 'Apoie', icon: <Heart size={19} /> },
     { href: '/faq', label: 'Dúvidas', icon: <CircleHelp size={19} /> },

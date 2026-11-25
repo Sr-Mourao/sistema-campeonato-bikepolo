@@ -123,7 +123,14 @@ export default function App() {
   if (path === '/torneio/overlay/confronto') {
     return scoped('misto', <Suspense fallback={<div className="obs-overlay-fallback" />}><TorneioOverlayConfronto /></Suspense>)
   }
-  if (path === '/overlays') {
+  if (
+    path === '/overlays' ||
+    path === '/overlays/' ||
+    path === '/torneio/overlays' ||
+    path === '/torneio/overlays/' ||
+    path === '/torneio/misto/overlays' ||
+    path === '/torneio/misto/overlays/'
+  ) {
     return <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d30)' }} />}><OverlaysCentral /></Suspense>
   }
   if (path === '/overlays/podio') {
