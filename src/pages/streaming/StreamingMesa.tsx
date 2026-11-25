@@ -6,6 +6,7 @@ import {
   exportPoloperatorCsv,
   getClockDisplayText,
 } from '../../services/streamingState'
+import PausePanel from './PausePanel'
 import './StreamingMesa.css'
 
 export default function StreamingMesa() {
@@ -36,9 +37,26 @@ export default function StreamingMesa() {
     addScheduleGame,
     nextGame,
     resetAllMatch,
+    startPause,
+    togglePauseTimer,
+    adjustPause,
+    endPause,
     addPlayerToTeam,
     undo,
   } = useStreamingSync()
+
+  const askAnnulPause = (side: 'a' | 'b') => {
+    const p = state.pauses[side].active
+    if (!p) return
+    setConfirmDlg({
+      title: 'Anular pausa?',
+      msg: `${p.kind === 'tech' ? 'Pausa técnica' : 'Pausa mecânica'} · ${state[side].name}. Ela não será contada para o time.`,
+      onYes: () => {
+        endPause(side, true)
+        showToast('Pausa anulada')
+      },
+    })
+  }
 
   const [activeTab, setActiveTab] = useState<'teams' | 'games' | 'results' | 'settings'>('teams')
   const [toastMessage, setToastMessage] = useState<string | null>(null)
@@ -493,6 +511,28 @@ export default function StreamingMesa() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Pausas dos times */}
+          <div className="stm-pauses">
+            {(['a', 'b'] as const).map(side => (
+              <PausePanel
+                key={side}
+                side={side}
+                team={state[side]}
+                pause={state.pauses[side]}
+                settings={state.settings}
+                clockOffset={clockOffset}
+                onStart={(sd, kind) => {
+                  startPause(sd, kind)
+                  showToast(`${kind === 'tech' ? 'Pausa técnica' : 'Pausa mecânica'}: ${state[sd].name}`)
+                }}
+                onToggle={togglePauseTimer}
+                onAdjust={adjustPause}
+                onEnd={sd => endPause(sd)}
+                onAnnul={askAnnulPause}
+              />
+            ))}
           </div>
 
           {/* Elencos Ao Vivo com botões rápidos */}
@@ -1119,6 +1159,32 @@ export default function StreamingMesa() {
             {/* Aba Ajustes */}
             {activeTab === 'settings' && (
               <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '10px 14px', alignItems: 'center', fontSize: 14 }}>
+                <span>Pausas técnicas</span>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    type="number" min={0} max={9} className="stm-input" style={{ width: 60 }}
+                    value={state.settings.techMax ?? 2}
+                    onChange={e => updateSettings({ techMax: Math.max(0, Number(e.target.value) || 0) })}
+                  />
+                  <span>por time, de</span>
+                  <input
+                    type="number" min={0.5} step={0.5} className="stm-input" style={{ width: 70 }}
+                    value={state.settings.techMin ?? 2}
+                    onChange={e => updateSettings({ techMin: Math.max(0.5, Number(e.target.value) || 2) })}
+                  />
+                  <span>min</span>
+                </div>
+
+                <span>Pausa mecânica</span>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <input
+                    type="number" min={0.5} step={0.5} className="stm-input" style={{ width: 70 }}
+                    value={state.settings.mechMin ?? 5}
+                    onChange={e => updateSettings({ mechMin: Math.max(0.5, Number(e.target.value) || 5) })}
+                  />
+                  <span>min (sem limite de quantidade)</span>
+                </div>
+
                 <span>Duração do jogo</span>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <input

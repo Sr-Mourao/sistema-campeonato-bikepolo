@@ -3,7 +3,9 @@ import { useObsDocument } from '../../hooks/useObsDocument'
 import { useStreamingSync } from '../../hooks/useStreamingSync'
 import {
   calculateElapsed,
+  formatPauseTime,
   fxAgeMs,
+  pauseRemainingMs,
   getClockDisplayText,
 } from '../../services/streamingState'
 import './StreamingOverlay.css'
@@ -77,6 +79,8 @@ export default function StreamingOverlay() {
     const fx = state.fx
     if (!fx || fx.id === lastFxId.current) return
     lastFxId.current = fx.id
+    // Ao abrir/recarregar o overlay (OBS), não repete lances antigos
+    if (fxAgeMs(fx, clockOffset) > 6000) return
 
     if (fx.type === 'foul') {
       const teamName = fx.short || fx.team || ''
@@ -112,7 +116,7 @@ export default function StreamingOverlay() {
       const timer = setTimeout(() => setStrip(s => ({ ...s, show: false })), 3600)
       return () => clearTimeout(timer)
     }
-  }, [state.fx, state.settings.goalAnim])
+  }, [state.fx, state.settings.goalAnim, clockOffset])
 
   // Animação de GOL em tela cheia (GFX)
   const [goalGfx, setGoalGfx] = useState<{
@@ -134,6 +138,7 @@ export default function StreamingOverlay() {
   useEffect(() => {
     const fx = state.fx
     if (!fx || fx.type !== 'goal' || state.settings.goalAnim !== 'full') return
+    if (fxAgeMs(fx, clockOffset) > 6000) return
 
     setGoalGfx({
       play: true,
@@ -236,10 +241,31 @@ export default function StreamingOverlay() {
             dangerouslySetInnerHTML={{ __html: strip.html }}
           />
         </div>
+        {/* Pausas dos times: cronômetro de cada time em pausa */}
+        <div className="str-pauses">
+          {(['a', 'b'] as const).map(side => {
+            const p = state.pauses[side].active
+            if (!p) return null
+            const remaining = pauseRemainingMs(p, clockOffset)
+            const pct = p.durMs > 0 ? Math.max(0, Math.min(100, (remaining / p.durMs) * 100)) : 0
+            return (
+              <div
+                key={side}
+                className={`str-pause ${remaining < 0 ? 'over' : ''} ${p.running ? '' : 'held'}`}
+                style={{ '--tc': state[side].color } as React.CSSProperties}
+              >
+                <i className="dot" />
+                <span className="k">{p.kind === 'tech' ? 'Pausa técnica' : 'Pausa mecânica'}</span>
+                <span className="tm">{side === 'a' ? teamAName : teamBName}</span>
+                <span className="tt">{formatPauseTime(remaining)}</span>
+                <div className="bar"><b style={{ width: `${pct}%` }} /></div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
-      {/* 1. Faixa inferior */}
-      <div id="strLower" className={`str-tx ${activeTexts.lower ? 'on' : ''}`}>
+      {/* 1. Faixa inferior */}      <div id="strLower" className={`str-tx ${activeTexts.lower ? 'on' : ''}`}>
         <div className="t">{activeTexts.lower?.title}</div>
         <div className="s">{activeTexts.lower?.sub}</div>
       </div>

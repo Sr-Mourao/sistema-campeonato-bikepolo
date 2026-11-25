@@ -4,11 +4,13 @@ import {
   SIMULATION_TEAMS,
   calculateElapsed,
   exportPoloperatorCsv,
+  formatPauseTime,
   formatClockTime,
   getClockDisplayText,
   hydrateStreamingState,
   normPlayers,
   normTeams,
+  pauseRemainingMs,
   recomputeScores,
   type StreamingEvent,
   type StreamingState,
@@ -119,5 +121,28 @@ describe('streamingState service', () => {
     expect(SIMULATION_TEAMS.length).toBe(7)
     expect(SIMULATION_TEAMS[0].name).toBe('Time 1')
     expect(SIMULATION_TEAMS[0].players.length).toBeGreaterThan(0)
+  })
+})
+
+describe('pausas dos times', () => {
+  it('estado antigo sem pausas recebe o padrão', () => {
+    const s = hydrateStreamingState({ a: { name: 'X' }, rev: 3 })
+    expect(s.pauses.a).toEqual({ techUsed: 0, mechUsed: 0, active: null })
+    expect(s.settings.techMax).toBe(2)
+    expect(s.settings.mechMin).toBe(5)
+  })
+
+  it('calcula restante, pausado e estouro', () => {
+    const now = Date.now()
+    const p = { kind: 'tech' as const, durMs: 120000, elapsed: 30000, startedAt: now - 10000, running: true }
+    expect(Math.round(pauseRemainingMs(p) / 1000)).toBe(80)
+    expect(pauseRemainingMs({ ...p, running: false })).toBe(90000)
+    expect(formatPauseTime(90000)).toBe('01:30')
+    expect(formatPauseTime(-12000)).toBe('+00:12')
+  })
+
+  it('CSV marca gol contra', () => {
+    const ev = { id: 'e', type: 'goal', side: 'a', teamId: 't', team: 'T', pid: 'p', player: 'P', clock: '10:00', gt: 1, at: 2, own: true } as StreamingEvent
+    expect(exportPoloperatorCsv([ev]).split('\n')[1].endsWith(',1')).toBe(true)
   })
 })

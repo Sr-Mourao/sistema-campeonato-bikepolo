@@ -627,3 +627,21 @@
 .stm-btn.own { background: rgba(255, 107, 107, .12); border-color: #ff6b6b; color: #ffb3b3; }
 .stm-attr-other { display: flex; gap: 8px; margin: 14px 0; }
 .stm-attr-other .stm-input { flex: 1; min-height: 44px; }
+
+/* Pausas dos times */
+.stm-pauses { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+.stm-pause { border: 1px solid rgba(255, 255, 255, .12); border-left: 4px solid var(--tc); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+.stm-pause.active { background: color-mix(in srgb, var(--tc) 14%, transparent); border-color: var(--tc); }
+.stm-pause.over { animation: stm-pause-over 1s infinite; }
+.stm-pause-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; }
+.stm-pause-count { margin-left: auto; font-size: 12px; opacity: .7; }
+.stm-pause-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.stm-pause-btns .stm-btn { flex: 1; min-height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.1; }
+.stm-pause-btns .stm-btn small { font-size: 11px; opacity: .7; font-weight: 600; }
+.stm-pause-btns .stm-btn:disabled { opacity: .4; cursor: not-allowed; }
+.stm-pause-clock { font-size: 44px; font-weight: 900; text-align: center; font-variant-numeric: tabular-nums; }
+.stm-pause-clock.paused { opacity: .55; }
+.stm-pause.over .stm-pause-clock { color: #ff6b6b; }
+.stm-tag.pause { background: var(--tc); color: #fff; margin-left: auto; }
+@keyframes stm-pause-over { 50% { box-shadow: 0 0 0 3px #ff6b6b; } }
+@media (max-width: 640px) { .stm-pauses { grid-template-columns: 1fr; } }
