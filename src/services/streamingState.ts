@@ -45,6 +45,8 @@ export interface StreamingSettings {
   mechMin: number
   /** Cartão da jogadora após o gol (canto do overlay) */
   pcOn: boolean
+  /** Segundos entre o início da animação de gol e o cartão subir */
+  pcDelay: number
   pcSecs: number
   pcMatchGoals: boolean
   pcMatchFouls: boolean
@@ -335,6 +337,7 @@ export const DEFAULT_STREAMING_STATE: StreamingState = {
     techMin: 2,
     mechMin: 5,
     pcOn: true,
+    pcDelay: 5,
     pcSecs: 7,
     pcMatchGoals: true,
     pcMatchFouls: true,
