@@ -3,6 +3,7 @@ import { useObsDocument } from '../../hooks/useObsDocument'
 import { useStreamingSync } from '../../hooks/useStreamingSync'
 import {
   calculateElapsed,
+  fxAgeMs,
   getClockDisplayText,
 } from '../../services/streamingState'
 import './StreamingOverlay.css'
@@ -153,6 +154,9 @@ export default function StreamingOverlay() {
   // Jogadora pode ser escolhida na mesa depois que a animação começou: lê do fx atual
   const liveFx = state.fx && state.fx.id === goalGfx.id ? state.fx : null
 
+  // Aviso grande de lance anulado (derivado do fx; o ticker de 250 ms re-renderiza)
+  const annul = state.fx?.type === 'cancel' && fxAgeMs(state.fx, clockOffset) < 4500 ? state.fx : null
+
   // Textos na tela ativos
   const activeTexts = useMemo(() => {
     const onMap = state.texts.on
@@ -265,6 +269,13 @@ export default function StreamingOverlay() {
         <i />
         <span className="tt">{activeTexts.badge?.title}</span>
         <span className="s">{activeTexts.badge?.sub}</span>
+      </div>
+
+      {/* Lance anulado */}
+      <div className={`str-annul ${annul ? 'on' : ''}`} style={{ '--str-ac': annul?.color || '#ff3b3b' } as React.CSSProperties}>
+        <div className="x">✕</div>
+        <div className="t">{annul?.of === 'foul' ? 'Falta anulada' : 'Gol anulado'}</div>
+        <div className="s">{[annul?.team, annul?.player].filter(Boolean).join(' · ')}</div>
       </div>
 
       {/* Animação de GOL em tela cheia */}
