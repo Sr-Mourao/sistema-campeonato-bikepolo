@@ -103,8 +103,6 @@ export interface StreamingFx {
   of?: 'goal' | 'foul'
   /** Gol contra: player é do time adversário ao que pontuou */
   own?: boolean
-  /** Quando a autoria foi definida (para o cartão da jogadora) */
-  pat?: number
 }
 
 export interface StreamingEvent {
@@ -122,6 +120,8 @@ export interface StreamingEvent {
   own?: boolean
   /** Time de quem fez o lance, quando difere de `team` (gol contra) */
   playerTeam?: string
+  /** Aguardando a mesa escolher a jogadora: ainda não conta nem anima */
+  fxPending?: boolean
 }
 
 export interface StreamingScheduleItem {
@@ -426,8 +426,9 @@ export function normTeams(list: unknown): StreamingTeam[] {
 
 export function recomputeScores(state: StreamingState): void {
   for (const side of ['a', 'b'] as const) {
-    state[side].score = state.events.filter(e => e.type === 'goal' && e.side === side).length
-    state[side].fouls = state.events.filter(e => e.type === 'foul' && e.side === side).length
+    const counted = state.events.filter(e => e.side === side && !e.fxPending)
+    state[side].score = counted.filter(e => e.type === 'goal').length
+    state[side].fouls = counted.filter(e => e.type === 'foul').length
   }
 }
 
