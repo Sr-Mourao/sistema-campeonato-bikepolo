@@ -9,6 +9,8 @@ import {
 import PausePanel from './PausePanel'
 import './StreamingMesa.css'
 
+const ROLE_LABEL: Record<string, string> = { mesa: 'Árbitro', overlays: 'Overlays', completo: 'Completo' }
+
 export default function StreamingMesa() {
   const {
     state,
@@ -279,7 +281,7 @@ export default function StreamingMesa() {
   }, [teams, pickerFilter])
 
   return (
-    <div className="stm-page">
+    <div className={`stm-page role-${device.role}`}>
       {/* Top Header */}
       <header className="stm-header">
         <h1>MESA DE STREAMING · POLO</h1>
@@ -300,15 +302,18 @@ export default function StreamingMesa() {
           >
             Overlay OBS 1080p ↗
           </a>
-          <a
-            href="/streaming/overlay/ajustado"
-            target="_blank"
-            rel="noreferrer"
-            className="stm-btn mini"
-            title="Abrir Overlay Ajustado para Mobile"
+          <button
+            type="button"
+            className={`stm-btn mini ${device.role === 'mesa' ? 'on' : ''}`}
+            title="Alterna entre o layout do assistente de árbitro (celular) e o completo"
+            onClick={() => {
+              const next = device.role === 'mesa' ? 'completo' : 'mesa'
+              updateDevice({ role: next })
+              showToast(next === 'mesa' ? 'Modo árbitro: só placar, tempo e pausas' : 'Modo completo')
+            }}
           >
-            Overlay Mobile ↗
-          </a>
+            {device.role === 'mesa' ? '🖥 Modo completo' : '📱 Modo árbitro'}
+          </button>
 
           <button
             type="button"
@@ -326,7 +331,7 @@ export default function StreamingMesa() {
               setShowDeviceModal(true)
             }}
           >
-            👤 {device.name} ({device.role})
+            👤 {device.name} · {ROLE_LABEL[device.role] ?? device.role}
           </button>
         </div>
 
@@ -667,7 +672,7 @@ export default function StreamingMesa() {
           </div>
 
           {/* Rótulo e Próximo Jogo */}
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 12 }}>
+          <div className="stm-label-row" style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 12 }}>
             <label style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 }}>
               Rótulo do jogo (ex.: Semifinal · Jogo 2)
               <input
@@ -691,7 +696,7 @@ export default function StreamingMesa() {
           </div>
 
           {/* Lista de lances recentes */}
-          <h3 style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 16 }}>
+          <h3 className="stm-log-title" style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 16 }}>
             Lances do Jogo ({state.events.length})
           </h3>
           <div className="stm-log">
@@ -725,7 +730,7 @@ export default function StreamingMesa() {
         </section>
 
         {/* Painel Direito: Textos na Tela & Abas */}
-        <section style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <section className="stm-side" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Card: Textos na Tela */}
           <section className="stm-card">
             <h2>
@@ -1391,9 +1396,9 @@ export default function StreamingMesa() {
                   value={deviceForm.role}
                   onChange={e => setDeviceForm(f => ({ ...f, role: e.target.value as any }))}
                 >
-                  <option value="mesa">Mesa (Tempo, Gols e Faltas)</option>
-                  <option value="overlays">Overlays (Textos e visual na tela)</option>
-                  <option value="completo">Completo (Controle total)</option>
+                  <option value="mesa">Assistente de árbitro (tempo, gols, faltas e pausas)</option>
+                  <option value="overlays">Operador de overlays (textos e visual na tela)</option>
+                  <option value="completo">Completo (controle total)</option>
                 </select>
               </label>
 

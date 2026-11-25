@@ -645,3 +645,51 @@
 .stm-tag.pause { background: var(--tc); color: #fff; margin-left: auto; }
 @keyframes stm-pause-over { 50% { box-shadow: 0 0 0 3px #ff6b6b; } }
 @media (max-width: 640px) { .stm-pauses { grid-template-columns: 1fr; } }
+
+/* ── Layouts por perfil do aparelho ──────────────────────────────────── */
+
+/* Assistente de árbitro: só o que é operado durante o jogo, botões grandes */
+.role-mesa .stm-main { grid-template-columns: 1fr; max-width: 900px; margin: 0 auto; padding: 10px; }
+.role-mesa .stm-side,
+.role-mesa .stm-preview,
+.role-mesa .stm-rosters,
+.role-mesa .stm-peers { display: none !important; } /* stm-side tem display inline */
+.role-mesa .stm-page, .role-mesa.stm-page { overflow-x: hidden; }
+.role-mesa .stm-card { min-width: 0; }
+.role-mesa .stm-scoreline .stm-btn,
+.role-mesa .stm-card > h2 .stm-btn { min-height: 52px; font-size: 17px; padding: 0 16px; }
+.role-mesa .stm-scoreline .stm-btnrow .stm-btn.g,
+.role-mesa .stm-scoreline .stm-btnrow .stm-btn.f { flex: 1; min-width: 110px; font-weight: 900; }
+.role-mesa .stm-big-score { font-size: 84px; }
+.role-mesa .stm-score-block { align-items: stretch; flex: 1; }
+.role-mesa .stm-score-block .stm-btnrow { flex-wrap: nowrap; }
+.role-mesa .stm-scoreline .stm-btnrow .stm-btn.g { min-height: 64px; font-size: 20px; }
+.role-mesa .stm-big-clock { font-size: 76px; }
+.role-mesa .stm-fcount { font-size: 15px; }
+.role-mesa .stm-ev { padding: 10px 8px; font-size: 15px; }
+.role-mesa .stm-ev .stm-btn { min-width: 44px; min-height: 40px; }
+
+@media (max-width: 700px) {
+  .role-mesa .stm-header h1 { font-size: 14px; }
+  .role-mesa .stm-scoreline { grid-template-columns: 1fr 1fr; grid-template-areas: "clock clock" "a b"; gap: 10px; }
+  .role-mesa .stm-clock-center { grid-area: clock; }
+  .role-mesa .stm-tside.a { grid-area: a; }
+  .role-mesa .stm-tside.b { grid-area: b; }
+  .role-mesa .stm-tside,
+  .role-mesa .stm-tside.b { flex-direction: column; align-items: stretch; }
+  .role-mesa .stm-team-btn { max-width: none; justify-content: center; font-size: 17px; }
+  .role-mesa .stm-scoreline .stm-btnrow { flex-wrap: nowrap; }
+  .role-mesa .stm-scoreline .stm-btnrow .stm-btn.g,
+  .role-mesa .stm-scoreline .stm-btnrow .stm-btn.f { min-width: 0; }
+  .role-mesa .stm-big-score { font-size: 72px; }
+  .role-mesa .stm-big-clock { font-size: 64px; }
+  .role-mesa .stm-label-row { flex-direction: column; align-items: stretch !important; }
+}
+
+/* Operador de overlays: sem controles de placar, foco em prévia e textos */
+.role-overlays .stm-scoreline,
+.role-overlays .stm-pauses,
+.role-overlays .stm-rosters,
+.role-overlays .stm-label-row,
+.role-overlays .stm-log-title,
+.role-overlays .stm-log { display: none; }
