@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { OVERLAY_CATALOG, MTNB_OVERLAY_CATALOG, overlayUrl, type OverlayCatalogItem, type OverlayGroup } from '../components/overlays/overlayCatalog'
+import { OVERLAY_CATALOG, MTNB_OVERLAY_CATALOG, STREAMING_OVERLAY_CATALOG, overlayUrl, type OverlayCatalogItem, type OverlayGroup } from '../components/overlays/overlayCatalog'
 import './OverlaysCentral.css'
 
 const GRUPOS: OverlayGroup[] = ['Ao vivo', 'Fases', 'Pausas', 'Projeção / Palco']
@@ -49,6 +49,11 @@ export default function OverlaysCentral() {
         <div><span>2° PCP · Transmissão</span><h1>Central de overlays</h1></div>
         <p>URLs read-only para o OBS e para as telas de projeção da cerimônia.</p>
       </header>
+
+      <section className="ovc-group">
+        <h2>Transmissão ao Vivo (POLOStreaming)</h2>
+        {cards(STREAMING_OVERLAY_CATALOG)}
+      </section>
 
       <section className="ovc-group"><h2>MISTO</h2></section>
       {GRUPOS.map(grupo => (

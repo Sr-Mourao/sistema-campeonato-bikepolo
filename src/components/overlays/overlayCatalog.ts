@@ -38,6 +38,34 @@ export const MTNB_OVERLAY_CATALOG: OverlayCatalogItem[] = [
   { nome: 'Grande Final', descricao: 'GF, GF2 e campeão do MTNB.', path: '/torneio/mtnb/overlay/final', grupo: 'Fases', resolucao: '1920×1080 / 1280×720' },
 ]
 
+/** URLs do sistema de Livestream Streaming (Overlays + Mesa de Controle) */
+export const STREAMING_OVERLAY_CATALOG: OverlayCatalogItem[] = [
+  {
+    nome: 'Placar Streaming 1080p',
+    descricao: 'Scorebug em tempo real com relógio, gols, faltas, alertas e textos na tela.',
+    path: '/streaming/overlay',
+    grupo: 'Ao vivo',
+    resolucao: '1920×1080',
+    observacao: 'Fonte de navegador para OBS / vMix (transparente por padrão, aceita ?bg=green).',
+  },
+  {
+    nome: 'Overlay Ajustado (Mobile)',
+    descricao: 'Overlay com auto-ajuste de proporção e escala para telas de celular.',
+    path: '/streaming/overlay/ajustado',
+    grupo: 'Ao vivo',
+    resolucao: 'Auto-ajustável / Mobile',
+    observacao: 'Para celulares de transmissão (Moblin, Streamlabs).',
+  },
+  {
+    nome: 'Mesa de Controle Streaming',
+    descricao: 'Painel operacional com cronômetro, atribuição de gols/faltas e controle de textos.',
+    path: '/streaming/mesa',
+    grupo: 'Ao vivo',
+    resolucao: 'Responsivo / Celular / PC',
+    observacao: 'Mesa de arbitragem e operadores de overlay.',
+  },
+]
+
 export function overlayUrl(path: string, origin = window.location.origin): string {
   return new URL(path, origin).href
 }

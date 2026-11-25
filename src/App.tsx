@@ -8,7 +8,7 @@ import MinhaInscricao from './pages/MinhaInscricao'
 import { TournamentProvider, type TournamentCategory } from './contexts/TournamentContext'
 
 // Browser Source precisa nascer transparente, inclusive antes do chunk lazy do overlay.
-if (/^\/torneio\/overlay\//.test(window.location.pathname)) {
+if (/^\/(?:torneio\/overlay\/|streaming\/overlay)/.test(window.location.pathname)) {
   document.documentElement.classList.add('obs-overlay-document')
   document.body.classList.add('obs-overlay-document')
 }
@@ -33,6 +33,9 @@ const OverlaysCentral = lazy(() => import('./pages/OverlaysCentral'))
 const PremiacaoPodio = lazy(() => import('./pages/PremiacaoPodio'))
 const PremiacaoAwards = lazy(() => import('./pages/PremiacaoAwards'))
 const Carteira = lazy(() => import('./pages/Carteira'))
+const StreamingMesa = lazy(() => import('./pages/streaming/StreamingMesa'))
+const StreamingOverlay = lazy(() => import('./pages/streaming/StreamingOverlay'))
+const StreamingOverlayAjustado = lazy(() => import('./pages/streaming/StreamingOverlayAjustado'))
 
 function usePath() {
   const [path, setPath] = useState(() => window.location.pathname)
@@ -81,6 +84,27 @@ export default function App() {
     return (
       <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d45)' }} />}>
         <Equipes />
+      </Suspense>
+    )
+  }
+  if (path === '/streaming/mesa' || path === '/streaming' || path === '/streaming/') {
+    return (
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-black)' }} />}>
+        <StreamingMesa />
+      </Suspense>
+    )
+  }
+  if (path === '/streaming/overlay') {
+    return (
+      <Suspense fallback={<div className="obs-overlay-fallback" />}>
+        <StreamingOverlay />
+      </Suspense>
+    )
+  }
+  if (path === '/streaming/overlay/ajustado') {
+    return (
+      <Suspense fallback={<div className="obs-overlay-fallback" />}>
+        <StreamingOverlayAjustado />
       </Suspense>
     )
   }
