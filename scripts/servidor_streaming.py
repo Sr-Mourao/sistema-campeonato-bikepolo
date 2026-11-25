@@ -33,7 +33,10 @@ if '--help' in sys.argv or '-h' in sys.argv:
     print(__doc__)
     sys.exit(0)
 
-PORT = 8787
+# Porta: argumento > variável STREAMING_PORT > 8787. O vite.config.ts lê a
+# mesma variável, então definir STREAMING_PORT mantém os dois de acordo
+# (útil no Windows, onde a 8787 às vezes fica reservada pelo sistema).
+PORT = int(os.environ.get('STREAMING_PORT') or 8787)
 if len(sys.argv) > 1 and sys.argv[1].isdigit():
     PORT = int(sys.argv[1])
 elif len(sys.argv) > 2 and sys.argv[1] == '--port' and sys.argv[2].isdigit():
@@ -41,6 +44,11 @@ elif len(sys.argv) > 2 and sys.argv[1] == '--port' and sys.argv[2].isdigit():
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, 'data', 'streaming')
+# Páginas servidas direto por este servidor (celulares/OBS na rede sem o Vite):
+# só o build do frontend (`npm run build` → dist/). A raiz do repositório tem o
+# index.html de desenvolvimento, que não funciona fora do Vite.
+DIST_DIR = os.path.join(ROOT, 'dist')
+HAS_DIST = os.path.isfile(os.path.join(DIST_DIR, 'index.html'))
 os.makedirs(DATA_DIR, exist_ok=True)
 
 lock = threading.Lock()
@@ -78,7 +86,7 @@ def save(name, body):
 
 class StreamingHandler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **k):
-        super().__init__(*a, directory=ROOT, **k)
+        super().__init__(*a, directory=DIST_DIR, **k)
 
     def log_message(self, fmt, *args):
         pass
@@ -136,9 +144,24 @@ class StreamingHandler(SimpleHTTPRequestHandler):
                 body = cache.get('teams', b'null')
             return self._json(200, body)
 
-        # Rejeita requisições para scripts
-        if p.endswith('.py') or p.endswith('.sh') or p.endswith('.bat') or p.endswith('.php'):
-            return self._json(404, b'{"ok":false,"erro":"recurso protegido"}')
+        if p.startswith('/api/'):
+            return self._json(404, b'{"ok":false}')
+
+        if not HAS_DIST:
+            msg = ('Frontend nao compilado. Rode `npm run build` e reinicie este servidor, '
+                   'ou use o Vite (npm run dev) em http://localhost:5173/streaming/overlay').encode()
+            self.send_response(503)
+            self.send_header('Content-Type', 'text/plain; charset=utf-8')
+            self.send_header('Content-Length', str(len(msg)))
+            self.end_headers()
+            self.wfile.write(msg)
+            return
+
+        # SPA: rotas como /streaming/mesa não são arquivos — devolve o index.html
+        # e o React Router resolve no navegador.
+        local = self.translate_path(p)
+        if not os.path.isfile(local):
+            self.path = '/index.html'
 
         return super().do_GET()
 
@@ -206,6 +229,12 @@ if __name__ == '__main__':
         print(f'  Celulares na rede (Mesa)  : http://{ip}:{PORT}/streaming/mesa')
         print(f'  Celular da Live (Moblin)  : http://{ip}:{PORT}/streaming/overlay/ajustado')
         print(f'  OBS Studio (Browser Source: http://{ip}:{PORT}/streaming/overlay')
+    print('--------------------------------------------------------')
+    print('  Com o Vite (npm run dev), use as mesmas rotas na porta 5173:')
+    print('  o Vite encaminha /api/streaming para este servidor.')
+    if not HAS_DIST:
+        print('  AVISO: dist/ nao existe. As URLs da porta', PORT, 'so funcionam')
+        print('  depois de `npm run build` (a API funciona mesmo sem build).')
     print('--------------------------------------------------------')
     print('  Pressione Ctrl+C para encerrar.')
     print('========================================================')
