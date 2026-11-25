@@ -4,7 +4,7 @@
   "concurrency": "sequential",
   "model_tier": "pro",
   "ui": {
-    "builder_visible_tab": true,
+    "builder_visible_tab": false,
     "target_url": ""
   },
   "discovery": {
