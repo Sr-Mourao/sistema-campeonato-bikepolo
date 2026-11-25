@@ -407,6 +407,11 @@ export function calculateElapsed(clock: StreamingClock, serverOffset = 0): numbe
   return clock.elapsed + (clock.running ? Date.now() + serverOffset - clock.startedAt : 0)
 }
 
+/** Há quantos ms o efeito aconteceu, no relógio do servidor */
+export function fxAgeMs(fx: { at: number } | null | undefined, serverOffset = 0): number {
+  return fx ? Date.now() + serverOffset - fx.at : Infinity
+}
+
 export function formatClockTime(ms: number): string {
   const t = Math.max(0, Math.ceil(ms / 1000))
   const minutes = Math.floor(t / 60)
