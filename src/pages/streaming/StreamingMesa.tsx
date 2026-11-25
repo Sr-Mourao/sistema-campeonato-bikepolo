@@ -95,7 +95,32 @@ export default function StreamingMesa() {
   const [newGameLabel, setNewGameLabel] = useState('')
 
   // Confirmação antes de excluir/anular lances
-  const [confirmDlg, setConfirmDlg] = useState<{ title: string; msg: string; onYes: () => void } | null>(null)
+  const [confirmDlg, setConfirmDlg] = useState<{ title: string; msg: string; yes?: string; onYes: () => void } | null>(null)
+
+  // Ações que mexem no jogo todo: pedem confirmação (um toque sem querer no celular)
+  const askNextGame = () => setConfirmDlg({
+    title: 'Encerrar este jogo?',
+    msg: `${state.a.name} ${state.a.score} x ${state.b.score} ${state.b.name} vai para o histórico, e o placar, as faltas, os lances e o relógio são zerados.`,
+    yes: 'Sim, próximo jogo',
+    onYes: () => {
+      nextGame()
+      showToast('Avançado para o próximo jogo')
+    },
+  })
+  const askResetClock = () => setConfirmDlg({
+    title: 'Zerar o tempo?',
+    msg: 'O relógio volta ao início. Placar e lances continuam.',
+    yes: 'Sim, zerar',
+    onYes: resetClock,
+  })
+  const askSwapSides = () => setConfirmDlg({
+    title: 'Inverter os lados?',
+    msg: `${state.b.name} passa para a esquerda e ${state.a.name} para a direita, na mesa e no overlay.`,
+    yes: 'Sim, inverter',
+    onYes: swapSides,
+  })
+  // Algum modal aberto: atalhos de teclado ficam desligados
+  const modalOpen = !!(attrPrompt || confirmDlg || pickerSide || showDeviceModal)
 
   const describeEvent = (ev: { type: string; team: string; player?: string; clock?: string }) =>
     `${ev.type === 'goal' ? 'Gol' : 'Falta'} · ${ev.team}${ev.player ? ` · ${ev.player}` : ''}${ev.clock ? ` (${ev.clock})` : ''}`
@@ -166,6 +191,19 @@ export default function StreamingMesa() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignora se estiver digitando em um input
+      // Esc fecha o modal de cima (o lance novo continua pendente, ✎ reabre)
+      if (e.key === 'Escape') {
+        if (confirmDlg) setConfirmDlg(null)
+        else if (attrPrompt) setAttrPrompt(null)
+        return
+      }
+      // Com um modal aberto, nenhuma tecla mexe no jogo por trás dele — nem o
+      // Espaço/Enter "clicando" no botão que ficou com foco (ex.: o "+ Gol")
+      if (modalOpen) {
+        const inModal = (e.target as HTMLElement)?.closest?.('.stm-modal-backdrop')
+        if (!inModal && (e.key === ' ' || e.key === 'Enter')) e.preventDefault()
+        return
+      }
       if (['INPUT', 'SELECT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) {
         return
       }
@@ -204,7 +242,7 @@ export default function StreamingMesa() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [addEvent, state.a.name, state.a.players, state.b.name, state.b.players, state.clock.running, toggleClock, undo])
+  }, [addEvent, attrPrompt, confirmDlg, modalOpen, state.a.name, state.a.players, state.b.name, state.b.players, state.clock.running, toggleClock, undo])
 
   // Adição de lance com verificação de jogadoras
   const handleAddEvent = (type: 'goal' | 'foul', side: 'a' | 'b') => {
@@ -455,10 +493,10 @@ export default function StreamingMesa() {
               </div>
 
               <div className="stm-btnrow" style={{ marginTop: 4 }}>
-                <button type="button" className="stm-btn mini" onClick={resetClock}>
+                <button type="button" className="stm-btn mini" onClick={askResetClock}>
                   Zerar Tempo
                 </button>
-                <button type="button" className="stm-btn mini" onClick={swapSides}>
+                <button type="button" className="stm-btn mini" onClick={askSwapSides}>
                   ⇄ Inverter Lados
                 </button>
               </div>
@@ -687,10 +725,7 @@ export default function StreamingMesa() {
               type="button"
               className="stm-btn primary"
               style={{ alignSelf: 'flex-end', height: 38 }}
-              onClick={() => {
-                nextGame()
-                showToast('Avançado para o próximo jogo')
-              }}
+              onClick={askNextGame}
             >
               Próximo Jogo ▶
             </button>
@@ -709,7 +744,7 @@ export default function StreamingMesa() {
                 </span>
                 <span className="tm">{ev.team}</span>
                 <span style={{ flex: 1, fontWeight: 700 }}>
-                  {ev.fxPending ? '⏳ aguardando jogadora (✎)' : ev.own ? `contra do ${ev.playerTeam || 'adversário'}` : ev.player || 'Sem autoria'}
+                  {ev.fxPending ? '⏳ definir jogadora' : ev.own ? `contra do ${ev.playerTeam || 'adversário'}` : ev.player || 'Sem autoria'}
                 </span>
                 <button
                   type="button"
@@ -1580,7 +1615,7 @@ export default function StreamingMesa() {
                   setConfirmDlg(null)
                 }}
               >
-                Sim, anular
+                {confirmDlg.yes ?? 'Sim, anular'}
               </button>
             </div>
           </div>
