@@ -499,6 +499,22 @@ export function useStreamingSync() {
     }, { stampDomain: 'jogo' })
   }, [mutate])
 
+  /** Correção: passa o lance para o outro time (limpa a autoria, que era do time errado) */
+  const moveEventSide = useCallback((eventId: string) => {
+    mutate(s => {
+      const ev = s.events.find(e => e.id === eventId)
+      if (!ev) return s
+      ev.side = ev.side === 'a' ? 'b' : 'a'
+      ev.teamId = s[ev.side].id
+      ev.team = s[ev.side].name
+      ev.pid = null
+      ev.player = ''
+      delete ev.own
+      delete ev.playerTeam
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
   const setTeam = useCallback((side: 'a' | 'b', teamData: Partial<StreamingTeam>) => {
     mutate(s => {
       s[side] = {
@@ -749,6 +765,7 @@ export function useStreamingSync() {
     removeLast,
     removeLastOf,
     assignPlayer,
+    moveEventSide,
     setTeam,
     updateSettings,
     setTextActive,
