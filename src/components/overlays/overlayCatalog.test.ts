@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { OVERLAY_CATALOG, MTNB_OVERLAY_CATALOG, overlayUrl } from './overlayCatalog'
+import { OVERLAY_CATALOG, MTNB_OVERLAY_CATALOG, STREAMING_OVERLAY_CATALOG, overlayUrl } from './overlayCatalog'
 
 describe('central de overlays', () => {
   it('separa as nove Browser Sources e as seis telas de palco read-only', () => {
@@ -22,5 +22,14 @@ describe('central de overlays', () => {
     expect(MTNB_OVERLAY_CATALOG).toHaveLength(6)
     expect(MTNB_OVERLAY_CATALOG.every(item => item.path.startsWith('/torneio/mtnb/overlay/'))).toBe(true)
     expect(MTNB_OVERLAY_CATALOG.some(item => item.path.includes('repescagem'))).toBe(false)
+  })
+
+  it('oferece as URLs do sistema de streaming ao vivo e mesa de controle', () => {
+    expect(STREAMING_OVERLAY_CATALOG).toHaveLength(3)
+    expect(STREAMING_OVERLAY_CATALOG.map(i => i.path)).toEqual([
+      '/streaming/overlay',
+      '/streaming/overlay/ajustado',
+      '/streaming/mesa',
+    ])
   })
 })
