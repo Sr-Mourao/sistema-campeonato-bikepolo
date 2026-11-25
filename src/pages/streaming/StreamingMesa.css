@@ -610,3 +610,9 @@
   from { opacity: 0; transform: translate(-50%, 10px); }
   to { opacity: 1; transform: translate(-50%, 0); }
 }
+
+/* Confirmação de exclusão/anulação */
+.stm-confirm h3 { font-size: 18px; margin: 0 0 8px; text-transform: uppercase; }
+.stm-confirm p { margin: 0 0 16px; font-size: 15px; line-height: 1.4; }
+.stm-confirm-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.stm-confirm-actions .stm-btn { min-height: 44px; padding: 0 18px; }

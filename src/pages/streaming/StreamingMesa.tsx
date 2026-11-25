@@ -24,7 +24,6 @@ export default function StreamingMesa() {
     swapSides,
     addEvent,
     removeEvent,
-    removeLast,
     assignPlayer,
     setTeam,
     updateSettings,
@@ -72,6 +71,34 @@ export default function StreamingMesa() {
   const [newGameA, setNewGameA] = useState('')
   const [newGameB, setNewGameB] = useState('')
   const [newGameLabel, setNewGameLabel] = useState('')
+
+  // Confirmação antes de excluir/anular lances
+  const [confirmDlg, setConfirmDlg] = useState<{ title: string; msg: string; onYes: () => void } | null>(null)
+
+  const describeEvent = (ev: { type: string; team: string; player?: string; clock?: string }) =>
+    `${ev.type === 'goal' ? 'Gol' : 'Falta'} · ${ev.team}${ev.player ? ` · ${ev.player}` : ''}${ev.clock ? ` (${ev.clock})` : ''}`
+
+  const askRemoveEvent = (eventId: string) => {
+    const ev = state.events.find(e => e.id === eventId)
+    if (!ev) return
+    setConfirmDlg({
+      title: 'Anular lance?',
+      msg: `${describeEvent(ev)}. O overlay vai mostrar o aviso de lance anulado.`,
+      onYes: () => {
+        removeEvent(eventId)
+        showToast('Lance anulado')
+      },
+    })
+  }
+
+  const askRemoveLast = (type: 'goal' | 'foul', side: 'a' | 'b') => {
+    const ev = [...state.events].reverse().find(e => e.type === type && e.side === side)
+    if (!ev) {
+      showToast(`Nenhum${type === 'goal' ? ' gol' : 'a falta'} para anular`)
+      return
+    }
+    askRemoveEvent(ev.id)
+  }
 
   const showToast = (msg: string) => {
     setToastMessage(msg)
@@ -362,7 +389,7 @@ export default function StreamingMesa() {
                   <button
                     type="button"
                     className="stm-btn mini"
-                    onClick={() => removeLast('goal', 'a')}
+                    onClick={() => askRemoveLast('goal', 'a')}
                   >
                     −
                   </button>
@@ -380,7 +407,7 @@ export default function StreamingMesa() {
                     <button
                       type="button"
                       className="stm-btn mini"
-                      onClick={() => removeLast('foul', 'a')}
+                      onClick={() => askRemoveLast('foul', 'a')}
                     >
                       −
                     </button>
@@ -448,7 +475,7 @@ export default function StreamingMesa() {
                   <button
                     type="button"
                     className="stm-btn mini"
-                    onClick={() => removeLast('goal', 'b')}
+                    onClick={() => askRemoveLast('goal', 'b')}
                   >
                     −
                   </button>
@@ -466,7 +493,7 @@ export default function StreamingMesa() {
                     <button
                       type="button"
                       className="stm-btn mini"
-                      onClick={() => removeLast('foul', 'b')}
+                      onClick={() => askRemoveLast('foul', 'b')}
                     >
                       −
                     </button>
@@ -699,7 +726,7 @@ export default function StreamingMesa() {
                 <button
                   type="button"
                   className="stm-btn mini danger"
-                  onClick={() => removeEvent(ev.id)}
+                  onClick={() => askRemoveEvent(ev.id)}
                   title="Excluir lance"
                 >
                   ✕
@@ -1375,6 +1402,31 @@ export default function StreamingMesa() {
                   Salvar
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Confirmação de exclusão/anulação */}
+      {confirmDlg && (
+        <div className="stm-modal-backdrop" onClick={() => setConfirmDlg(null)}>
+          <div className="stm-modal-box stm-confirm" role="alertdialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+            <h3>{confirmDlg.title}</h3>
+            <p>{confirmDlg.msg}</p>
+            <div className="stm-confirm-actions">
+              <button type="button" className="stm-btn" autoFocus onClick={() => setConfirmDlg(null)}>
+                Manter
+              </button>
+              <button
+                type="button"
+                className="stm-btn danger"
+                onClick={() => {
+                  confirmDlg.onYes()
+                  setConfirmDlg(null)
+                }}
+              >
+                Sim, anular
+              </button>
             </div>
           </div>
         </div>
