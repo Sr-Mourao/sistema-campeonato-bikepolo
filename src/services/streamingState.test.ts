@@ -11,6 +11,7 @@ import {
   normPlayers,
   normTeams,
   pauseRemainingMs,
+  playerStatsFor,
   recomputeScores,
   type StreamingEvent,
   type StreamingState,
@@ -144,5 +145,21 @@ describe('pausas dos times', () => {
   it('CSV marca gol contra', () => {
     const ev = { id: 'e', type: 'goal', side: 'a', teamId: 't', team: 'T', pid: 'p', player: 'P', clock: '10:00', gt: 1, at: 2, own: true } as StreamingEvent
     expect(exportPoloperatorCsv([ev]).split('\n')[1].endsWith(',1')).toBe(true)
+  })
+})
+
+describe('cartão da jogadora', () => {
+  it('soma jogo e campeonato por nome + time, separando gol contra', () => {
+    const base = { teamId: null, pid: null, clock: '', gt: 0, at: 0 }
+    const s = hydrateStreamingState({})
+    s.events = [
+      { ...base, id: '1', type: 'goal', side: 'a', team: 'T1', player: 'Ana' },
+      { ...base, id: '2', type: 'foul', side: 'a', team: 'T1', player: 'Ana' },
+      { ...base, id: '3', type: 'goal', side: 'b', team: 'T2', player: 'Ana', own: true, playerTeam: 'T1' },
+      { ...base, id: '4', type: 'goal', side: 'b', team: 'T2', player: 'Ana' },
+    ] as StreamingEvent[]
+    s.history = [{ label: 'J1', a: 'T1', b: 'T3', sa: 1, sb: 0, at: 0, events: [{ ...base, id: '0', type: 'goal', side: 'a', team: 'T1', player: 'Ana' } as StreamingEvent] }]
+    expect(playerStatsFor(s, 'Ana', 'T1')).toEqual({ matchGoals: 1, matchFouls: 1, matchOwnGoals: 1, champGoals: 2, champFouls: 1 })
+    expect(playerStatsFor(s, 'Ana', 'T2').matchGoals).toBe(1)
   })
 })

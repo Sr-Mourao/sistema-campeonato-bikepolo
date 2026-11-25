@@ -494,6 +494,7 @@ export function useStreamingSync() {
       if (s.fx && s.fx.id === eventId) {
         s.fx.player = ev.player
         s.fx.own = !!ev.own
+        s.fx.pat = Date.now() + clockOffsetRef.current
       }
       return s
     }, { stampDomain: 'jogo' })
