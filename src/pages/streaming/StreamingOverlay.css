@@ -493,8 +493,21 @@
   animation: strTickerRun var(--dur, 20s) linear infinite;
 }
 
+/* Fita = duas metades iguais; cada uma repete o texto quantas vezes for preciso
+   para cobrir a faixa (calculado no TSX). Separador fixo entre as repetições. */
+#strTicker .run .half {
+  display: flex;
+  flex: none;
+}
+
 #strTicker .run span {
-  padding-right: 120px;
+  flex: none;
+}
+
+#strTicker .run span::after {
+  content: '✱';
+  margin: 0 44px;
+  color: var(--str-brand);
 }
 
 #strTicker.on {
@@ -964,6 +977,7 @@
 .str-idv #strCenter .bar { background: var(--idv-org); }
 .str-idv #strTicker .t { background: var(--idv-mag); color: #fff; font-family: var(--idv-marker); font-weight: 400; border-right: var(--idv-line); }
 .str-idv #strTicker .run { color: var(--idv-ink); }
+.str-idv #strTicker .run span::after { color: var(--idv-mag); }
 .str-idv #strLower .t { font-family: var(--idv-marker); font-weight: 400; }
 .str-idv #strLower .t::before { background: var(--idv-mag); }
 .str-idv #strLower .s { background: var(--idv-mag); color: #fff; border: var(--idv-line); border-top: 0; }
@@ -1054,3 +1068,15 @@
 .str-vertical #strGfx .gol { font-size: 170px; }
 .str-vertical #strGfx .tm { font-size: 50px; }
 .str-vertical #strLower { left: 40px; right: 40px; }
+
+/* ================= CENA DA CENTRAL (Operador da live) ================= */
+.str-scene {
+  position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%;
+  border: 0; background: transparent; color-scheme: normal; pointer-events: none;
+  animation: strSceneIn .45s ease both;
+}
+@keyframes strSceneIn { from { opacity: 0; } }
+/* Cena "sozinha": placar, pausas e alertas saem de cena enquanto ela está no ar */
+.str-scene-solo .str-board,
+.str-scene-solo .str-pcard,
+.str-scene-solo .str-annul { opacity: 0 !important; transition: opacity .3s; }

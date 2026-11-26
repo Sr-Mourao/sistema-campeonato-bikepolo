@@ -41,6 +41,29 @@ export default function StreamingOverlay() {
   const elapsed = calculateElapsed(state.clock, clockOffset)
   const isClockEnded = state.settings.mode !== 'up' && elapsed >= durMs
 
+  // Letreiro: quantas cópias do texto cabem na faixa. Cada metade da fita precisa
+  // ser pelo menos tão larga quanto a faixa; senão sobra um buraco e o texto
+  // "reaparece do nada" quando a animação volta ao início.
+  const tickerLaneRef = useRef<HTMLDivElement>(null)
+  const tickerCopyRef = useRef<HTMLSpanElement>(null)
+  const [ticker, setTicker] = useState({ copies: 2, dur: 20 })
+  useEffect(() => {
+    const lane = tickerLaneRef.current
+    const copy = tickerCopyRef.current
+    if (!lane || !copy || typeof ResizeObserver === 'undefined') return
+    const measure = () => {
+      const cw = copy.offsetWidth
+      if (!cw) return
+      const copies = Math.max(1, Math.ceil(lane.clientWidth / cw) + 1)
+      const dur = Math.max(6, (copies * cw) / 110) // ~110 px/s, a mesma velocidade para qualquer texto
+      setTicker(t => (t.copies === copies && Math.abs(t.dur - dur) < 0.5 ? t : { copies, dur }))
+    }
+    const ro = new ResizeObserver(measure)
+    ro.observe(lane)
+    ro.observe(copy)
+    return () => ro.disconnect()
+  }, [])
+
   // Bump & Pop animations
   const prevScores = useRef({ a: state.a.score, b: state.b.score })
   const prevFouls = useRef({ a: state.a.fouls, b: state.b.fouls })
@@ -189,7 +212,7 @@ export default function StreamingOverlay() {
 
   return (
     <main
-      className={`str-overlay-root ${idv ? 'str-idv' : ''}`}
+      className={`str-overlay-root ${idv ? 'str-idv' : ''} ${state.scene?.hideBoard ? 'str-scene-solo' : ''}`}
       style={{
         ...scaleStyle,
         // @ts-expect-error CSS variable
@@ -199,6 +222,18 @@ export default function StreamingOverlay() {
         '--str-brand': idv ? 'var(--pal-orange)' : state.settings.brand || '#ff931e',
       }}
     >
+      {/* Cena da Central no ar (Operador da live): a própria página do overlay,
+          numa camada abaixo do placar, dos textos e da animação de gol.
+          A key muda a cada envio, então mandar a mesma cena de novo recarrega a animação. */}
+      {state.scene && (
+        <iframe
+          key={`${state.scene.path}@${state.scene.at}`}
+          className="str-scene"
+          src={state.scene.path}
+          title={state.scene.nome}
+        />
+      )}
+
       {/* Placar permanente */}
       <div className={`str-board ${posClass} ${state.hidden ? 'hidden' : ''}`}>
         {state.label && <div className="str-label">{state.label}</div>}
@@ -291,10 +326,15 @@ export default function StreamingOverlay() {
       {/* 3. Letreiro rolante */}
       <div id="strTicker" className={`str-tx ${activeTexts.ticker ? 'on' : ''}`}>
         <div className="t">{activeTexts.ticker?.title}</div>
-        <div className="lane">
-          <div className="run">
-            <span>{activeTexts.ticker?.sub}</span>
-            <span>{activeTexts.ticker?.sub}</span>
+        <div className="lane" ref={tickerLaneRef}>
+          <div className="run" style={{ '--dur': `${ticker.dur}s` } as React.CSSProperties}>
+            {[0, 1].map(half => (
+              <div className="half" key={half}>
+                {Array.from({ length: ticker.copies }, (_, i) => (
+                  <span key={i} ref={half === 0 && i === 0 ? tickerCopyRef : undefined}>{activeTexts.ticker?.sub}</span>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>

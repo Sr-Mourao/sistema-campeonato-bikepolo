@@ -10,9 +10,10 @@ import {
 } from '../../services/streamingState'
 import { torneioApi, type Jogo, type Torneio, type TipoGol } from '../../admin/torneio/torneioApi'
 import PausePanel from './PausePanel'
+import { CENTRAL_SCENES, defaultHideBoard } from './centralScenes'
 import './StreamingMesa.css'
 
-const ROLE_LABEL: Record<string, string> = { mesa: 'Árbitro', overlays: 'Overlays', completo: 'Completo' }
+const ROLE_LABEL: Record<string, string> = { mesa: 'Árbitro', overlays: 'Operador da live', completo: 'Completo' }
 
 export default function StreamingMesa() {
   const {
@@ -33,6 +34,7 @@ export default function StreamingMesa() {
     assignPlayer,
     moveEventSide,
     setTeam,
+    setScene,
     updateSettings,
     setTextActive,
     addTextItem,
@@ -66,6 +68,8 @@ export default function StreamingMesa() {
     })
   }
 
+  // Cenas da Central com dados simulados (?preview=1), para ensaiar a live
+  const [centralPreview, setCentralPreview] = useState(false)
   const [activeTab, setActiveTab] = useState<'teams' | 'games' | 'results' | 'settings'>('teams')
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [previewSize, setPreviewSize] = useState<'large' | 'small' | 'off'>('large')
@@ -581,18 +585,27 @@ export default function StreamingMesa() {
           >
             Overlay OBS 1080p ↗
           </a>
-          <button
-            type="button"
-            className={`stm-btn mini ${device.role === 'mesa' ? 'on' : ''}`}
-            title="Alterna entre o layout do assistente de árbitro (celular) e o completo"
-            onClick={() => {
-              const next = device.role === 'mesa' ? 'completo' : 'mesa'
-              updateDevice({ role: next })
-              showToast(next === 'mesa' ? 'Modo árbitro: só placar, tempo e pausas' : 'Modo completo')
-            }}
-          >
-            {device.role === 'mesa' ? '🖥 Modo completo' : '📱 Modo árbitro'}
-          </button>
+          {/* Modo da tela: cada função vê só o que precisa */}
+          <div className="stm-modes" role="group" aria-label="Modo da mesa">
+            {([
+              ['mesa', '📱 Árbitro', 'Modo árbitro: só placar, tempo e pausas'],
+              ['overlays', '🎬 Live', 'Operador da live: textos na tela e cenas da Central'],
+              ['completo', '🖥 Completo', 'Modo completo'],
+            ] as const).map(([role, label, toast]) => (
+              <button
+                key={role}
+                type="button"
+                className={`stm-btn mini ${device.role === role ? 'on' : ''}`}
+                aria-pressed={device.role === role}
+                onClick={() => {
+                  updateDevice({ role })
+                  showToast(toast)
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
           <button
             type="button"
@@ -1178,6 +1191,65 @@ export default function StreamingMesa() {
             </div>
           </section>
 
+          {/* Card: Cenas da Central — vão para dentro do overlay principal */}
+          <section className="stm-card stm-central">
+            <h2>
+              <span>Cenas da Central</span>
+              {state.scene && (
+                <button type="button" className="stm-btn mini danger" onClick={() => setScene(null)}>
+                  ■ Tirar do ar
+                </button>
+              )}
+            </h2>
+            {state.scene ? (
+              <div className="stm-central-live">
+                <span className="stm-central-dot" /> No ar: <b>{state.scene.nome}</b>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={state.scene.hideBoard}
+                    onChange={e => state.scene && setScene({ ...state.scene, hideBoard: e.target.checked })}
+                  />
+                  esconder placar
+                </label>
+              </div>
+            ) : (
+              <p className="stm-central-hint">Escolha uma cena para mandar ao overlay principal. O OBS não precisa de outra fonte.</p>
+            )}
+            <label className="stm-central-preview">
+              <input type="checkbox" checked={centralPreview} onChange={e => setCentralPreview(e.target.checked)} />
+              ensaiar com dados de teste (não usa o banco do torneio)
+            </label>
+            {(['Misto', 'MTNB'] as const).map(torneio => (
+              <div key={torneio} className="stm-central-group">
+                <h3>{torneio}</h3>
+                {CENTRAL_SCENES.filter(c => c.torneio === torneio).map(c => {
+                  const path = centralPreview ? `${c.path}?preview=1` : c.path
+                  const onAir = state.scene?.path.split('?')[0] === c.path
+                  return (
+                    <div key={c.path} className={`stm-central-row ${onAir ? 'on' : ''}`}>
+                      <div>
+                        <b>{c.nome}</b>
+                        <small>{c.descricao}</small>
+                      </div>
+                      <button
+                        type="button"
+                        className={`stm-btn mini ${onAir ? 'danger' : 'primary'}`}
+                        onClick={() =>
+                          onAir
+                            ? setScene(null)
+                            : setScene({ path, nome: `${c.nome} · ${torneio}${centralPreview ? ' (teste)' : ''}`, hideBoard: defaultHideBoard(c), at: Date.now() })
+                        }
+                      >
+                        {onAir ? '■ Tirar' : '▶ No ar'}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            ))}
+          </section>
+
           {/* Abas: Times, Jogos, Resultados, Ajustes */}
           <section className="stm-card">
             <div className="stm-tabs">
@@ -1648,6 +1720,30 @@ export default function StreamingMesa() {
                   <option value="short">Sigla</option>
                 </select>
 
+                <span>Siglas do jogo</span>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  {(['a', 'b'] as const).map(side => (
+                    <label key={side} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <span className="stm-chip" style={{ background: state[side].color }} />
+                      <span style={{ maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{state[side].name}</span>
+                      <input
+                        type="text"
+                        className="stm-input"
+                        maxLength={4}
+                        aria-label={`Sigla de ${state[side].name}`}
+                        value={state[side].short}
+                        onChange={e => {
+                          // Sigla do jogo atual (e do cadastro do time, se existir)
+                          const val = e.target.value.toUpperCase()
+                          setTeam(side, { short: val })
+                          setTeams(prev => prev.map(x => (x.id === state[side].id ? { ...x, short: val } : x)))
+                        }}
+                        style={{ width: 70, textTransform: 'uppercase', fontWeight: 800 }}
+                      />
+                    </label>
+                  ))}
+                </div>
+
                 <span>Animação de GOL</span>
                 <select
                   className="stm-select"
@@ -1791,7 +1887,7 @@ export default function StreamingMesa() {
                   onChange={e => setDeviceForm(f => ({ ...f, role: e.target.value as any }))}
                 >
                   <option value="mesa">Assistente de árbitro (tempo, gols, faltas e pausas)</option>
-                  <option value="overlays">Operador de overlays (textos e visual na tela)</option>
+                  <option value="overlays">Operador da live (textos na tela e cenas da Central)</option>
                   <option value="completo">Completo (controle total)</option>
                 </select>
               </label>

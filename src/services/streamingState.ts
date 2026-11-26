@@ -15,6 +15,17 @@ export interface StreamingTournamentLink {
   timeBId: number
 }
 
+/** Cena da Central (Classificação, Intervalo, Confronto…) exibida dentro do overlay principal */
+export interface StreamingScene {
+  /** Rota da página do overlay, ex.: /torneio/overlay/classificacao */
+  path: string
+  nome: string
+  /** Esconde placar, pausas e alertas enquanto a cena está no ar */
+  hideBoard: boolean
+  /** Quando entrou no ar (recarrega a página da cena se a mesma for mandada de novo) */
+  at: number
+}
+
 export interface StreamingPlayer {
   id: string
   name: string
@@ -184,6 +195,8 @@ export interface StreamingState {
   history: StreamingHistoryItem[]
   pauses: StreamingPauses
   tournament?: StreamingTournamentLink | null
+  /** Cena da Central de overlays no ar dentro do overlay principal (Operador da live) */
+  scene?: StreamingScene | null
   rev: number
   by?: string
 }
@@ -386,6 +399,7 @@ export const DEFAULT_STREAMING_STATE: StreamingState = {
     b: { techUsed: 0, mechUsed: 0, active: null },
   },
   tournament: null,
+  scene: null,
   rev: 0,
 }
 

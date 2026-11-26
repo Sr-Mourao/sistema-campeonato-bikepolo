@@ -20,6 +20,7 @@ import {
   type StreamingTeam,
   type StreamingTextItem,
   type StreamingTournamentLink,
+  type StreamingScene,
 } from '../services/streamingState'
 
 const STORAGE_STATE_KEY = 'polo.streaming.state.v2'
@@ -752,6 +753,14 @@ export function useStreamingSync() {
     }, { stampDomain: 'jogo' })
   }, [mutate])
 
+  /** Põe uma cena da Central no ar no overlay principal (null tira do ar) */
+  const setScene = useCallback((scene: StreamingScene | null) => {
+    mutate(s => {
+      s.scene = scene
+      return s
+    }, { stampDomain: 'ov' })
+  }, [mutate])
+
   const unlinkTournamentMatch = useCallback(() => {
     mutate(s => {
       s.tournament = null
@@ -835,6 +844,7 @@ export function useStreamingSync() {
     hideAllTexts,
     setHidden,
     setLabel,
+    setScene,
     addScheduleGame,
     nextGame,
     linkTournamentMatch,

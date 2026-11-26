@@ -861,3 +861,29 @@
   .stm-newtext { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
   .stm-newtext > button { grid-column: 1 / -1; }
 }
+
+/* Seletor de modo no topo */
+.stm-modes { display: inline-flex; gap: 4px; }
+.stm-modes .stm-btn.on { background: var(--pal-orange, #ff931e); color: #111; border-color: transparent; }
+
+/* Cenas da Central (Operador da live e modo completo) */
+.stm-central-hint { margin: 0 0 10px; font-size: 13px; opacity: .7; }
+.stm-central-live { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; padding: 8px 10px; border-radius: 8px; background: rgba(222, 4, 172, .14); border: 1px solid rgba(222, 4, 172, .5); font-size: 14px; }
+.stm-central-live label { margin-left: auto; display: flex; gap: 6px; align-items: center; font-size: 13px; }
+.stm-central-dot { width: 10px; height: 10px; border-radius: 50%; background: #ff3b6b; animation: stm-blink 1s infinite; }
+@keyframes stm-blink { 50% { opacity: .25; } }
+.stm-central-group h3 { margin: 10px 0 6px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; opacity: .6; }
+.stm-central-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .08); margin-bottom: 6px; }
+.stm-central-row > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.stm-central-row small { opacity: .6; font-size: 12px; }
+.stm-central-row.on { border-color: rgba(222, 4, 172, .7); background: rgba(222, 4, 172, .1); }
+.stm-central-row .stm-btn { flex-shrink: 0; min-width: 86px; }
+
+/* Operador da live: prévia grande à esquerda, textos e cenas à direita */
+.role-overlays .stm-preview { position: sticky; top: 10px; }
+.stm-central-preview { display: flex; gap: 6px; align-items: center; font-size: 13px; opacity: .8; margin-bottom: 4px; }
+/* Operador da live não mexe no jogo: some vínculo do torneio, rótulo, próximo jogo e reiniciar.
+   (!important: a linha do rótulo tem display inline) */
+.role-overlays .stm-tourney-bar,
+.role-overlays .stm-label-row,
+.role-overlays .stm-danger-zone { display: none !important; }
