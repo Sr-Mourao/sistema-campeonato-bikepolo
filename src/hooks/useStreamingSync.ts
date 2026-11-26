@@ -19,6 +19,7 @@ import {
   type StreamingState,
   type StreamingTeam,
   type StreamingTextItem,
+  type StreamingTournamentLink,
 } from '../services/streamingState'
 
 const STORAGE_STATE_KEY = 'polo.streaming.state.v2'
@@ -392,6 +393,7 @@ export function useStreamingSync() {
         clock: clockStr,
         gt: Math.round(Math.max(0, currentElapsed)),
         at: currentTime,
+        membroId: player?.membroId ?? null,
       }
 
       // Sem jogadora definida, o lance fica pendente: não soma no placar nem
@@ -504,6 +506,7 @@ export function useStreamingSync() {
       const p = pid ? s[playerSide]?.players.find(x => x.id === pid) : null
       ev.pid = p ? p.id : (pid || null)
       ev.player = p ? p.name : (customName || '')
+      ev.membroId = p?.membroId ?? null
       if (own && ev.type === 'goal') {
         ev.own = true
         ev.playerTeam = s[playerSide].name
@@ -735,6 +738,32 @@ export function useStreamingSync() {
     }, { stampDomain: 'jogo' })
   }, [mutate])
 
+  const linkTournamentMatch = useCallback((
+    tournament: StreamingTournamentLink,
+    teamA: StreamingTeam,
+    teamB: StreamingTeam,
+    label?: string,
+  ) => {
+    mutate(s => {
+      s.tournament = tournament
+      s.a = { ...teamA, score: 0, fouls: 0 }
+      s.b = { ...teamB, score: 0, fouls: 0 }
+      s.label = label || `${tournament.faseRotulo} · ${tournament.jogoCodigo}`
+      s.clock = { running: false, elapsed: 0, startedAt: 0 }
+      s.events = []
+      s.fx = null
+      s.pauses = emptyPauses()
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
+  const unlinkTournamentMatch = useCallback(() => {
+    mutate(s => {
+      s.tournament = null
+      return s
+    }, { stampDomain: 'jogo' })
+  }, [mutate])
+
   const resetAllMatch = useCallback(() => {
     mutate(s => {
       s.clock = { running: false, elapsed: 0, startedAt: 0 }
@@ -813,6 +842,8 @@ export function useStreamingSync() {
     setLabel,
     addScheduleGame,
     nextGame,
+    linkTournamentMatch,
+    unlinkTournamentMatch,
     resetAllMatch,
     startPause,
     togglePauseTimer,

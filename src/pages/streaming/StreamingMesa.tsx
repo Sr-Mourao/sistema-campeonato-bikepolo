@@ -4,7 +4,10 @@ import {
   PALETTE_STREAMING,
   SIMULATION_TEAMS,
   getClockDisplayText,
+  type StreamingPlayer,
+  type StreamingTeam,
 } from '../../services/streamingState'
+import { torneioApi, type Jogo, type Torneio, type TipoGol } from '../../admin/torneio/torneioApi'
 import PausePanel from './PausePanel'
 import './StreamingMesa.css'
 
@@ -38,6 +41,8 @@ export default function StreamingMesa() {
     setLabel,
     addScheduleGame,
     nextGame,
+    linkTournamentMatch,
+    unlinkTournamentMatch,
     resetAllMatch,
     startPause,
     togglePauseTimer,
@@ -93,19 +98,246 @@ export default function StreamingMesa() {
   const [newGameB, setNewGameB] = useState('')
   const [newGameLabel, setNewGameLabel] = useState('')
 
+  // Integração com Torneio Oficial
+  const [torneiosList, setTorneiosList] = useState<Torneio[]>([])
+  const [selectedTorneioId, setSelectedTorneioId] = useState<number | null>(null)
+  const [torneioJogos, setTorneioJogos] = useState<Jogo[]>([])
+  const [showMatchPicker, setShowMatchPicker] = useState(false)
+  const [showFinalizeModal, setShowFinalizeModal] = useState(false)
+  const [loadingTournament, setLoadingTournament] = useState(false)
+  const [submittingSumula, setSubmittingSumula] = useState(false)
+  const [finalizeOvertime, setFinalizeOvertime] = useState(false)
+  const [finalizeNotes, setFinalizeNotes] = useState('')
+
   // Confirmação antes de excluir/anular lances
   const [confirmDlg, setConfirmDlg] = useState<{ title: string; msg: string; yes?: string; onYes: () => void } | null>(null)
 
-  // Ações que mexem no jogo todo: pedem confirmação (um toque sem querer no celular)
-  const askNextGame = () => setConfirmDlg({
-    title: 'Encerrar este jogo?',
-    msg: `${state.a.name} ${state.a.score} x ${state.b.score} ${state.b.name} vai para o histórico, e o placar, as faltas, os lances e o relógio são zerados.`,
-    yes: 'Sim, próximo jogo',
+  const loadGameIntoMesa = async (torneioId: number, torneioNome: string, jogo: Jogo) => {
+    setLoadingTournament(true)
+    try {
+      const sumulaData = await torneioApi.sumula(torneioId, jogo.id)
+      const elenco = sumulaData.elenco || []
+
+      const playersA: StreamingPlayer[] = elenco
+        .filter(m => m.time_id === jogo.time_a_id)
+        .map(m => ({ id: `p_${m.membro_id}`, name: m.nome, membroId: m.membro_id }))
+
+      const playersB: StreamingPlayer[] = elenco
+        .filter(m => m.time_id === jogo.time_b_id)
+        .map(m => ({ id: `p_${m.membro_id}`, name: m.nome, membroId: m.membro_id }))
+
+      const teamA: StreamingTeam = {
+        id: `t_${jogo.time_a_id}`,
+        name: jogo.time_a_nome || 'Time A',
+        short: (jogo.time_a_nome || 'TMA').slice(0, 3).toUpperCase(),
+        color: PALETTE_STREAMING[0],
+        score: 0,
+        fouls: 0,
+        players: playersA,
+      }
+
+      const teamB: StreamingTeam = {
+        id: `t_${jogo.time_b_id}`,
+        name: jogo.time_b_nome || 'Time B',
+        short: (jogo.time_b_nome || 'TMB').slice(0, 3).toUpperCase(),
+        color: PALETTE_STREAMING[1],
+        score: 0,
+        fouls: 0,
+        players: playersB,
+      }
+
+      if (jogo.status === 'agendado' || jogo.status === 'chamado') {
+        try {
+          await torneioApi.atualizarPartida(torneioId, jogo.id, { status: 'em_andamento' })
+        } catch {
+          // ignora aviso se já houver outra em andamento
+        }
+      }
+
+      linkTournamentMatch(
+        {
+          torneioId,
+          torneioNome,
+          jogoId: jogo.id,
+          jogoCodigo: jogo.codigo,
+          faseRotulo: jogo.fase_rotulo,
+          faseTipo: jogo.fase_tipo,
+          timeAId: jogo.time_a_id!,
+          timeBId: jogo.time_b_id!,
+        },
+        teamA,
+        teamB,
+        `${jogo.fase_rotulo} · ${jogo.codigo}`,
+      )
+
+      showToast(`Partida ${jogo.codigo} carregada na mesa!`)
+      setShowMatchPicker(false)
+    } catch (err) {
+      showToast('Erro ao carregar partida: ' + (err instanceof Error ? err.message : String(err)))
+    } finally {
+      setLoadingTournament(false)
+    }
+  }
+
+  const loadNextTournamentMatch = async () => {
+    setLoadingTournament(true)
+    try {
+      const res = await torneioApi.listar()
+      const list = res.torneios || []
+      if (list.length === 0) {
+        showToast('Nenhum torneio cadastrado')
+        return
+      }
+      const activeT = list.find(t => t.estado !== 'FINALIZADO') || list[0]
+      const detalhe = await torneioApi.detalhe(activeT.id)
+
+      const jogosRes = await torneioApi.jogos(activeT.id)
+      const validJogos = jogosRes.jogos.filter(j => j.is_bye === 0 && j.time_a_id && j.time_b_id)
+
+      let targetJogo: Jogo | null = null
+      if (detalhe.jogo_destaque_codigo) {
+        targetJogo = validJogos.find(j => j.codigo === detalhe.jogo_destaque_codigo) || null
+      }
+
+      if (!targetJogo) {
+        targetJogo = validJogos.find(j => j.status === 'em_andamento')
+          || validJogos.find(j => j.status === 'chamado')
+          || validJogos.find(j => j.status === 'agendado')
+          || null
+      }
+
+      if (!targetJogo) {
+        showToast('Nenhuma partida agendada encontrada no torneio')
+        return
+      }
+
+      await loadGameIntoMesa(activeT.id, activeT.nome, targetJogo)
+    } catch (err) {
+      showToast('Erro ao buscar próxima partida: ' + (err instanceof Error ? err.message : String(err)))
+    } finally {
+      setLoadingTournament(false)
+    }
+  }
+
+  const openMatchPicker = async () => {
+    setLoadingTournament(true)
+    try {
+      const res = await torneioApi.listar()
+      const list = res.torneios || []
+      setTorneiosList(list)
+      if (list.length > 0) {
+        const tid = selectedTorneioId || (state.tournament?.torneioId ?? list.find(t => t.estado !== 'FINALIZADO')?.id ?? list[0].id)
+        setSelectedTorneioId(tid)
+        const jRes = await torneioApi.jogos(tid)
+        setTorneioJogos(jRes.jogos.filter(j => j.is_bye === 0 && j.time_a_id && j.time_b_id))
+      }
+      setShowMatchPicker(true)
+    } catch (err) {
+      showToast('Erro ao listar jogos: ' + (err instanceof Error ? err.message : String(err)))
+    } finally {
+      setLoadingTournament(false)
+    }
+  }
+
+  const handleSelectTorneioTab = async (torneioId: number) => {
+    setSelectedTorneioId(torneioId)
+    setLoadingTournament(true)
+    try {
+      const jRes = await torneioApi.jogos(torneioId)
+      setTorneioJogos(jRes.jogos.filter(j => j.is_bye === 0 && j.time_a_id && j.time_b_id))
+    } catch (err) {
+      showToast('Erro ao carregar jogos: ' + (err instanceof Error ? err.message : String(err)))
+    } finally {
+      setLoadingTournament(false)
+    }
+  }
+
+  const askUnlinkMatch = () => setConfirmDlg({
+    title: 'Desvincular partida do torneio?',
+    msg: 'A mesa voltará ao modo avulso/simulação. Os lances atuais não serão enviados ao torneio.',
+    yes: 'Sim, desvincular',
     onYes: () => {
-      nextGame()
-      showToast('Avançado para o próximo jogo')
+      unlinkTournamentMatch()
+      showToast('Partida desvinculada do torneio')
     },
   })
+
+  const handleFinalizeAndSubmit = async () => {
+    if (!state.tournament) return
+    const tourney = state.tournament
+    setSubmittingSumula(true)
+    try {
+      // 1. Enviar gols
+      for (const ev of state.events) {
+        if (ev.type === 'goal' && !ev.fxPending) {
+          const teamId = ev.side === 'a' ? tourney.timeAId : tourney.timeBId
+          const tipo: TipoGol = ev.own ? 'gol_contra' : (ev.membroId ? 'normal' : 'sem_autoria')
+          const minuto = Math.max(1, Math.floor((ev.gt || 0) / 60000) + 1)
+          await torneioApi.registrarGol(
+            tourney.torneioId,
+            tourney.jogoId,
+            teamId,
+            ev.membroId || null,
+            tipo,
+            minuto,
+          )
+        }
+      }
+
+      // 2. Enviar faltas que tenham membro_id
+      for (const ev of state.events) {
+        if (ev.type === 'foul' && !ev.fxPending) {
+          const teamId = ev.side === 'a' ? tourney.timeAId : tourney.timeBId
+          if (ev.membroId) {
+            await torneioApi.registrarFalta(
+              tourney.torneioId,
+              tourney.jogoId,
+              teamId,
+              ev.membroId,
+            )
+          }
+        }
+      }
+
+      // 3. Encerrar partida no torneio
+      await torneioApi.atualizarPartida(tourney.torneioId, tourney.jogoId, {
+        status: 'encerrado',
+        placar_a: state.a.score,
+        placar_b: state.b.score,
+        overtime: finalizeOvertime ? 1 : 0,
+        observacoes: finalizeNotes.trim() || undefined,
+      })
+
+      // 4. Salvar no histórico local e limpar mesa
+      resetAllMatch()
+      unlinkTournamentMatch()
+      setShowFinalizeModal(false)
+      setFinalizeNotes('')
+      setFinalizeOvertime(false)
+      showToast(`Partida ${tourney.jogoCodigo} encerrada e oficializada no torneio!`)
+    } catch (err) {
+      showToast('Erro ao oficializar resultado: ' + (err instanceof Error ? err.message : String(err)))
+    } finally {
+      setSubmittingSumula(false)
+    }
+  }
+
+  // Ações que mexem no jogo todo: pedem confirmação (um toque sem querer no celular)
+  const askNextGame = () => {
+    if (state.tournament) {
+      setShowFinalizeModal(true)
+      return
+    }
+    setConfirmDlg({
+      title: 'Encerrar este jogo?',
+      msg: `${state.a.name} ${state.a.score} x ${state.b.score} ${state.b.name} vai para o histórico, e o placar, as faltas, os lances e o relógio são zerados.`,
+      yes: 'Sim, próximo jogo',
+      onYes: () => {
+        nextGame()
+        showToast('Avançado para o próximo jogo')
+      },
+    })
+  }
   const askResetClock = () => setConfirmDlg({
     title: 'Zerar o tempo?',
     msg: 'O relógio volta ao início. Placar e lances continuam.',
@@ -119,7 +351,7 @@ export default function StreamingMesa() {
     onYes: swapSides,
   })
   // Algum modal aberto: atalhos de teclado ficam desligados
-  const modalOpen = !!(attrPrompt || confirmDlg || pickerSide || showDeviceModal)
+  const modalOpen = !!(attrPrompt || confirmDlg || pickerSide || showDeviceModal || showMatchPicker || showFinalizeModal)
 
   const describeEvent = (ev: { type: string; team: string; player?: string; clock?: string }) =>
     `${ev.type === 'goal' ? 'Gol' : 'Falta'} · ${ev.team}${ev.player ? ` · ${ev.player}` : ''}${ev.clock ? ` (${ev.clock})` : ''}`
@@ -399,6 +631,71 @@ export default function StreamingMesa() {
               style={{ transform: `scale(${previewScale})` }}
             />
           </div>
+
+          {/* Banner de Integração com o Torneio */}
+          {state.tournament ? (
+            <div className="stm-tourney-bar">
+              <div className="stm-tourney-info">
+                <span className="stm-tourney-badge">🏆 Torneio</span>
+                <span>
+                  <b>{state.tournament.torneioNome}</b> · {state.tournament.faseRotulo} (<b>{state.tournament.jogoCodigo}</b>)
+                </span>
+              </div>
+              <div className="stm-tourney-actions">
+                <button
+                  type="button"
+                  className="stm-btn mini primary"
+                  onClick={() => setShowFinalizeModal(true)}
+                  title="Revisar súmula e oficializar resultado"
+                >
+                  🏁 Finalizar Partida
+                </button>
+                <button
+                  type="button"
+                  className="stm-btn mini"
+                  onClick={openMatchPicker}
+                  title="Trocar partida vinculada"
+                >
+                  Trocar Jogo
+                </button>
+                <button
+                  type="button"
+                  className="stm-btn mini"
+                  onClick={askUnlinkMatch}
+                  title="Desvincular do torneio (modo avulso)"
+                >
+                  Desvincular
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="stm-tourney-bar unlinked">
+              <div className="stm-tourney-info">
+                <span className="stm-tourney-badge off">Modo Avulso</span>
+                <span>Nenhum jogo do torneio vinculado à mesa.</span>
+              </div>
+              <div className="stm-tourney-actions">
+                <button
+                  type="button"
+                  className="stm-btn mini primary"
+                  disabled={loadingTournament}
+                  onClick={loadNextTournamentMatch}
+                  title="Carregar automaticamente a próxima partida da fila do torneio"
+                >
+                  {loadingTournament ? 'Carregando…' : '📥 Carregar Próxima Partida'}
+                </button>
+                <button
+                  type="button"
+                  className="stm-btn mini"
+                  disabled={loadingTournament}
+                  onClick={openMatchPicker}
+                  title="Escolher uma partida específica da tabela"
+                >
+                  Selecionar Jogo…
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Placar & Controles */}
           <div className="stm-scoreline">
@@ -713,7 +1010,7 @@ export default function StreamingMesa() {
               style={{ alignSelf: 'flex-end', height: 38 }}
               onClick={askNextGame}
             >
-              Próximo Jogo ▶
+              {state.tournament ? '🏁 Finalizar Partida' : 'Próximo Jogo ▶'}
             </button>
           </div>
 
@@ -1604,6 +1901,228 @@ export default function StreamingMesa() {
           </div>
         </div>
       )}
+
+      {/* Modal: Selecionar Partida do Torneio */}
+      {showMatchPicker && (
+        <div className="stm-modal-backdrop" onClick={() => setShowMatchPicker(false)}>
+          <div className="stm-modal-box stm-match-modal" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0 }}>🏆 Selecionar Partida do Torneio</h3>
+              <button type="button" className="stm-btn mini" onClick={() => setShowMatchPicker(false)}>✕</button>
+            </div>
+
+            {torneiosList.length > 1 && (
+              <div style={{ display: 'flex', gap: 6, margin: '12px 0 6px', overflowX: 'auto' }}>
+                {torneiosList.map(t => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    className={`stm-btn mini ${t.id === selectedTorneioId ? 'primary' : ''}`}
+                    onClick={() => handleSelectTorneioTab(t.id)}
+                  >
+                    {t.nome} ({t.categoria})
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="stm-match-list">
+              {loadingTournament && <div style={{ padding: 20, textAlign: 'center', opacity: 0.7 }}>Carregando partidas…</div>}
+
+              {!loadingTournament && torneioJogos.length === 0 && (
+                <div style={{ padding: 20, textAlign: 'center', opacity: 0.7 }}>
+                  Nenhuma partida com times definidos encontrada.
+                </div>
+              )}
+
+              {!loadingTournament && torneioJogos.map(j => {
+                const isCurrent = state.tournament?.jogoId === j.id
+                const isLive = j.status === 'em_andamento'
+                return (
+                  <button
+                    key={j.id}
+                    type="button"
+                    className={`stm-match-item ${isCurrent ? 'current' : ''}`}
+                    onClick={() => {
+                      const t = torneiosList.find(x => x.id === (selectedTorneioId || j.torneio_id))
+                      loadGameIntoMesa(j.torneio_id, t?.nome || 'Torneio', j)
+                    }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span className="stm-tag" style={{ background: isLive ? 'var(--pal-orange, #ff931e)' : undefined }}>
+                          {j.codigo}
+                        </span>
+                        <span style={{ fontSize: 13, opacity: 0.8 }}>{j.fase_rotulo}</span>
+                        {isCurrent && <span style={{ color: 'var(--pal-magenta, #de04ac)', fontWeight: 800, fontSize: 12 }}>● ATIVO NA MESA</span>}
+                      </div>
+                      <div style={{ fontSize: 16, fontWeight: 700, marginTop: 4 }}>
+                        {j.time_a_nome} <span style={{ opacity: 0.6 }}>×</span> {j.time_b_nome}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right', fontSize: 12, opacity: 0.8 }}>
+                      <div>Status: <b>{j.status}</b></div>
+                      {j.placar_a != null && j.placar_b != null && (
+                        <div style={{ fontWeight: 800, fontSize: 14 }}>{j.placar_a} × {j.placar_b}</div>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+              <button type="button" className="stm-btn" onClick={() => setShowMatchPicker(false)}>
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Revisão e Envio da Súmula para o Torneio */}
+      {showFinalizeModal && state.tournament && (() => {
+        const tourney = state.tournament
+        const isKnockout = tourney.faseTipo === 'repescagem' || tourney.faseTipo === 'double'
+        const isTied = state.a.score === state.b.score
+        const goals = state.events.filter(e => e.type === 'goal' && !e.fxPending)
+        const fouls = state.events.filter(e => e.type === 'foul' && !e.fxPending)
+        const missingFoulMember = fouls.some(f => !f.membroId)
+
+        return (
+          <div className="stm-modal-backdrop" onClick={() => !submittingSumula && setShowFinalizeModal(false)}>
+            <div className="stm-modal-box stm-finalize-modal" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+              <h3 style={{ margin: 0 }}>🏁 Finalizar e Oficializar Partida</h3>
+              <p style={{ margin: '4px 0 12px', fontSize: 14, opacity: 0.8 }}>
+                {tourney.torneioNome} · {tourney.faseRotulo} (<b>{tourney.jogoCodigo}</b>)
+              </p>
+
+              <div className="stm-finalize-body">
+                {/* Placar Final */}
+                <div className="stm-review-box">
+                  <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: 0.7 }}>Placar Final</div>
+                  <div className="stm-review-score">
+                    <span style={{ color: state.a.color }}>{state.a.name}</span>{' '}
+                    <span>{state.a.score} × {state.b.score}</span>{' '}
+                    <span style={{ color: state.b.color }}>{state.b.name}</span>
+                  </div>
+                </div>
+
+                {/* Validação de empate em eliminatória */}
+                {isKnockout && isTied && (
+                  <div style={{ padding: 10, background: 'rgba(255, 75, 75, 0.2)', border: '1px solid #ff4b4b', borderRadius: 8, color: '#ffb3b3', fontSize: 13 }}>
+                    ⚠️ <b>Fase eliminatória empatada:</b> A partida não pode terminar empatada. Marque o Golden Goal / Prorrogação na mesa antes de oficializar.
+                  </div>
+                )}
+
+                {/* Prorrogação */}
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, cursor: 'pointer', padding: '4px 0' }}>
+                  <input
+                    type="checkbox"
+                    checked={finalizeOvertime}
+                    onChange={e => setFinalizeOvertime(e.target.checked)}
+                  />
+                  <span>Decidido em Prorrogação / Golden Goal (overtime)</span>
+                </label>
+
+                {/* Gols Registrados */}
+                <div className="stm-review-box">
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>
+                    ⚽ Gols Registrados ({goals.length})
+                  </div>
+                  {goals.length === 0 ? (
+                    <div style={{ fontSize: 13, opacity: 0.6 }}>Nenhum gol registrado.</div>
+                  ) : (
+                    <table className="stm-review-table">
+                      <thead>
+                        <tr>
+                          <th>Min</th>
+                          <th>Time</th>
+                          <th>Autoria</th>
+                          <th>Tipo</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {goals.map(g => (
+                          <tr key={g.id}>
+                            <td>{Math.max(1, Math.floor((g.gt || 0) / 60000) + 1)}'</td>
+                            <td style={{ fontWeight: 700 }}>{g.team}</td>
+                            <td>{g.player || 'Sem autoria'}</td>
+                            <td>{g.own ? 'Gol Contra' : g.membroId ? 'Atleta Vinculado' : 'Sem autoria'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+
+                {/* Faltas Registradas */}
+                <div className="stm-review-box">
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>
+                    ⚠️ Faltas Registradas ({fouls.length})
+                  </div>
+                  {missingFoulMember && (
+                    <div style={{ fontSize: 12, color: 'var(--pal-amber-96, #f59e0b)', marginBottom: 6 }}>
+                      Aviso: algumas faltas não possuem atleta associado e não serão atribuídas a um atleta específico no relatório individual de Fair Play.
+                    </div>
+                  )}
+                  {fouls.length === 0 ? (
+                    <div style={{ fontSize: 13, opacity: 0.6 }}>Nenhuma falta registrada.</div>
+                  ) : (
+                    <table className="stm-review-table">
+                      <thead>
+                        <tr>
+                          <th>Time</th>
+                          <th>Atleta</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {fouls.map(f => (
+                          <tr key={f.id}>
+                            <td style={{ fontWeight: 700 }}>{f.team}</td>
+                            <td>{f.player || 'Sem atleta'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+
+                {/* Observações */}
+                <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 13 }}>
+                  Observações da Súmula (opcional)
+                  <input
+                    type="text"
+                    className="stm-input"
+                    placeholder="Ex.: Cartões, intercorrências, etc."
+                    value={finalizeNotes}
+                    onChange={e => setFinalizeNotes(e.target.value)}
+                  />
+                </label>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 12 }}>
+                <button
+                  type="button"
+                  className="stm-btn"
+                  disabled={submittingSumula}
+                  onClick={() => setShowFinalizeModal(false)}
+                >
+                  Voltar para a Mesa
+                </button>
+                <button
+                  type="button"
+                  className="stm-btn primary"
+                  disabled={submittingSumula || (isKnockout && isTied)}
+                  onClick={handleFinalizeAndSubmit}
+                >
+                  {submittingSumula ? 'Enviando ao Torneio…' : 'Confirmar e Enviar para o Torneio'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Toast Notification */}
       {toastMessage && <div className="stm-toast">{toastMessage}</div>}
