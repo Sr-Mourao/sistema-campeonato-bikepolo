@@ -8,12 +8,13 @@ import './TorneioEmissora.css'
  * A peça é entregue sozinha, ancorada em 0,0 e em tamanho natural — quem posiciona e
  * dimensiona é o OBS. O resto da viewport fica transparente.
  *
- * A placa inverte de polaridade entre os estados porque as marcas exigem isso: a Buena
- * Mira é arte branca (pede fundo escuro) e a Bike Polo é arte preta (pede fundo
- * claro). Nenhuma das duas é alterada por filtro.
+ * Identidade do 2º PIOR: papel bege, contorno de nanquim, sombra roxa e letreiro de
+ * marcador. Alterna o nome da transmissão ("Ao vivo") com o do evento.
  */
-const BUENA_MIRA = '/imgs/logos/buena%20mira/BMSC_Negativo_Alternativo.png'
-const BIKE_POLO_FLORIPA = '/imgs/logos/bikeplofloripa.png'
+/** Selo do campeonato e os dois textos que se alternam — troque aqui. */
+const LOGO_PIOR = '/identidade/logo.svg'
+const MARCA_PRINCIPAL = { titulo: 'PIOR Bici Polo', apoio: 'Ao vivo' }
+const MARCA_EVENTO = { titulo: '2º PIOR Campeonato', apoio: 'Curitiba · 12–13 dez' }
 
 /** A marca vira quando a lâmina já cobriu o miolo da placa. */
 const LAMINA_MEIO_MS = 330
@@ -22,14 +23,14 @@ const REALIZACAO_MS = 5200
 const BUENA_MIN_MS = 45_000
 const BUENA_MAX_MS = 90_000
 
-type Marca = 'buena' | 'curitiba'
+type Marca = 'pior' | 'evento'
 
 const proximaEspera = (marca: Marca) =>
-  marca === 'curitiba' ? REALIZACAO_MS : BUENA_MIN_MS + Math.random() * (BUENA_MAX_MS - BUENA_MIN_MS)
+  marca === 'evento' ? REALIZACAO_MS : BUENA_MIN_MS + Math.random() * (BUENA_MAX_MS - BUENA_MIN_MS)
 
 export default function TorneioOverlayEmissora() {
   useObsDocument('OBS · Emissora')
-  const [marca, setMarca] = useState<Marca>('buena')
+  const [marca, setMarca] = useState<Marca>('pior')
   const [trocando, setTrocando] = useState(false)
 
   /* Agenda a próxima vinheta. Um timer por fase, sempre limpo: a fonte fica horas no ar. */
@@ -40,7 +41,7 @@ export default function TorneioOverlayEmissora() {
 
   useEffect(() => {
     if (!trocando) return
-    const troca = setTimeout(() => setMarca(atual => (atual === 'buena' ? 'curitiba' : 'buena')), LAMINA_MEIO_MS)
+    const troca = setTimeout(() => setMarca(atual => (atual === 'pior' ? 'evento' : 'pior')), LAMINA_MEIO_MS)
     const fim = setTimeout(() => setTrocando(false), LAMINA_MS)
     return () => { clearTimeout(troca); clearTimeout(fim) }
   }, [trocando])
@@ -51,22 +52,15 @@ export default function TorneioOverlayEmissora() {
         <span className="em-accent" aria-hidden="true" />
         <span className="em-brilho" aria-hidden="true" />
 
-        {marca === 'buena' ? (
-          <div className="em-conteudo" key="buena">
-            <img src={BUENA_MIRA} alt="Buena Mira Social Club" className="em-marca em-marca--buena" />
-            <div className="em-texto">
-              <strong>Buena Mira</strong>
-              <span className="em-live"><i aria-hidden="true" />Ao vivo</span>
-            </div>
+        <div className="em-conteudo" key={marca}>
+          <img src={LOGO_PIOR} alt="PIOR Bici Polo" className="em-marca em-marca--pior" />
+          <div className="em-texto">
+            <strong>{marca === 'pior' ? MARCA_PRINCIPAL.titulo : MARCA_EVENTO.titulo}</strong>
+            {marca === 'pior'
+              ? <span className="em-live"><i aria-hidden="true" />{MARCA_PRINCIPAL.apoio}</span>
+              : <span className="em-papel">{MARCA_EVENTO.apoio}</span>}
           </div>
-        ) : (
-          <div className="em-conteudo" key="curitiba">
-            <img src={BIKE_POLO_FLORIPA} alt="Bike Polo" className="em-marca em-marca--curitiba" />
-            <div className="em-texto">
-              <span className="em-papel">Realização</span>
-            </div>
-          </div>
-        )}
+        </div>
 
         {trocando && <span className="em-lamina" aria-hidden="true" />}
       </aside>

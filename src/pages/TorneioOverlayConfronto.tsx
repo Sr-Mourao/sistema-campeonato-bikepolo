@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import ConfrontoTime from '../components/obs/ConfrontoTime'
+import { PREVIEW_JOGO } from '../components/obs/preview'
 import { useObsDocument } from '../hooks/useObsDocument'
 import { useTournamentLive } from '../hooks/useTournamentLive'
 import { fmtHora } from '../services/torneioPublico'
@@ -36,7 +37,9 @@ export default function TorneioOverlayConfronto() {
   useObsDocument('OBS · Confronto')
   const { destaque } = useTournamentLive()
   const overlay = useRef<HTMLElement>(null)
-  const jogo = destaque?.jogo ?? null
+  // ?preview=1: jogo simulado, como nas outras cenas da Central (ensaio sem banco)
+  const preview = new URLSearchParams(window.location.search).has('preview')
+  const jogo = destaque?.jogo ?? (preview ? PREVIEW_JOGO : null)
   const pronto = Boolean(jogo)
 
   const [introFinalizada, setIntroFinalizada] = useState(false)

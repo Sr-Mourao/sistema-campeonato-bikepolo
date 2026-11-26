@@ -7,6 +7,15 @@ import './TorneioIntervalo.css'
 
 const PALCO = { largura: 1920, altura: 1080 }
 
+/* ─── TROQUE AQUI ──────────────────────────────────────────────────────────
+   Enquanto estiverem null, a tela mostra um placeholder "TROCAR" no lugar.
+   - LOGO_CAMPEONATO: arquivo em public/ (ex.: '/identidade/logo-2pior.svg')
+   - QR_LINK: endereço que o QR code abre (ex.: 'https://piorbicipolo.com.br/torneio')
+   Patrocinadores: lista em public/patrocinadores.json (campo "logoOriginal") e
+   arquivos em public/imgs/logos/originais/. ─────────────────────────────── */
+const LOGO_CAMPEONATO: string | null = null
+const QR_LINK: string | null = null
+
 export default function TorneioOverlayIntervalo() {
   useObsDocument('OBS · Intervalo do torneio')
   const patrocinadores = usePatrocinadores()
@@ -43,7 +52,9 @@ export default function TorneioOverlayIntervalo() {
 
         {/* A faixa laranja é o berço original do wordmark roxo — mesma lógica de cor do site. */}
         <div className="iv-titlebar">
-          <img src="/identidade/10BR.svg" alt="2° Pior Campeonato de Bici Polo" className="iv-wordmark" />
+          {LOGO_CAMPEONATO
+            ? <img src={LOGO_CAMPEONATO} alt="2° Pior Campeonato de Bici Polo" className="iv-wordmark" />
+            : <div className="iv-placeholder iv-placeholder--logo"><b>Logo do campeonato</b><span>TROCAR · LOGO_CAMPEONATO em TorneioOverlayIntervalo.tsx</span></div>}
         </div>
 
         <div className="iv-state">
@@ -53,7 +64,17 @@ export default function TorneioOverlayIntervalo() {
         <p className="iv-sub">Em instantes, mais bici polo.</p>
         <div className="iv-connector" aria-hidden="true" />
 
-        <IntervalQr />
+        {QR_LINK
+          ? <IntervalQr value={QR_LINK} />
+          : (
+            <aside className="iv-qr">
+              <span className="iv-qr-costura" aria-hidden="true" />
+              <div className="iv-qr-tab"><strong>Acompanhe ao vivo</strong><span>Tabelas, jogos e classificação</span></div>
+              <div className="iv-qr-plate"><div className="iv-placeholder iv-placeholder--qr"><b>QR code</b><span>TROCAR · QR_LINK</span></div></div>
+            </aside>
+          )}
+        {/* Mascote descansando no intervalo */}
+        <img src="/identidade/artes/lobo-encostado.webp" alt="" className="iv-lobo" aria-hidden="true" />
         <IntervalSponsor patrocinadores={patrocinadores} />
       </div>
     </main>

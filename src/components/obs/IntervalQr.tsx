@@ -1,7 +1,8 @@
 import { QRCodeSVG } from 'qrcode.react'
 import { urlPublica } from './paginaPublica'
 
-export default function IntervalQr() {
+/** value: endereço do QR (padrão: página pública do torneio) */
+export default function IntervalQr({ value = urlPublica() }: { value?: string }) {
   return (
     <aside className="iv-qr">
       <span className="iv-qr-costura" aria-hidden="true" />
@@ -11,7 +12,7 @@ export default function IntervalQr() {
       </div>
       <div className="iv-qr-plate">
         <QRCodeSVG
-          value={urlPublica()}
+          value={value}
           size={188}
           level="M"
           marginSize={1}

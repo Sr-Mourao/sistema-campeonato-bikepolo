@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 /* ─────────────────────────────────────────────────────────────
    /torneio/overlay/intervalo — pacote gráfico de transmissão.
    Duas linguagens apenas: massa SÓLIDA (identidade e leitura) e
@@ -216,3 +217,54 @@
   .iv-brand--sai { animation: none; opacity: 0; }
   @keyframes iv-marca-estatica { from { opacity: 0; } to { opacity: 1; } }
 }
+
+/* ── IDV do 2º PIOR: papel bege, nanquim, sombra roxa carimbada, marcador ──
+   Contorno e sombra vêm de um filtro no palco: as peças têm cortes diagonais
+   (clip-path), que cortariam borda e box-shadow. ── */
+.iv-overlay {
+  --ink: var(--pal-black); --papel: var(--pal-beige); --papel-2: var(--pal-beige-light);
+  --laranja: var(--pal-orange); --verde: var(--pal-magenta); --vermelho: var(--pal-magenta);
+  --marcador: 'Permanent Marker', 'Barlow Condensed', sans-serif;
+}
+.iv-stage {
+  filter: drop-shadow(3px 0 0 var(--ink)) drop-shadow(-3px 0 0 var(--ink)) drop-shadow(0 3px 0 var(--ink))
+          drop-shadow(0 -3px 0 var(--ink)) drop-shadow(8px 8px 0 var(--pal-purple));
+}
+.iv-slab { background: var(--papel); }
+.iv-symbol { filter: drop-shadow(4px 4px 0 var(--pal-purple)); }
+.iv-kicker { color: var(--pal-magenta); }
+.iv-titlebar { background: var(--pal-orange); border-bottom-color: var(--ink); }
+.iv-state {
+  background: var(--papel-2); color: var(--pal-magenta); font-family: var(--marcador); font-weight: 400;
+  font-size: 104px; text-shadow: 6px 6px 0 var(--pal-purple);
+}
+.iv-pulse { background: var(--pal-orange); }
+.iv-sub { background: var(--ink); color: var(--papel); }
+.iv-qr-tab { background: var(--pal-magenta); }
+.iv-qr-tab span { color: var(--papel); }
+.iv-qr-plate { background: var(--papel); }
+.iv-sponsor-tab { background: var(--pal-magenta); }
+.iv-sponsor-tab b { color: var(--papel); }
+.iv-sponsor-plate { border-color: var(--ink); border-bottom-color: var(--pal-orange); }
+.iv-sponsor-plate[data-placa='clara'] { background: var(--papel); }
+.iv-sponsor-plate[data-placa='escura'] { background: var(--pal-purple); border-top-color: var(--ink); border-left-color: var(--ink); border-right-color: var(--ink); }
+
+/* Placeholders: avisam o que ainda precisa ser trocado (constantes no TSX) */
+.iv-placeholder {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center;
+  border: 4px dashed var(--ink); color: var(--ink); text-transform: uppercase;
+  background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--papel) 85%, transparent) 0 18px, color-mix(in srgb, var(--pal-orange) 35%, var(--papel)) 18px 36px);
+}
+.iv-placeholder b { font-family: var(--marcador); font-weight: 400; font-size: 40px; color: var(--pal-magenta); text-shadow: 3px 3px 0 var(--pal-purple); }
+.iv-placeholder span { font-size: 17px; font-weight: 800; letter-spacing: .08em; background: var(--ink); color: var(--papel); padding: 3px 8px; }
+.iv-placeholder--logo { width: 900px; height: 128px; margin: 22px 0 0 96px; }
+.iv-placeholder--qr { width: 208px; height: 208px; }
+.iv-placeholder--qr b { font-size: 34px; }
+.iv-placeholder--qr span { font-size: 15px; }
+
+/* Lobo encostado no taco, descansando em cima da placa de apoio */
+.iv-lobo {
+  position: absolute; left: 1610px; top: 128px; height: 432px; z-index: 2;
+  animation: iv-lobo 900ms 700ms cubic-bezier(.2,.9,.3,1.15) both;
+}
+@keyframes iv-lobo { from { opacity: 0; transform: translateY(40px) rotate(4deg); } }

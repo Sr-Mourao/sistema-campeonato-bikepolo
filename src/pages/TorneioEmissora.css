@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 /* ─────────────────────────────────────────────────────────────
    /torneio/overlay/emissora — bug de emissora.
    Só a peça, ancorada em 0,0 e em tamanho natural: posição e escala
@@ -114,3 +115,20 @@
   .em-bug[data-trocando='sim'] .em-conteudo { animation: em-simples 240ms ease-out both; }
   @keyframes em-simples { from { opacity: 0; } to { opacity: 1; } }
 }
+
+/* ── IDV do 2º PIOR: papel bege, contorno de nanquim, sombra roxa carimbada ── */
+.em-bug[data-marca] {
+  background: var(--pal-beige); width: 430px;
+  box-shadow: inset 0 0 0 3px var(--pal-black), 6px 6px 0 var(--pal-purple);
+}
+.em-accent { width: 10px; background: var(--pal-magenta); }
+.em-brilho { background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .45), transparent); }
+.em-marca--pior { width: 84px; height: 84px; filter: drop-shadow(3px 3px 0 var(--pal-purple)); }
+.em-texto strong {
+  color: var(--pal-magenta); font-family: 'Permanent Marker', 'Barlow Condensed', sans-serif;
+  font-weight: 400; font-size: 31px; letter-spacing: .03em; text-shadow: 3px 3px 0 var(--pal-purple);
+}
+.em-live { color: var(--pal-black); }
+.em-live i { background: var(--pal-magenta); box-shadow: none; }
+.em-papel { color: var(--pal-black); font-size: 21px; letter-spacing: .14em; }
+.em-lamina { background: var(--pal-orange); box-shadow: 0 0 0 3px var(--pal-black); }
