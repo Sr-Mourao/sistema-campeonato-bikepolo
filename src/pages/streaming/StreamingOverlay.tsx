@@ -316,7 +316,7 @@ export default function StreamingOverlay() {
 
       {/* Cartão da jogadora */}
       <div className={`str-pcard ${card ? 'on' : ''}`} style={{ '--tc': card?.color || '#ff931e' } as React.CSSProperties}>
-        {idv && <img className="str-card-art" src="/identidade/artes/lobo-taco.webp" alt="" />}
+        {idv && <img className="str-card-art" src="/identidade/artes/lobo-encostado.webp" alt="" />}
         <div className="k">{card?.own ? 'Gol contra' : 'Gol'}</div>
         <div className="n">{card?.name}</div>
         <div className="tm">{card?.team}</div>
@@ -339,12 +339,12 @@ export default function StreamingOverlay() {
         <div className="rings"><i /><i /><i /></div>
         <div className="flash" />
         {/* Artes do campeonato (modo IDV): trave ao fundo, braço com taco e o lobo
-            comemorando — ou em dúvida, no gol contra */}
+            com taco e bola (LOBOS_00001) — ou em dúvida, no gol contra */}
         {idv && goalGfx.play && (
           <>
             <img className="str-gfx-trave" src="/identidade/artes/trave.webp" alt="" />
             <img className="str-gfx-braco" src="/identidade/artes/braco-taco.webp" alt="" />
-            <img className="str-gfx-lobo" src={`/identidade/artes/${liveFx?.own ? 'lobo-duvida' : 'lobo-comemora'}.webp`} alt="" />
+            <img className="str-gfx-lobo" src={`/identidade/artes/${liveFx?.own ? 'lobo-duvida' : 'lobo-taco'}.webp`} alt="" />
           </>
         )}
         <div className="core">

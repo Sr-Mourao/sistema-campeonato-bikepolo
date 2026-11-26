@@ -958,6 +958,16 @@
 .str-idv #strTicker,
 .str-idv #strBadge { background: var(--idv-paper); color: var(--idv-ink); border: var(--idv-line); box-shadow: var(--idv-drop); }
 .str-idv #strBadge i { background: var(--idv-mag); }
+/* Texto escuro no papel (antes ficava branco no bege) e títulos no letreiro de marcador */
+.str-idv #strCenter .t { color: var(--idv-mag); font-family: var(--idv-marker); font-weight: 400; text-shadow: 5px 5px 0 var(--idv-pur); }
+.str-idv #strCenter .s { color: var(--idv-ink); }
+.str-idv #strCenter .bar { background: var(--idv-org); }
+.str-idv #strTicker .t { background: var(--idv-mag); color: #fff; font-family: var(--idv-marker); font-weight: 400; border-right: var(--idv-line); }
+.str-idv #strTicker .run { color: var(--idv-ink); }
+.str-idv #strLower .t { font-family: var(--idv-marker); font-weight: 400; }
+.str-idv #strLower .t::before { background: var(--idv-mag); }
+.str-idv #strLower .s { background: var(--idv-mag); color: #fff; border: var(--idv-line); border-top: 0; }
+.str-idv #strBadge .s { color: var(--idv-mag); }
 
 /* Animação de GOL: faixa de papel, letreiro de marcador e o lobo entrando */
 .str-idv #strGfx .dim { background: radial-gradient(ellipse at center, color-mix(in srgb, var(--idv-pur) 25%, transparent), color-mix(in srgb, var(--idv-pur) 75%, var(--idv-ink))); }
