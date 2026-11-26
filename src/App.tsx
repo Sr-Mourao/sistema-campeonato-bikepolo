@@ -17,7 +17,6 @@ const AdminApp = lazy(() => import('./admin/AdminApp'))
 const Lojinha  = lazy(() => import('./pages/Lojinha'))
 const Equipes  = lazy(() => import('./pages/Equipes'))
 const Torneio  = lazy(() => import('./pages/Torneio'))
-const TorneioSeletor = lazy(() => import('./pages/TorneioSeletor'))
 const Resultados = lazy(() => import('./pages/Resultados'))
 const TorneioPlacar = lazy(() => import('./pages/TorneioPlacar'))
 const TorneioOverlayPlacar = lazy(() => import('./pages/TorneioOverlayPlacar'))
@@ -177,7 +176,7 @@ export default function App() {
       </Suspense>
     )
   }
-  if (path === '/torneio/misto') {
+  if (path === '/torneio' || path === '/torneio/' || path === '/torneio/misto') {
     return (
       <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d45)' }} />}>
         {scoped('misto', <Torneio />)}
@@ -186,13 +185,6 @@ export default function App() {
   }
   if (path === '/torneio/resultados' || path === '/torneio/resultados/') {
     return <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d35)' }} />}><Resultados /></Suspense>
-  }
-  if (path === '/torneio') {
-    return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--pal-purple-d45)' }} />}>
-        <TorneioSeletor />
-      </Suspense>
-    )
   }
   return (
     <>

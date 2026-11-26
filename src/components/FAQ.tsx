@@ -365,7 +365,7 @@ export function HomeQuickLinks() {
   ]
   const operacionais = [
     {
-      href: '/torneio/misto?aba=regulamento',
+      href: '/torneio?aba=regulamento',
       label: 'Regulamento',
       description: 'Formato, critérios e regras oficiais da competição.',
       className: 'home-link-card--orange',
