@@ -352,7 +352,7 @@ export const DEFAULT_STREAMING_STATE: StreamingState = {
     autoPause: true,
     autoPauseMin: 2,
     brand: '#ff931e',
-    colorMode: 'times',
+    colorMode: 'idv',
     techMax: 2,
     techMin: 2,
     mechMin: 5,

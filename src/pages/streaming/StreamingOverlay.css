@@ -974,18 +974,59 @@
 .str-idv #strGfx .tm { color: var(--idv-ink); }
 .str-idv #strGfx .pl { background: var(--str-gc); color: #fff; border: var(--idv-line); box-shadow: 5px 5px 0 var(--idv-pur); }
 .str-idv #strGfx .sc { background: var(--idv-ink); color: var(--idv-paper); }
+.str-gfx-lobo,
+.str-gfx-braco,
+.str-gfx-trave { position: absolute; pointer-events: none; filter: drop-shadow(6px 6px 0 rgba(0, 0, 0, .35)); }
+/* Lobo: pula pela direita e comemora */
 .str-gfx-lobo {
-  position: absolute; z-index: 3; right: 3%; bottom: -60px; height: 640px;
+  z-index: 3; right: 4%; bottom: -30px; height: 640px;
   transform: translateY(115%) rotate(10deg);
-  animation: strLobo 4.6s cubic-bezier(.2, .9, .3, 1.15) .5s forwards;
+  animation: strLobo 4.6s cubic-bezier(.2, .9, .3, 1.15) .45s forwards;
 }
 @keyframes strLobo {
   0% { transform: translateY(115%) rotate(10deg); }
-  16% { transform: translateY(0) rotate(-4deg); }
-  70% { transform: translateY(0) rotate(-1deg); }
-  88%, 100% { transform: translateY(115%) rotate(8deg); }
+  15% { transform: translateY(0) rotate(-5deg); }
+  25% { transform: translateY(-30px) rotate(3deg); }
+  35%, 72% { transform: translateY(0) rotate(-2deg); }
+  90%, 100% { transform: translateY(115%) rotate(8deg); }
 }
-.str-vertical .str-gfx-lobo { right: 50%; margin-right: -230px; bottom: -40px; height: 520px; }
+/* Braço com taco: sobe pela esquerda e balança */
+.str-gfx-braco {
+  z-index: 3; left: 2%; bottom: -40px; height: 560px; transform-origin: bottom left;
+  transform: translateY(110%) rotate(-12deg);
+  animation: strBraco 4.6s cubic-bezier(.2, .9, .3, 1.1) .6s forwards;
+}
+@keyframes strBraco {
+  0% { transform: translateY(110%) rotate(-12deg); }
+  16% { transform: translateY(0) rotate(4deg); }
+  28% { transform: translateY(0) rotate(-3deg); }
+  40%, 72% { transform: translateY(0) rotate(1deg); }
+  90%, 100% { transform: translateY(110%) rotate(-10deg); }
+}
+/* Trave ao fundo, no alto à esquerda */
+.str-gfx-trave {
+  z-index: 0; right: 9%; top: 3%; height: 270px; opacity: 0;
+  transform: rotate(-8deg) scale(.8);
+  animation: strTrave 4.6s ease .35s forwards;
+}
+@keyframes strTrave {
+  0% { opacity: 0; transform: rotate(-8deg) scale(.8); }
+  12%, 78% { opacity: 1; transform: rotate(-6deg) scale(1); }
+  100% { opacity: 0; transform: rotate(-6deg) scale(1); }
+}
+.str-vertical .str-gfx-lobo { right: 2%; bottom: -20px; height: 560px; }
+.str-vertical .str-gfx-braco { left: -2%; bottom: -30px; height: 460px; }
+.str-vertical .str-gfx-trave { right: auto; left: 50%; margin-left: -170px; top: 18%; height: 200px; }
+.str-idv #strGfx .gol.own { font-size: 180px; }
+.str-vertical.str-vertical #strGfx .gol.own { font-size: 120px; }
+
+/* Lobos espiando por cima do cartão da jogadora e do aviso de anulado */
+.str-card-art { display: none; }
+.str-idv .str-card-art {
+  display: block; position: absolute; right: 26px; bottom: calc(100% - 34px); height: 170px;
+  filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, .3)); pointer-events: none;
+}
+.str-idv .str-annul .str-card-art { height: 160px; }
 
 /* ================= OVERLAY AJUSTADO (celular da live) =================
    O overlay ocupa a área virtual (1920×1080 ou 1080×1920), não a tela toda:

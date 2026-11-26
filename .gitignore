@@ -119,3 +119,7 @@ prompt_*.txt
 
 # Estado do servidor de streaming (scripts/servidor_streaming.py)
 /data/
+
+# Artes originais do campeonato (.ai/.psd/.png grandes). O overlay usa as
+# versões recortadas e leves em public/identidade/artes.
+/ARTES/
