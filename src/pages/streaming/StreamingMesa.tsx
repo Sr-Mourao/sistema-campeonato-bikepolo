@@ -116,6 +116,10 @@ export default function StreamingMesa() {
     setLoadingTournament(true)
     try {
       const sumulaData = await torneioApi.sumula(torneioId, jogo.id)
+      if (!sumulaData) {
+        showToast('Não foi possível carregar os dados da súmula')
+        return
+      }
       const elenco = sumulaData.elenco || []
 
       const playersA: StreamingPlayer[] = elenco
@@ -183,7 +187,7 @@ export default function StreamingMesa() {
     setLoadingTournament(true)
     try {
       const res = await torneioApi.listar()
-      const list = res.torneios || []
+      const list = res?.torneios || []
       if (list.length === 0) {
         showToast('Nenhum torneio cadastrado')
         return
@@ -192,10 +196,10 @@ export default function StreamingMesa() {
       const detalhe = await torneioApi.detalhe(activeT.id)
 
       const jogosRes = await torneioApi.jogos(activeT.id)
-      const validJogos = jogosRes.jogos.filter(j => j.is_bye === 0 && j.time_a_id && j.time_b_id)
+      const validJogos = jogosRes?.jogos ? jogosRes.jogos.filter(j => j.is_bye === 0 && j.time_a_id && j.time_b_id) : []
 
       let targetJogo: Jogo | null = null
-      if (detalhe.jogo_destaque_codigo) {
+      if (detalhe?.jogo_destaque_codigo) {
         targetJogo = validJogos.find(j => j.codigo === detalhe.jogo_destaque_codigo) || null
       }
 
@@ -223,13 +227,13 @@ export default function StreamingMesa() {
     setLoadingTournament(true)
     try {
       const res = await torneioApi.listar()
-      const list = res.torneios || []
+      const list = res?.torneios || []
       setTorneiosList(list)
       if (list.length > 0) {
         const tid = selectedTorneioId || (state.tournament?.torneioId ?? list.find(t => t.estado !== 'FINALIZADO')?.id ?? list[0].id)
         setSelectedTorneioId(tid)
         const jRes = await torneioApi.jogos(tid)
-        setTorneioJogos(jRes.jogos.filter(j => j.is_bye === 0 && j.time_a_id && j.time_b_id))
+        setTorneioJogos(jRes?.jogos ? jRes.jogos.filter(j => j.is_bye === 0 && j.time_a_id && j.time_b_id) : [])
       }
       setShowMatchPicker(true)
     } catch (err) {
@@ -244,7 +248,7 @@ export default function StreamingMesa() {
     setLoadingTournament(true)
     try {
       const jRes = await torneioApi.jogos(torneioId)
-      setTorneioJogos(jRes.jogos.filter(j => j.is_bye === 0 && j.time_a_id && j.time_b_id))
+      setTorneioJogos(jRes?.jogos ? jRes.jogos.filter(j => j.is_bye === 0 && j.time_a_id && j.time_b_id) : [])
     } catch (err) {
       showToast('Erro ao carregar jogos: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
