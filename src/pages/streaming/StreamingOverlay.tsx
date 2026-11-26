@@ -79,12 +79,21 @@ export default function StreamingOverlay() {
     const team = fx.short || fx.team || ''
     const who = fx.player ? ` · ${fx.player}` : ''
     if (fx.type === 'foul' && age < 4800) return { cancel: false, tag: 'FALTA', cls: '', text: team + who }
-    if (fx.type === 'goal' && state.settings.goalAnim === 'bar' && age < 4800) {
-      return { cancel: false, tag: fx.own ? 'GOL CONTRA' : 'GOL', cls: 'goal', text: team + who }
+    const bar = state.settings.goalAnim === 'bar'
+    if (fx.type === 'goal' && fx.own) {
+      // Gol contra: a animação não diz quem foi; a autora aparece só aqui,
+      // depois da animação (ou junto dela, no modo faixa)
+      const from = bar ? 0 : 4900
+      if (age < from || age >= from + 5000) return null
+      const other = fx.side === 'a' ? state.b : state.a
+      const otherName = other.short || other.name
+      const by = fx.player ? `${fx.player} (${otherName})` : otherName
+      return { cancel: false, tag: 'GOL CONTRA', cls: 'goal', text: by }
     }
-    if (fx.type === 'cancel' && age < 3600) {
-      return { cancel: true, tag: `✕ ${fx.of === 'goal' ? 'GOL CANCELADO' : 'FALTA CANCELADA'}`, cls: 'cancel', text: '' }
+    if (fx.type === 'goal' && bar && age < 4800) {
+      return { cancel: false, tag: 'GOL', cls: 'goal', text: team + who }
     }
+    // Lance anulado: aparece no canto inferior direito (.str-annul), não na faixa
     return null
   })()
 
@@ -121,7 +130,7 @@ export default function StreamingOverlay() {
 
     const timer = setTimeout(() => {
       setGoalGfx(g => ({ ...g, play: false }))
-    }, 4000)
+    }, 4800)
 
     return () => clearTimeout(timer)
   }, [state.fx?.id, state.settings.goalAnim])
@@ -136,7 +145,7 @@ export default function StreamingOverlay() {
   const card = (() => {
     const fx = state.fx
     const st = state.settings
-    if (!st.pcOn || !fx || fx.type !== 'goal' || fx.own || !fx.player) return null
+    if (annul || !st.pcOn || !fx || fx.type !== 'goal' || fx.own || !fx.player) return null
     const ev = state.events.find(e => e.id === fx.id)
     if (!ev || !ev.player) return null
     const now = fx.at + fxAgeMs(fx, clockOffset)
@@ -247,7 +256,9 @@ export default function StreamingOverlay() {
                 style={{ '--tc': state[side].color } as React.CSSProperties}
               >
                 <i className="dot" />
-                <span className="k">{p.kind === 'tech' ? 'Pausa técnica' : 'Pausa mecânica'}</span>
+                <span className="k">
+                  {p.kind === 'tech' ? `Pausa técnica ${state.pauses[side].techUsed}/${state.settings.techMax ?? 2}` : 'Pausa mecânica'}
+                </span>
                 <span className="tm">{side === 'a' ? teamAName : teamBName}</span>
                 <span className="tt">{formatPauseTime(remaining)}</span>
                 <div className="bar"><b style={{ width: `${pct}%` }} /></div>
@@ -322,7 +333,7 @@ export default function StreamingOverlay() {
         <div className="core">
           <div className="gol">{liveFx?.own ? 'GOL CONTRA' : 'GOL!'}</div>
           <div className="tm">{goalGfx.team}</div>
-          {(liveFx?.player || goalGfx.player) && <div className="pl on">{liveFx?.player || goalGfx.player}</div>}
+          {!liveFx?.own && (liveFx?.player || goalGfx.player) && <div className="pl on">{liveFx?.player || goalGfx.player}</div>}
           <div className="sc"><b>{goalGfx.score}</b></div>
         </div>
       </div>

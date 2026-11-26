@@ -825,3 +825,6 @@
   }
 }
 
+/* Há quanto tempo o relógio está parado (só na mesa) */
+.stm-paused-for { margin: -4px 0 6px; font: 700 14px ui-monospace, Consolas, monospace; color: #ffb35c; text-align: center; letter-spacing: .04em; }
+.role-mesa .stm-paused-for { font-size: 17px; }

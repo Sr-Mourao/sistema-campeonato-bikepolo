@@ -53,7 +53,7 @@ export default function PausePanel({ side, team, pause, settings, clockOffset, o
       <div className="stm-pause-head">
         <span className="stm-chip" style={{ background: team.color }} />
         <b>{team.name}</b>
-        <span className="stm-tag pause">{p.kind === 'tech' ? 'PAUSA TÉCNICA' : 'PAUSA MECÂNICA'}</span>
+        <span className="stm-tag pause">{p.kind === 'tech' ? `PAUSA TÉCNICA ${pause.techUsed}/${techMax}` : 'PAUSA MECÂNICA'}</span>
       </div>
       <div className={`stm-pause-clock ${p.running ? '' : 'paused'}`}>{formatPauseTime(remaining)}</div>
       <div className="stm-pause-btns">

@@ -599,7 +599,7 @@
   inset: 0;
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
   opacity: 0;
-  animation: strDim 3.8s ease forwards;
+  animation: strDim 4.6s ease forwards;
 }
 
 #strGfx .flash {
@@ -624,7 +624,7 @@
   height: 480px;
   margin-top: -240px;
   background: #070303;
-  animation: strSweep 3.8s cubic-bezier(0.7, 0, 0.2, 1) forwards;
+  animation: strSweep 4.6s cubic-bezier(0.7, 0, 0.2, 1) forwards;
 }
 
 #strGfx .b1 {
@@ -632,7 +632,7 @@
   height: 420px;
   margin-top: -210px;
   background: var(--str-gc);
-  animation: strSweep 3.8s cubic-bezier(0.7, 0, 0.2, 1) 0.07s forwards;
+  animation: strSweep 4.6s cubic-bezier(0.7, 0, 0.2, 1) 0.07s forwards;
 }
 
 #strGfx .b3 {
@@ -640,7 +640,7 @@
   height: 14px;
   margin-top: 250px;
   background: var(--str-gc);
-  animation: strSweep 3.8s cubic-bezier(0.7, 0, 0.2, 1) 0.14s forwards;
+  animation: strSweep 4.6s cubic-bezier(0.7, 0, 0.2, 1) 0.14s forwards;
 }
 
 #strGfx .b4 {
@@ -648,7 +648,7 @@
   height: 14px;
   margin-top: -264px;
   background: var(--str-gc);
-  animation: strSweepR 3.8s cubic-bezier(0.7, 0, 0.2, 1) 0.14s forwards;
+  animation: strSweepR 4.6s cubic-bezier(0.7, 0, 0.2, 1) 0.14s forwards;
   transform: translateX(120%) skewY(-6deg);
 }
 
@@ -688,7 +688,7 @@
   align-items: center;
   justify-content: center;
   color: var(--str-gink);
-  animation: strCoreOut 3.8s ease forwards;
+  animation: strCoreOut 4.6s ease forwards;
 }
 
 #strGfx .gol {
@@ -724,8 +724,14 @@
   opacity: 0;
 }
 
+/* O nome da jogadora entra depois do placar, para dar drama */
 #strGfx .pl.on {
-  animation: strUp 0.45s ease forwards;
+  animation: strPlPop 0.55s cubic-bezier(0.2, 1.5, 0.4, 1) 2s forwards;
+}
+
+@keyframes strPlPop {
+  0% { opacity: 0; transform: scale(0.4); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 #strGfx .pl:empty {
@@ -810,21 +816,22 @@
   100% { opacity: 0; transform: translateX(220px); }
 }
 
-/* Lance anulado: cartão central */
+/* Lance anulado: canto inferior direito, no lugar do cartão da jogadora */
 .str-annul {
-  position: absolute; left: 50%; top: 50%;
-  transform: translate(-50%, -50%) scale(.85); opacity: 0;
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  padding: 28px 56px; border-radius: 18px;
-  background: rgba(14, 6, 20, .92); border: 4px solid #ff3b3b;
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--str-ac) 45%, transparent), 0 20px 60px rgba(0, 0, 0, .6);
-  color: #fff; font-family: inherit; text-transform: uppercase; text-align: center;
-  pointer-events: none; transition: opacity .25s, transform .25s;
+  position: absolute; right: 48px; bottom: 150px; min-width: 340px; max-width: 520px;
+  display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 18px;
+  padding: 16px 24px 16px 18px; border-radius: 14px;
+  background: rgba(14, 6, 20, .93); border-left: 8px solid #ff3b3b;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--str-ac) 45%, transparent), 0 16px 40px rgba(0, 0, 0, .5);
+  color: #fff; font-family: inherit; text-transform: uppercase;
+  opacity: 0; transform: translateX(40px); pointer-events: none;
+  transition: opacity .3s, transform .35s cubic-bezier(.2, .9, .3, 1.2);
 }
-.str-annul.on { opacity: 1; transform: translate(-50%, -50%) scale(1); animation: str-annul-shake .45s .1s; }
-.str-annul .x { width: 64px; height: 64px; border-radius: 50%; background: #ff3b3b; display: grid; place-items: center; font-size: 38px; font-weight: 900; }
-.str-annul .t { font-size: 54px; font-weight: 900; letter-spacing: .04em; color: #ff3b3b; }
-.str-annul .s { font-size: 28px; font-weight: 700; opacity: .9; }
+.str-annul.on { opacity: 1; transform: none; animation: str-annul-shake .45s .35s; }
+.str-annul .x { grid-row: span 2; width: 58px; height: 58px; border-radius: 50%; background: #ff3b3b; display: grid; place-items: center; font-size: 34px; font-weight: 900; }
+.str-annul .t { font-size: 40px; font-weight: 900; line-height: 1.05; letter-spacing: .03em; color: #ff3b3b; }
+.str-annul .s { font-size: 20px; font-weight: 700; opacity: .85; }
+.str-annul .s:empty { display: none; }
 @keyframes str-annul-shake { 0%, 100% { margin-left: 0 } 20%, 60% { margin-left: -14px } 40%, 80% { margin-left: 14px } }
 
 /* Pausas dos times, sob o placar */

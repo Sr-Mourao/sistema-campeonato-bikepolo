@@ -4,6 +4,7 @@ import {
   PALETTE_STREAMING,
   SIMULATION_TEAMS,
   getClockDisplayText,
+  pausedForText,
   type StreamingPlayer,
   type StreamingTeam,
 } from '../../services/streamingState'
@@ -421,6 +422,8 @@ export default function StreamingMesa() {
   const clockText = useMemo(() => {
     return getClockDisplayText(state.clock, state.settings, clockOffset)
   }, [state.clock, state.settings, clockOffset, clockTick])
+  // Só na mesa: há quanto tempo o jogo está parado
+  const pausedFor = pausedForText(state.clock, clockOffset) // re-render a cada 250 ms pelo clockTick
 
   // Atalhos de teclado (1-3 para time A, 7-9 para time B)
   useEffect(() => {
@@ -762,6 +765,7 @@ export default function StreamingMesa() {
               <div className={`stm-big-clock ${state.clock.running ? '' : 'paused'}`}>
                 {clockText}
               </div>
+              {pausedFor && <div className="stm-paused-for">⏸ parado há {pausedFor}</div>}
 
               <div className="stm-btnrow">
                 <button type="button" className="stm-btn" onClick={() => adjustClock(-10)}>
@@ -1031,7 +1035,7 @@ export default function StreamingMesa() {
                 </span>
                 <span className="tm">{ev.team}</span>
                 <span style={{ flex: 1, fontWeight: 700 }}>
-                  {ev.fxPending ? '⏳ definir jogadora' : ev.own ? `contra do ${ev.playerTeam || 'adversário'}` : ev.player || 'Sem autoria'}
+                  {ev.fxPending ? '⏳ definir jogadora' : ev.own ? `${ev.player || 'contra'} (${ev.playerTeam || 'adversário'})` : ev.player || 'Sem autoria'}
                 </span>
                 <button
                   type="button"
@@ -1810,9 +1814,19 @@ export default function StreamingMesa() {
               </div>
 
               {isGoal && (
-                <button type="button" className="stm-btn own stm-attr-own" onClick={() => handleConfirmAttr(null, undefined, true)}>
-                  Gol contra do {state[other].name}
-                </button>
+                <>
+                  <p className="stm-attr-q own">Gol contra · quem fez ({state[other].name})</p>
+                  <div className="stm-attr-grid">
+                    {state[other].players.map(p => (
+                      <button key={p.id} type="button" className="stm-btn own" onClick={() => handleConfirmAttr(p.id, undefined, true)}>
+                        {p.name}
+                      </button>
+                    ))}
+                    <button type="button" className="stm-btn own" onClick={() => handleConfirmAttr(null, undefined, true)}>
+                      Não sei quem
+                    </button>
+                  </div>
+                </>
               )}
 
               <div className="stm-attr-other">

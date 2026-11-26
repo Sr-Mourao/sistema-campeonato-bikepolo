@@ -36,6 +36,8 @@ export interface StreamingClock {
   running: boolean
   elapsed: number
   startedAt: number
+  /** Quando o relógio foi pausado (só para a mesa mostrar há quanto tempo está parado) */
+  pausedAt?: number
 }
 
 export interface StreamingSettings {
@@ -604,4 +606,11 @@ export function setStreamingDevice(dev: StreamingDevice): void {
   } catch {
     // ignore
   }
+}
+
+/** Há quanto tempo o relógio do jogo está parado ("" se rodando ou sem registro) */
+export function pausedForText(clock: StreamingClock, offset = 0, now = Date.now()): string {
+  if (clock.running || !clock.pausedAt) return ''
+  const sec = Math.max(0, Math.floor((now + offset - clock.pausedAt) / 1000))
+  return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`
 }

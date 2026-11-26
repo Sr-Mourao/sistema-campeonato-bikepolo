@@ -322,6 +322,7 @@ export function useStreamingSync() {
           running: false,
           elapsed: calculateElapsed(s.clock, clockOffsetRef.current),
           startedAt: 0,
+          pausedAt: Date.now() + clockOffsetRef.current,
         }
       } else if (isRunning && !s.clock.running) {
         const durMs = (s.settings.durMin || 18) * 60000
@@ -331,6 +332,7 @@ export function useStreamingSync() {
         }
         s.clock.running = true
         s.clock.startedAt = Date.now() + clockOffsetRef.current
+        delete s.clock.pausedAt
       }
       return s
     }, { stampDomain: 'jogo' })
@@ -681,7 +683,7 @@ export function useStreamingSync() {
       const now = Date.now() + clockOffsetRef.current
       // Para o relógio do jogo durante a pausa
       if (s.clock.running) {
-        s.clock = { running: false, elapsed: calculateElapsed(s.clock, clockOffsetRef.current), startedAt: 0 }
+        s.clock = { running: false, elapsed: calculateElapsed(s.clock, clockOffsetRef.current), startedAt: 0, pausedAt: now }
       }
       const min = kind === 'tech' ? s.settings.techMin ?? 2 : s.settings.mechMin ?? 5
       ps.active = { kind, durMs: min * 60000, elapsed: 0, startedAt: now, running: true }
