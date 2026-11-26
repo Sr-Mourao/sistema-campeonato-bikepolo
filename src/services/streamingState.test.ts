@@ -3,7 +3,6 @@ import {
   DEFAULT_STREAMING_STATE,
   SIMULATION_TEAMS,
   calculateElapsed,
-  exportPoloperatorCsv,
   formatPauseTime,
   formatClockTime,
   getClockDisplayText,
@@ -82,42 +81,6 @@ describe('streamingState service', () => {
     expect(getClockDisplayText(clock, countUpSettings)).toBe('02:00')
   })
 
-  it('exports Poloperator CSV properly formatted', () => {
-    const events: StreamingEvent[] = [
-      {
-        id: 'ev1',
-        type: 'goal',
-        side: 'a',
-        teamId: 'sim1',
-        team: 'Time 1',
-        pid: 'p1',
-        player: 'Bene',
-        clock: '17:15',
-        gt: 45000,
-        at: 1732485600000,
-      },
-      {
-        id: 'ev2',
-        type: 'foul',
-        side: 'b',
-        teamId: 'sim2',
-        team: 'Time "Especial"',
-        pid: 'p2',
-        player: 'Deivi',
-        clock: '16:00',
-        gt: 120000,
-        at: 1732485675000,
-      },
-    ]
-
-    const csv = exportPoloperatorCsv(events, DEFAULT_STREAMING_STATE)
-    const lines = csv.split('\n')
-    expect(lines).toHaveLength(3)
-    expect(lines[0]).toContain('id,tipo,tempo_jogo_ms,relogio,lado,time_id,time_nome,atleta_id,atleta_nome,data_hora_epoch')
-    expect(lines[1]).toContain('"ev1","goal",45000,"17:15","a","sim1","Time 1","p1","Bene"')
-    expect(lines[2]).toContain('"Time ""Especial"""')
-  })
-
   it('contains simulation teams with players', () => {
     expect(SIMULATION_TEAMS.length).toBe(7)
     expect(SIMULATION_TEAMS[0].name).toBe('Time 1')
@@ -140,11 +103,6 @@ describe('pausas dos times', () => {
     expect(pauseRemainingMs({ ...p, running: false })).toBe(90000)
     expect(formatPauseTime(90000)).toBe('01:30')
     expect(formatPauseTime(-12000)).toBe('+00:12')
-  })
-
-  it('CSV marca gol contra', () => {
-    const ev = { id: 'e', type: 'goal', side: 'a', teamId: 't', team: 'T', pid: 'p', player: 'P', clock: '10:00', gt: 1, at: 2, own: true } as StreamingEvent
-    expect(exportPoloperatorCsv([ev]).split('\n')[1].endsWith(',1')).toBe(true)
   })
 })
 

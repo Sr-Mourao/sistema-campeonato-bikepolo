@@ -3,7 +3,6 @@ import { useStreamingSync } from '../../hooks/useStreamingSync'
 import {
   PALETTE_STREAMING,
   SIMULATION_TEAMS,
-  exportPoloperatorCsv,
   getClockDisplayText,
 } from '../../services/streamingState'
 import PausePanel from './PausePanel'
@@ -266,19 +265,6 @@ export default function StreamingMesa() {
     setAttrPrompt(null)
     setCustomPlayerInput('')
     showToast(attrPrompt.edit ? 'Lance corrigido' : own ? 'Gol contra registrado' : 'Lance atribuído')
-  }
-
-  // Exportar Poloperator CSV
-  const handleExportCsv = () => {
-    const csv = exportPoloperatorCsv(state.events, state)
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `lances_${state.label ? state.label.replace(/\s+/g, '_') : 'jogo'}_${new Date().toISOString().slice(0, 10)}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
-    showToast('Lances exportados para CSV')
   }
 
   // Copiar resultados do histórico
@@ -1131,9 +1117,6 @@ export default function StreamingMesa() {
                 <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                   <button type="button" className="stm-btn mini" onClick={handleCopyResults}>
                     Copiar Resultados
-                  </button>
-                  <button type="button" className="stm-btn mini primary" onClick={handleExportCsv}>
-                    Exportar Lances (CSV)
                   </button>
                 </div>
 

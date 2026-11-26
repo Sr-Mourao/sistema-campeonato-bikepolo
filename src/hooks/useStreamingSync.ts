@@ -25,6 +25,25 @@ const STORAGE_STATE_KEY = 'polo.streaming.state.v2'
 const STORAGE_TEAMS_KEY = 'polo.streaming.teams.v2'
 const CHANNEL_NAME = 'polo_streaming_sync'
 
+/** Comunica com o backend: tenta o endpoint PHP nativo (/api/streaming.php) e faz fallback para o servidor local Python */
+async function callStreamingApi(endpoint: 'state' | 'teams' | 'hello' | 'ping', init?: RequestInit): Promise<Response> {
+  try {
+    const res = await fetch(`/api/streaming.php?action=${endpoint}`, init)
+    if (res.ok || res.status === 409) return res
+  } catch {
+    // fallback
+  }
+
+  try {
+    const res = await fetch(`/api/streaming/${endpoint}`, init)
+    if (res.ok || res.status === 409) return res
+  } catch {
+    // fallback
+  }
+
+  return fetch(`/api/${endpoint}`, init)
+}
+
 export interface PeerDevice {
   id: string
   name: string
@@ -115,7 +134,7 @@ export function useStreamingSync() {
     lastPushedRevRef.current = st.rev
     try {
       const t0 = Date.now()
-      const res = await fetch('/api/streaming/state', {
+      const res = await callStreamingApi('state', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(st),
@@ -234,19 +253,15 @@ export function useStreamingSync() {
       if (polling) return
       polling = true
       try {
-        const ping = await fetch('/api/streaming/ping').catch(() => fetch('/api/ping')).catch(() => null)
+        const ping = await callStreamingApi('ping').catch(() => null)
         if (ping && ping.ok) {
           setServerOnline(true)
           // envia hello
-          const helloRes = await fetch('/api/streaming/hello', {
+          const helloRes = await callStreamingApi('hello', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: device.id, name: device.name, role: device.role }),
-          }).catch(() => fetch('/api/hello', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: device.id, name: device.name, role: device.role }),
-          })).catch(() => null)
+          }).catch(() => null)
 
           if (helloRes && helloRes.ok) {
             const peerList = await helloRes.json()
@@ -254,7 +269,7 @@ export function useStreamingSync() {
           }
 
           // pull state if higher rev
-          const stRes = await fetch('/api/streaming/state').catch(() => fetch('/api/state')).catch(() => null)
+          const stRes = await callStreamingApi('state').catch(() => null)
           if (stRes && stRes.ok) {
             const remote = await stRes.json()
             if (remote && remote.rev && (!serverRevRef.current || remote.rev > serverRevRef.current)) {

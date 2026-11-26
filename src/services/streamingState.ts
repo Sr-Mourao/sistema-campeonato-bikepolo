@@ -537,26 +537,6 @@ export function getClockDisplayText(clock: StreamingClock, settings: StreamingSe
   return formatClockTime(durMs - Math.min(el, durMs))
 }
 
-export function exportPoloperatorCsv(events: StreamingEvent[], _state?: StreamingState): string {
-  const header = ['id', 'tipo', 'tempo_jogo_ms', 'relogio', 'lado', 'time_id', 'time_nome', 'atleta_id', 'atleta_nome', 'data_hora_epoch', 'gol_contra'].join(',')
-  const rows = events.map(e => {
-    return [
-      `"${e.id}"`,
-      `"${e.type}"`,
-      e.gt,
-      `"${e.clock}"`,
-      `"${e.side}"`,
-      `"${e.teamId || ''}"`,
-      `"${(e.team || '').replace(/"/g, '""')}"`,
-      `"${e.pid || ''}"`,
-      `"${(e.player || '').replace(/"/g, '""')}"`,
-      e.at,
-      e.own ? 1 : 0,
-    ].join(',')
-  })
-  return [header, ...rows].join('\n')
-}
-
 const DEVICE_STORAGE_KEY = 'polo.device.v2'
 
 export function getStreamingDevice(): StreamingDevice {
