@@ -204,6 +204,7 @@ export default function StreamingOverlay() {
         {state.label && <div className="str-label">{state.label}</div>}
 
         <div className="str-bar">
+          {idv && <img className="str-idv-logo" src="/identidade/logo.svg" alt="" />}
           {/* Lado A */}
           <div className="str-team a">
             <div className="str-chip" />
@@ -335,6 +336,7 @@ export default function StreamingOverlay() {
         <div className="band b4" />
         <div className="rings"><i /><i /><i /></div>
         <div className="flash" />
+        {idv && <img className="str-gfx-lobo" src="/identidade/lobo.svg" alt="" />}
         <div className="core">
           <div className="gol">{liveFx?.own ? 'GOL CONTRA' : 'GOL!'}</div>
           <div className="tm">{goalGfx.team}</div>

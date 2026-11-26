@@ -836,3 +836,28 @@
 .stm-btn:disabled { opacity: .4; cursor: not-allowed; }
 /* Modo árbitro: lista inteira na página, sem rolagem escondida */
 .role-mesa .stm-log { max-height: none; overflow: visible; }
+
+/* Celular em pé, em QUALQUER perfil (antes só o modo árbitro se adaptava):
+   relógio em cima, times lado a lado, nada mais largo que a tela. */
+@media (max-width: 600px) {
+  .stm-page { overflow-x: hidden; }
+  .stm-main { grid-template-columns: minmax(0, 1fr) !important; padding: 10px; gap: 12px; }
+  .stm-card, .stm-side, .stm-side > * { min-width: 0; max-width: 100%; }
+  .stm-scoreline { grid-template-columns: 1fr 1fr; grid-template-areas: "clock clock" "a b"; gap: 10px; }
+  .stm-clock-center { grid-area: clock; }
+  .stm-tside.a { grid-area: a; }
+  .stm-tside.b { grid-area: b; }
+  .stm-tside, .stm-tside.b { flex-direction: column; align-items: stretch; }
+  .stm-team-btn { max-width: none; justify-content: center; }
+  .stm-scoreline .stm-btnrow { flex-wrap: nowrap; }
+  .stm-scoreline .stm-btnrow .stm-btn.g,
+  .stm-scoreline .stm-btnrow .stm-btn.f { flex: 1; min-width: 0; }
+  .stm-score-block { align-items: stretch; }
+  .stm-tourney-bar { flex-wrap: wrap; }
+  .stm-label-row { flex-direction: column; align-items: stretch !important; }
+  .stm-rosters { grid-template-columns: minmax(0, 1fr) !important; }
+}
+@media (max-width: 600px) {
+  .stm-newtext { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; }
+  .stm-newtext > button { grid-column: 1 / -1; }
+}

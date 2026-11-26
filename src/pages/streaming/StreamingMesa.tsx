@@ -1137,7 +1137,7 @@ export default function StreamingMesa() {
             </div>
 
             {/* Formulário: Adicionar Novo Texto */}
-            <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr auto', gap: 8, marginTop: 10 }}>
+            <div className="stm-newtext" style={{ display: 'grid', gridTemplateColumns: '130px minmax(0, 1fr) auto', gap: 8, marginTop: 10 }}>
               <select
                 className="stm-select"
                 value={newText.tpl}

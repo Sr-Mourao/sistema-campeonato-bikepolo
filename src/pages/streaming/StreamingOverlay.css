@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 /* ================= OVERLAY STREAMING ================= */
 :root {
   --str-a: var(--pal-magenta, #de04ac);
@@ -874,37 +875,117 @@
 .str-pcard .st { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .15); font-size: 18px; font-weight: 700; }
 .str-pcard .st b { font-size: 28px; font-weight: 900; color: var(--tc); filter: brightness(1.35); margin-right: 2px; }
 
-/* ================= CORES PADRÃO IDV (Ajustes → Cores do overlay) =================
-   Times: magenta (A) e laranja (B). Painéis: preto arroxeado da paleta.
-   Alertas (anulado, tempo esgotado): rosa PIOR, em vez do vermelho genérico. */
+/* ================= PADRÃO IDV DO CAMPEONATO (Ajustes → Cores do overlay) =================
+   Visual dos pôsteres do 2º PIOR: papel bege, contorno de nanquim preto, sombra roxa
+   "carimbada", letreiro de marcador magenta e laranja. Times: magenta (A) e laranja (B).
+   Sem internet, a fonte de marcador cai para a Barlow Condensed. */
 .str-idv {
-  --str-idv-panel: color-mix(in srgb, color-mix(in srgb, var(--pal-purple) 16%, var(--pal-black)) 94%, transparent);
-  --str-idv-alert: var(--pal-pink);
-  --str-foul: var(--pal-orange);
+  --idv-ink: var(--pal-black, #070303);
+  --idv-paper: var(--pal-beige, #ebd7c8);
+  --idv-paper-2: var(--pal-beige-light, #e2cebf);
+  --idv-mag: var(--pal-magenta, #de04ac);
+  --idv-org: var(--pal-orange, #ff931e);
+  --idv-pur: var(--pal-purple, #5a0781);
+  --idv-line: 3px solid var(--idv-ink);
+  --idv-drop: 6px 6px 0 var(--idv-pur);
+  --idv-marker: 'Permanent Marker', 'Barlow Condensed', sans-serif;
+  --str-foul: var(--idv-org);
+  --str-gink: var(--idv-ink);
 }
-.str-idv .str-label,
-.str-idv .str-strip-inner,
-.str-idv .str-clock,
+
+/* Placar */
+.str-idv .str-board { filter: none; }
+.str-idv .str-bar {
+  background: var(--idv-paper); color: var(--idv-ink);
+  border: var(--idv-line); border-radius: 6px; box-shadow: var(--idv-drop);
+}
+.str-idv .str-idv-logo { height: 100%; padding: 5px 8px; background: var(--idv-paper-2); border-right: var(--idv-line); }
+.str-idv .str-team { color: var(--idv-ink); }
+.str-idv .str-chip { display: none; }
+.str-idv .str-score {
+  color: #fff; border-left: var(--idv-line); border-right: var(--idv-line);
+  font-size: 46px; font-weight: 900; /* números na Barlow: o marcador deixa o 1 ilegível */
+  text-shadow: 3px 3px 0 var(--idv-pur);
+}
+.str-idv .str-clock { background: var(--idv-paper-2); color: var(--idv-ink); border: 0; }
+.str-idv .str-clock.paused { color: color-mix(in srgb, var(--idv-ink) 45%, var(--idv-paper)); }
+.str-idv .str-clock.ended { color: var(--idv-mag); }
+.str-idv .str-fb { background: var(--idv-org); color: var(--idv-ink); border: 2px solid var(--idv-ink); }
+.str-idv .str-label {
+  background: var(--idv-mag); color: #fff; border: var(--idv-line); border-bottom: 0;
+  font-family: var(--idv-marker); font-weight: 400; letter-spacing: .04em;
+}
+
+/* Faixa sob o placar (falta, gol contra) */
+.str-idv .str-strip-inner {
+  background: var(--idv-paper); color: var(--idv-ink);
+  border: var(--idv-line); border-top: 0; border-radius: 0 0 6px 6px; box-shadow: var(--idv-drop);
+}
+.str-idv .str-strip .tag { background: var(--idv-org); color: var(--idv-ink); border: 2px solid var(--idv-ink); }
+.str-idv .str-strip .tag.goal { background: var(--idv-mag); color: #fff; }
+
+/* Pausas dos times */
+.str-idv .str-pause {
+  background: var(--idv-paper); color: var(--idv-ink);
+  border: var(--idv-line); border-left: calc(10px * var(--str-s, 1)) solid var(--tc); box-shadow: var(--idv-drop);
+}
+.str-idv .str-pause .k { border: 2px solid var(--idv-ink); text-shadow: none; }
+.str-idv .str-pause .bar { background: color-mix(in srgb, var(--idv-ink) 12%, transparent); }
+.str-idv .str-pause.over { border-left-color: var(--idv-mag); }
+.str-idv .str-pause.over .tt { color: var(--idv-mag); }
+
+/* Cartão da jogadora e lance anulado: "recorte" de pôster levemente torto */
+.str-idv .str-pcard,
+.str-idv .str-annul {
+  background: var(--idv-paper); color: var(--idv-ink);
+  border: var(--idv-line); border-radius: 8px; box-shadow: 8px 8px 0 var(--idv-pur);
+}
+.str-idv .str-pcard { border-left: 12px solid var(--tc); }
+.str-idv .str-pcard.on,
+.str-idv .str-annul.on { transform: rotate(-1.5deg); }
+.str-idv .str-pcard .k { border: 2px solid var(--idv-ink); text-shadow: none; color: #fff; }
+.str-idv .str-pcard .n { font-family: var(--idv-marker); font-weight: 400; color: var(--idv-mag); text-shadow: 3px 3px 0 var(--idv-pur); }
+.str-idv .str-pcard .tm { opacity: .7; }
+.str-idv .str-pcard .st { border-top: 2px dashed color-mix(in srgb, var(--idv-ink) 35%, transparent); }
+.str-idv .str-pcard .st b { color: var(--tc); filter: none; text-shadow: 2px 2px 0 var(--idv-ink); }
+.str-idv .str-annul { border-left: 12px solid var(--idv-mag); }
+.str-idv .str-annul .x { background: var(--idv-mag); color: #fff; border: var(--idv-line); }
+.str-idv .str-annul .t { font-family: var(--idv-marker); font-weight: 400; color: var(--idv-mag); text-shadow: 3px 3px 0 var(--idv-pur); }
+
+/* Textos na tela */
 .str-idv #strLower .t,
 .str-idv #strCenter .card,
 .str-idv #strTicker,
-.str-idv #strBadge,
-.str-idv .str-pause,
-.str-idv .str-pcard,
-.str-idv .str-annul { background: var(--str-idv-panel); }
-.str-idv .str-bar { background: linear-gradient(135deg, var(--str-idv-panel), color-mix(in srgb, var(--pal-wine) 40%, var(--pal-black))); }
-.str-idv .str-label, .str-idv #strLower .t { color: var(--pal-beige); }
-.str-idv .str-clock.paused { color: var(--pal-gray-beige); }
-.str-idv .str-clock.ended,
-.str-idv .str-pause.over .tt,
-.str-idv .str-annul .t { color: var(--str-idv-alert); }
-.str-idv .str-strip .tag.cancel,
-.str-idv #strBadge i,
-.str-idv .str-annul .x { background: var(--str-idv-alert); }
-.str-idv .str-pause.over,
-.str-idv .str-annul { border-left-color: var(--str-idv-alert); }
-.str-idv .str-strip .tag.goal { background: var(--pal-magenta); color: var(--pal-white); }
-.str-idv #strGfx .b2 { background: var(--pal-black); }
+.str-idv #strBadge { background: var(--idv-paper); color: var(--idv-ink); border: var(--idv-line); box-shadow: var(--idv-drop); }
+.str-idv #strBadge i { background: var(--idv-mag); }
+
+/* Animação de GOL: faixa de papel, letreiro de marcador e o lobo entrando */
+.str-idv #strGfx .dim { background: radial-gradient(ellipse at center, color-mix(in srgb, var(--idv-pur) 25%, transparent), color-mix(in srgb, var(--idv-pur) 75%, var(--idv-ink))); }
+.str-idv #strGfx .b2 { background: var(--idv-ink); }
+.str-idv #strGfx .b1 { background: var(--idv-paper); }
+.str-idv #strGfx .b3,
+.str-idv #strGfx .b4 { background: var(--str-gc); height: 22px; }
+.str-idv #strGfx .rings i { border-color: var(--str-gc); }
+.str-idv #strGfx .gol {
+  font-family: var(--idv-marker); font-weight: 400; color: var(--str-gc);
+  -webkit-text-stroke: 4px var(--idv-ink); paint-order: stroke fill;
+  text-shadow: 12px 12px 0 var(--idv-pur);
+}
+.str-idv #strGfx .tm { color: var(--idv-ink); }
+.str-idv #strGfx .pl { background: var(--str-gc); color: #fff; border: var(--idv-line); box-shadow: 5px 5px 0 var(--idv-pur); }
+.str-idv #strGfx .sc { background: var(--idv-ink); color: var(--idv-paper); }
+.str-gfx-lobo {
+  position: absolute; z-index: 3; right: 3%; bottom: -60px; height: 640px;
+  transform: translateY(115%) rotate(10deg);
+  animation: strLobo 4.6s cubic-bezier(.2, .9, .3, 1.15) .5s forwards;
+}
+@keyframes strLobo {
+  0% { transform: translateY(115%) rotate(10deg); }
+  16% { transform: translateY(0) rotate(-4deg); }
+  70% { transform: translateY(0) rotate(-1deg); }
+  88%, 100% { transform: translateY(115%) rotate(8deg); }
+}
+.str-vertical .str-gfx-lobo { right: 50%; margin-right: -230px; bottom: -40px; height: 520px; }
 
 /* ================= OVERLAY AJUSTADO (celular da live) =================
    O overlay ocupa a área virtual (1920×1080 ou 1080×1920), não a tela toda:
