@@ -15,7 +15,7 @@ const PALCO = { largura: 1920, altura: 1080 }
    - QR_LINK: endereço que o QR code abre (ex.: 'https://piorbicipolo.com.br/torneio')
    Patrocinadores: lista em public/patrocinadores.json (campo "logoOriginal") e
    arquivos em public/imgs/logos/originais/. ─────────────────────────────── */
-const LOGO_CAMPEONATO: string | null = null
+const LOGO_CAMPEONATO: string | null = '/identidade/overlay/logo-camp-horizontal.webp'
 const QR_LINK: string | null = null
 
 export default function TorneioOverlayIntervalo() {
@@ -71,7 +71,8 @@ export default function TorneioOverlayIntervalo() {
 
         <div className="iv-state">
           <span className="iv-pulse" aria-hidden="true" />
-          Intervalo
+          {/* Letreiro desenhado (ARTE_2PCBP_INTERVALO); o texto fica para leitores de tela */}
+          <img src="/identidade/overlay/intervalo.webp" alt="Intervalo" className="iv-state-arte" />
         </div>
         <p className="iv-sub">Em instantes, mais bici polo.</p>
         <div className="iv-connector" aria-hidden="true" />

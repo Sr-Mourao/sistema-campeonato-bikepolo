@@ -416,17 +416,26 @@ export default function StreamingOverlay() {
         <div className="band b4" />
         <div className="rings"><i /><i /><i /></div>
         <div className="flash" />
-        {/* Artes do campeonato (modo IDV): trave ao fundo, braço com taco e o lobo
-            com taco e bola (LOBOS_00001) — ou em dúvida, no gol contra */}
+        {/* Artes do campeonato (modo IDV), pela referência REF_OVERLAYS_GOL(_CONTRA):
+            trave com estrela no alto à direita, braço subindo pela esquerda e a cabeça
+            do lobo no canto. Cada arte tem versão própria para o gol contra. */}
         {idv && goalGfx.play && (
           <>
-            <img className="str-gfx-trave" src="/identidade/artes/trave.webp" alt="" />
-            <img className="str-gfx-braco" src="/identidade/artes/braco-taco.webp" alt="" />
-            <img className="str-gfx-lobo" src={`/identidade/artes/${liveFx?.own ? 'lobo-duvida' : 'lobo-taco'}.webp`} alt="" />
+            <img className="str-gfx-trave" src={`/identidade/overlay/trave-gol${liveFx?.own ? '-contra' : ''}.webp`} alt="" />
+            <img className="str-gfx-braco" src={`/identidade/overlay/braco-gol${liveFx?.own ? '-contra' : ''}.webp`} alt="" />
+            <img className="str-gfx-lobo" src={`/identidade/overlay/lobo-gol${liveFx?.own ? '-contra' : ''}.webp`} alt="" />
           </>
         )}
         <div className="core">
-          <div className={`gol ${liveFx?.own ? 'own' : ''}`}>{liveFx?.own ? 'GOL CONTRA' : 'GOL!'}</div>
+          {idv ? (
+            <img
+              className={`gol str-gfx-letreiro ${liveFx?.own ? 'own' : ''}`}
+              src={`/identidade/overlay/letreiro-gol${liveFx?.own ? '-contra' : ''}.webp`}
+              alt={liveFx?.own ? 'Gol contra' : 'Gol'}
+            />
+          ) : (
+            <div className={`gol ${liveFx?.own ? 'own' : ''}`}>{liveFx?.own ? 'GOL CONTRA' : 'GOL!'}</div>
+          )}
           <div className="tm">{goalGfx.team}</div>
           {!liveFx?.own && (liveFx?.player || goalGfx.player) && <div className="pl on">{liveFx?.player || goalGfx.player}</div>}
           <div className="sc"><b>{goalGfx.score}</b></div>

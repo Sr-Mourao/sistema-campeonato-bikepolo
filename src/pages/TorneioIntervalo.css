@@ -283,3 +283,9 @@
 /* Data e local numa linha só, para dar espaço à próxima partida */
 .iv-proxima ~ .iv-meta-data { height: 34px; display: inline-block; vertical-align: middle; }
 .iv-proxima ~ .iv-meta-local { display: inline-block; vertical-align: middle; margin: 0 0 0 16px; height: 26px; }
+
+/* Artes finais (ARTES/Artes_OverlayPIOR): logo horizontal do campeonato e letreiro INTERVALO */
+.iv-titlebar .iv-wordmark { height: 138px; margin: 17px 0 0 96px; filter: drop-shadow(4px 4px 0 var(--pal-purple)); }
+.iv-state-arte { height: 96px; width: auto; }
+/* Faixa pêssego (como na referência): o laranja do logo some numa faixa laranja */
+.iv-titlebar { background: color-mix(in srgb, var(--pal-orange) 30%, var(--pal-beige)); }

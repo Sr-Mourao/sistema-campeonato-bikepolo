@@ -1141,3 +1141,25 @@
 @keyframes strPopOut { to { opacity: 0; transform: translateX(-50%) scale(.6) translateY(40px); } }
 .str-vertical .str-popup { bottom: 420px; }
 .str-vertical .str-popup-card { min-width: 0; max-width: 900px; }
+
+/* ── Artes finais do gol (ARTES/Artes_OverlayPIOR), posições da referência ── */
+/* Letreiro "GOOOL!!!" no lugar do texto; o gol contra tem duas linhas e é mais estreito */
+#strGfx .str-gfx-letreiro { width: 1150px; height: auto; margin-bottom: -6px; filter: drop-shadow(0 8px 0 rgba(0, 0, 0, .25)); }
+#strGfx .str-gfx-letreiro.own { width: 900px; }
+/* Trave com estrela no alto à direita, na frente da faixa e atrás do letreiro */
+.str-gfx-trave { z-index: 3; right: 5%; top: 5%; height: 400px; }
+@keyframes strTrave {
+  0% { opacity: 0; transform: rotate(-6deg) scale(.7); }
+  12%, 80% { opacity: 1; transform: rotate(0) scale(1); }
+  100% { opacity: 0; transform: rotate(0) scale(1); }
+}
+/* Braço sobe pela esquerda até o meio da tela */
+.str-gfx-braco { left: 0; bottom: 0; height: 900px; }
+/* Cabeça do lobo com estrela no canto inferior direito */
+.str-gfx-lobo { right: 1.5%; bottom: 12px; height: 540px; }
+/* Vertical (1080×1920) */
+.str-vertical #strGfx .str-gfx-letreiro { width: 920px; }
+.str-vertical #strGfx .str-gfx-letreiro.own { width: 760px; }
+.str-vertical .str-gfx-trave { left: auto; margin-left: 0; right: 4%; top: 15%; height: 300px; }
+.str-vertical .str-gfx-braco { left: -2%; bottom: 0; height: 620px; }
+.str-vertical .str-gfx-lobo { right: 0; bottom: 20px; height: 400px; }
