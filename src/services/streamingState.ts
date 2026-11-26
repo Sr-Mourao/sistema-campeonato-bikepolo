@@ -4,10 +4,22 @@
  * and synchronization between control mesa and OBS streaming overlays.
  */
 
+export interface StreamingTournamentLink {
+  torneioId: number
+  torneioNome: string
+  jogoId: number
+  jogoCodigo: string
+  faseRotulo: string
+  faseTipo?: string
+  timeAId: number
+  timeBId: number
+}
+
 export interface StreamingPlayer {
   id: string
   name: string
   nivel?: number
+  membroId?: number
 }
 
 export interface StreamingTeam {
@@ -124,6 +136,8 @@ export interface StreamingEvent {
   playerTeam?: string
   /** Aguardando a mesa escolher a jogadora: ainda não conta nem anima */
   fxPending?: boolean
+  /** ID do atleta no banco de dados do torneio (membros_time.id) */
+  membroId?: number | null
 }
 
 export interface StreamingScheduleItem {
@@ -165,6 +179,7 @@ export interface StreamingState {
   current: number
   history: StreamingHistoryItem[]
   pauses: StreamingPauses
+  tournament?: StreamingTournamentLink | null
   rev: number
   by?: string
 }
@@ -365,6 +380,7 @@ export const DEFAULT_STREAMING_STATE: StreamingState = {
     a: { techUsed: 0, mechUsed: 0, active: null },
     b: { techUsed: 0, mechUsed: 0, active: null },
   },
+  tournament: null,
   rev: 0,
 }
 
@@ -399,11 +415,12 @@ export function normPlayers(list: unknown): StreamingPlayer[] {
     .map(p => {
       if (typeof p === 'string') return { id: uid(), name: p }
       if (p && typeof p === 'object' && 'name' in p) {
-        const item = p as { id?: string; name: unknown; nivel?: unknown }
+        const item = p as { id?: string; name: unknown; nivel?: unknown; membroId?: unknown }
         return {
           id: item.id || uid(),
           name: String(item.name || ''),
           nivel: typeof item.nivel === 'number' ? item.nivel : undefined,
+          membroId: typeof item.membroId === 'number' ? item.membroId : undefined,
         }
       }
       return null
@@ -471,10 +488,19 @@ export function hydrateStreamingState(o: unknown): StreamingState {
     d[side].players = normPlayers(d[side].players)
   }
 
+  if (src.tournament && typeof src.tournament === 'object') {
+    d.tournament = src.tournament as StreamingTournamentLink
+  } else {
+    d.tournament = null
+  }
+
   for (const e of d.events) {
     if (e.pid === undefined && e.player) {
       const p = d[e.side]?.players.find(x => x.name === e.player)
       e.pid = p ? p.id : null
+      if (p && p.membroId && !e.membroId) {
+        e.membroId = p.membroId
+      }
     }
   }
 

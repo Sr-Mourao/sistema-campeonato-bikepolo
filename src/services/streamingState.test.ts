@@ -133,3 +133,43 @@ describe('lance pendente', () => {
     expect(s.a.score).toBe(1)
   })
 })
+
+describe('integração com torneio oficial', () => {
+  it('preserva membroId ao normalizar jogadores', () => {
+    const players = normPlayers([
+      { id: 'p1', name: 'Atleta A', membroId: 101 },
+      { id: 'p2', name: 'Atleta B' },
+    ])
+    expect(players[0].membroId).toBe(101)
+    expect(players[1].membroId).toBeUndefined()
+  })
+
+  it('hidrata e preserva dados de vínculo com o torneio', () => {
+    const raw = {
+      tournament: {
+        torneioId: 1,
+        torneioNome: 'Torneio Misto 2026',
+        jogoId: 42,
+        jogoCodigo: 'SF1',
+        faseRotulo: 'Semifinal',
+        faseTipo: 'double',
+        timeAId: 10,
+        timeBId: 11,
+      },
+      a: {
+        id: 't_10',
+        name: 'Time A',
+        players: [{ id: 'p_101', name: 'Jogador 1', membroId: 101 }],
+      },
+      events: [
+        { id: 'ev1', type: 'goal', side: 'a', team: 'Time A', player: 'Jogador 1', membroId: 101, gt: 120000, at: 1000 },
+      ],
+    }
+    const state = hydrateStreamingState(raw)
+    expect(state.tournament).not.toBeNull()
+    expect(state.tournament?.jogoCodigo).toBe('SF1')
+    expect(state.tournament?.faseTipo).toBe('double')
+    expect(state.a.players[0].membroId).toBe(101)
+    expect(state.events[0].membroId).toBe(101)
+  })
+})
