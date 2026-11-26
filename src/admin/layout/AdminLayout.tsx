@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, Users, Shield, DollarSign,
-  CheckSquare, UtensilsCrossed, BedDouble, LogOut, Menu, X, Settings, ShoppingBag, AlertTriangle, Copy, Check, Trophy, WalletCards, Award
+  LogOut, Menu, X, Settings, ShoppingBag, AlertTriangle, Copy, Check, Trophy, WalletCards, Award
 } from 'lucide-react'
 import { navigate } from '../adminApi'
 import Dashboard from '../pages/Dashboard'
@@ -25,9 +25,6 @@ const NAV = [
   { path: '/admin/awards',         label: 'Awards',        icon: Award },
   { path: '/admin/financeiro',     label: 'Financeiro',    icon: DollarSign },
   { path: '/admin/carteira',       label: 'Carteiras',     icon: WalletCards },
-  { path: '/admin/checkin',        label: 'Check-in',      icon: CheckSquare },
-  { path: '/admin/alimentacao',    label: 'Alimentação',   icon: UtensilsCrossed },
-  { path: '/admin/alojamento',     label: 'Alojamento',    icon: BedDouble },
   { path: '/admin/lojinha',        label: 'Lojinha',       icon: ShoppingBag },
   { path: '/admin/configuracoes',  label: 'Configurações', icon: Settings },
 ]

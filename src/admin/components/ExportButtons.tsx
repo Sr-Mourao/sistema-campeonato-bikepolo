@@ -3,8 +3,6 @@ import { Download } from 'lucide-react'
 const EXPORTS = [
   { tipo: 'inscricoes',  label: 'Inscrições' },
   { tipo: 'times',       label: 'Times' },
-  { tipo: 'alimentacao', label: 'Alimentação' },
-  { tipo: 'alojamento',  label: 'Alojamento' },
   { tipo: 'lojinha',     label: 'Pedidos Lojinha' },
 ]
 

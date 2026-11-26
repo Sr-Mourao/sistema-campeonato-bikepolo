@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Users, CheckCircle, Clock, Trophy, Bike, Globe, UserCheck, Wallet, Receipt, Home, UtensilsCrossed, Heart, AlertTriangle } from 'lucide-react'
+import { Users, CheckCircle, Clock, Trophy, Globe, Wallet, Receipt, Heart, AlertTriangle } from 'lucide-react'
 import { adminGet, fmtBRL } from '../adminApi'
 import ExportButtons from '../components/ExportButtons'
-import { CONFIG } from '../../inscricoes.config'
 
 interface FinanceiroKpi {
   esperado: number
@@ -57,18 +56,12 @@ export default function Dashboard() {
         <StatCard icon={<Heart size={20} />}        label="Apoio"       value={stats.total_acompanhantes} color="purple" sub="acompanhantes" />
         <StatCard icon={<CheckCircle size={20} />}  label="Pagos"       value={stats.total_pagos}         color="green" sub={`${pctPagos}% atletas`} />
         <StatCard icon={<Clock size={20} />}         label="Aguardando"  value={stats.aguardando}      color="yellow" />
-        <StatCard icon={<Trophy size={20} />}        label="Misto"       value={stats.total_misto}     color="purple" />
-        <StatCard icon={<Bike size={20} />}          label="MTNB"        value={stats.total_mtnb}      color="orange" />
+        <StatCard icon={<Trophy size={20} />}        label="Times"       value={stats.total_misto}     color="purple" />
         <StatCard icon={<Globe size={20} />}         label="Latino"      value={stats.total_latino}    color="cyan" />
-        <StatCard icon={<UserCheck size={20} />}     label="Presentes"   value={stats.checkin_presentes} color="green" sub="check-in" />
         <StatCard icon={<Wallet size={20} />}         label="Total Pago"  value={0} color="blue" money
           valueStr={fmtBRL(stats.financeiro.total.pago)} sub={`de ${fmtBRL(stats.financeiro.total.esperado)}`} />
         <StatCard icon={<Receipt size={20} />}        label="Inscrições"  value={0} color="green" money
           valueStr={fmtBRL(stats.financeiro.inscricao.pago)} sub={`de ${fmtBRL(stats.financeiro.inscricao.esperado)}`} />
-        <StatCard icon={<Home size={20} />}           label="Alojamento"  value={0} color="purple" money
-          valueStr={fmtBRL(stats.financeiro.alojamento.pago)} sub={`de ${fmtBRL(stats.financeiro.alojamento.esperado)}`} />
-        <StatCard icon={<UtensilsCrossed size={20} />} label="Alimentação" value={0} color="orange" money
-          valueStr={fmtBRL(stats.financeiro.alimentacao.pago)} sub={`de ${fmtBRL(stats.financeiro.alimentacao.esperado)}`} />
         {stats.a_reembolsar > 0 && (
           <StatCard icon={<AlertTriangle size={20} />} label="A Reembolsar" value={0} color="red"
             valueStr={fmtBRL(stats.a_reembolsar)} sub={`${stats.n_reembolso_pendente} inscr.`} />
@@ -76,36 +69,6 @@ export default function Dashboard() {
       </div>
 
       <div className="adm-section-row">
-        <div className="adm-card">
-          <h3>Alimentação por dia</h3>
-          <table className="adm-table-mini">
-            <thead><tr><th>Dia</th><th>Refeições</th></tr></thead>
-            <tbody>
-              {['5','6','7'].map(dia => (
-                <tr key={dia}>
-                  <td>Dia {dia}/set</td>
-                  <td>{stats.alimentacao_por_dia?.[dia] ?? 0}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="adm-card">
-          <h3>Alojamento por dia</h3>
-          <table className="adm-table-mini">
-            <thead><tr><th>Dia</th><th>Pessoas</th></tr></thead>
-            <tbody>
-              {CONFIG.ALOJAMENTO_DIARIAS.map(d => (
-                <tr key={d.dia}>
-                  <td>Dia {d.dia}/set</td>
-                  <td>{stats.alojamento_por_dia?.[String(d.dia)] ?? 0}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
         <div className="adm-card">
           <h3>Exportações</h3>
           <ExportButtons />
