@@ -9,6 +9,7 @@ import TeamLogo from '../../components/equipes/TeamLogo'
 import { IconFalta, IconGol } from '../../components/broadcast/icons'
 import { origemLabel } from '../../components/torneio/bracketHelpers'
 import PartidaHistoricoModal from '../../components/torneio/PartidaHistoricoModal'
+import LiveStreamingCard from '../../components/torneio/LiveStreamingCard'
 import type { AbaKey } from '../Torneio'
 import './VisaoGeral.css'
 import { useTournamentCategory } from '../../contexts/TournamentContext'
@@ -85,6 +86,8 @@ export default function VisaoGeral({ resumo, onIrPara, onAbrirTime }: Props) {
     <section className="ov-page">
       <Progress resumo={resumoAtual} fase={fase} foco={foco} />
       {erro && <div className="trp-erro">{erro}</div>}
+
+      <LiveStreamingCard />
 
       {foco
         ? <MatchHero jogo={foco} onAbrirTime={onAbrirTime} onHistorico={setHistorico} />
