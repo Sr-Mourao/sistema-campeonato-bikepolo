@@ -773,8 +773,12 @@ function getConfigLoja(PDO $pdo): array {
 function getConfigGeral(PDO $pdo): array {
     $defaults = [
         'inscricoes_abertas' => '0', // inscrições estão encerradas no estado atual do evento
-        'alojamento_aberto'  => '1',
-        'alimentacao_aberto' => '1',
+        'alojamento_aberto'  => '0',
+        'alimentacao_aberto' => '0',
+        'modulo_checkin'     => '0',
+        'modulo_alimentacao' => '0',
+        'modulo_alojamento'  => '0',
+        'modulo_mtnb'        => '0',
     ];
     $stmt = $pdo->prepare("SELECT chave, valor FROM configuracoes WHERE chave IN (" .
         implode(',', array_fill(0, count($defaults), '?')) . ")");

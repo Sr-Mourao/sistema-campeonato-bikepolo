@@ -5,14 +5,26 @@ adminGuard();
 $db     = getDb();
 $method = $_SERVER['REQUEST_METHOD'];
 
-$CHAVES = ['inscricoes_abertas', 'alojamento_aberto', 'alimentacao_aberto'];
+$CHAVES = [
+    'inscricoes_abertas',
+    'alojamento_aberto',
+    'alimentacao_aberto',
+    'modulo_checkin',
+    'modulo_alimentacao',
+    'modulo_alojamento',
+    'modulo_mtnb',
+];
 
 function respondeConfigGeral(PDO $db): void {
     $c = getConfigGeral($db);
     respond([
-        'inscricoes_abertas' => $c['inscricoes_abertas'] === '1',
-        'alojamento_aberto'  => $c['alojamento_aberto']  === '1',
-        'alimentacao_aberto' => $c['alimentacao_aberto']  === '1',
+        'inscricoes_abertas' => ($c['inscricoes_abertas'] ?? '0') === '1',
+        'alojamento_aberto'  => ($c['alojamento_aberto'] ?? '0')  === '1',
+        'alimentacao_aberto' => ($c['alimentacao_aberto'] ?? '0') === '1',
+        'modulo_checkin'     => ($c['modulo_checkin'] ?? '0')     === '1',
+        'modulo_alimentacao' => ($c['modulo_alimentacao'] ?? '0') === '1',
+        'modulo_alojamento'  => ($c['modulo_alojamento'] ?? '0')  === '1',
+        'modulo_mtnb'        => ($c['modulo_mtnb'] ?? '0')        === '1',
     ]);
 }
 

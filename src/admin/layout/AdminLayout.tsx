@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, Users, Shield, DollarSign,
-  LogOut, Menu, X, Settings, ShoppingBag, AlertTriangle, Copy, Check, Trophy, WalletCards, Award
+  LogOut, Menu, X, Settings, ShoppingBag, AlertTriangle, Copy, Check, Trophy, WalletCards, Award,
+  CheckSquare, UtensilsCrossed, BedDouble
 } from 'lucide-react'
 import { navigate } from '../adminApi'
+import { useConfigGeral } from '../useConfigGeral'
+import type { ConfigGeral } from '../pages/Configuracoes'
 import Dashboard from '../pages/Dashboard'
 import Inscricoes from '../pages/Inscricoes'
 import Times from '../pages/Times'
@@ -17,7 +20,14 @@ import TorneioAdmin from '../torneio'
 import CarteiraAdmin from '../pages/Carteira'
 import AwardsAdmin from '../pages/Awards'
 
-const NAV = [
+interface NavItem {
+  path: string
+  label: string
+  icon: typeof LayoutDashboard
+  modulo?: keyof ConfigGeral
+}
+
+const NAV: NavItem[] = [
   { path: '/admin',                label: 'Dashboard',     icon: LayoutDashboard },
   { path: '/admin/inscricoes',     label: 'Inscrições',    icon: Users },
   { path: '/admin/times',          label: 'Times',         icon: Shield },
@@ -25,6 +35,9 @@ const NAV = [
   { path: '/admin/awards',         label: 'Awards',        icon: Award },
   { path: '/admin/financeiro',     label: 'Financeiro',    icon: DollarSign },
   { path: '/admin/carteira',       label: 'Carteiras',     icon: WalletCards },
+  { path: '/admin/checkin',        label: 'Check-in',      icon: CheckSquare,     modulo: 'modulo_checkin' },
+  { path: '/admin/alimentacao',    label: 'Alimentação',   icon: UtensilsCrossed, modulo: 'modulo_alimentacao' },
+  { path: '/admin/alojamento',     label: 'Alojamento',    icon: BedDouble,       modulo: 'modulo_alojamento' },
   { path: '/admin/lojinha',        label: 'Lojinha',       icon: ShoppingBag },
   { path: '/admin/configuracoes',  label: 'Configurações', icon: Settings },
 ]
@@ -43,6 +56,7 @@ interface ErrorBanner {
 }
 
 export default function AdminLayout({ path, onLogout }: Props) {
+  const { config } = useConfigGeral()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [errors, setErrors] = useState<ErrorBanner[]>([])
 
@@ -106,6 +120,11 @@ export default function AdminLayout({ path, onLogout }: Props) {
     return <Dashboard />
   }
 
+  const visibleNav = NAV.filter(item => {
+    if (!item.modulo) return true
+    return Boolean(config?.[item.modulo])
+  })
+
   const activeNav = NAV.find(n =>
     n.path === '/admin' ? path === '/admin' : path.startsWith(n.path)
   )
@@ -161,7 +180,7 @@ export default function AdminLayout({ path, onLogout }: Props) {
         </div>
 
         <nav className="adm-nav">
-          {NAV.map(item => {
+          {visibleNav.map(item => {
             const Icon = item.icon
             const active = item.path === '/admin' ? path === '/admin' : path.startsWith(item.path)
             return (

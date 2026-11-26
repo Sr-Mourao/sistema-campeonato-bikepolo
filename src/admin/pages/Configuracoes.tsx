@@ -9,13 +9,17 @@ interface Campo {
   max?: number
 }
 
-interface ConfigGeral {
+export interface ConfigGeral {
   inscricoes_abertas: boolean
   alojamento_aberto: boolean
   alimentacao_aberto: boolean
+  modulo_checkin: boolean
+  modulo_alimentacao: boolean
+  modulo_alojamento: boolean
+  modulo_mtnb: boolean
 }
 
-const TOGGLES: { chave: keyof ConfigGeral; label: string; onLabel: string; offLabel: string; hint: string }[] = [
+const TOGGLES_STATUS: { chave: keyof ConfigGeral; label: string; onLabel: string; offLabel: string; hint: string }[] = [
   {
     chave: 'inscricoes_abertas', label: 'Inscrições',
     onLabel: 'Inscrições abertas', offLabel: 'Inscrições encerradas',
@@ -30,6 +34,29 @@ const TOGGLES: { chave: keyof ConfigGeral; label: string; onLabel: string; offLa
     chave: 'alimentacao_aberto', label: 'Alimentação',
     onLabel: 'Contratação aberta', offLabel: 'Contratação fechada',
     hint: 'Permite ou não que pessoas com inscrição contratem alimentação.',
+  },
+]
+
+const TOGGLES_MODULOS: { chave: keyof ConfigGeral; label: string; onLabel: string; offLabel: string; hint: string }[] = [
+  {
+    chave: 'modulo_checkin', label: 'Check-in de Atletas',
+    onLabel: 'Habilitado (visível)', offLabel: 'Desabilitado (oculto)',
+    hint: 'Exibe a aba de Check-in na barra lateral do painel e controles de presença.',
+  },
+  {
+    chave: 'modulo_alimentacao', label: 'Alimentação',
+    onLabel: 'Habilitado (visível)', offLabel: 'Desabilitado (oculto)',
+    hint: 'Exibe a aba de Alimentação no menu administrativo e relatórios de refeições.',
+  },
+  {
+    chave: 'modulo_alojamento', label: 'Alojamento',
+    onLabel: 'Habilitado (visível)', offLabel: 'Desabilitado (oculto)',
+    hint: 'Exibe a aba de Alojamento no menu administrativo e controle de diárias.',
+  },
+  {
+    chave: 'modulo_mtnb', label: 'Modalidade MTNB',
+    onLabel: 'Habilitado (visível)', offLabel: 'Desabilitado (oculto)',
+    hint: 'Exibe referências, estatísticas e opções da categoria MTNB quando aplicável.',
   },
 ]
 
@@ -65,7 +92,10 @@ export default function Configuracoes() {
     if (!geral) return
     setAlternando(chave)
     const res = await adminPost<ConfigGeral>('/api/admin/config-geral.php', { [chave]: !geral[chave] })
-    if (res) setGeral(res)
+    if (res) {
+      setGeral(res)
+      window.dispatchEvent(new CustomEvent('admin-config-updated', { detail: res }))
+    }
     setAlternando(null)
   }
 
@@ -130,8 +160,29 @@ export default function Configuracoes() {
     <div style={{ maxWidth: 680 }}>
       {geral && (
         <div className="adm-section" style={{ marginBottom: 24 }}>
-          <div className="adm-section-title" style={{ marginBottom: 12 }}>Status geral</div>
-          {TOGGLES.map(t => (
+          <div className="adm-section-title" style={{ marginBottom: 12 }}>Módulos do Painel (Abas Administrativas)</div>
+          {TOGGLES_MODULOS.map(t => (
+            <div key={t.chave} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--adm-border)' }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '.88rem', fontWeight: 600, marginBottom: 2 }}>{t.label}</div>
+                <div style={{ fontSize: '.76rem', color: 'var(--adm-text-3)' }}>{t.hint}</div>
+              </div>
+              <button
+                className={`adm-toggle-btn ${geral[t.chave] ? 'adm-toggle-btn--on' : ''}`}
+                onClick={() => toggleGeral(t.chave)}
+                disabled={alternando === t.chave}
+              >
+                {geral[t.chave] ? t.onLabel : t.offLabel}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {geral && (
+        <div className="adm-section" style={{ marginBottom: 24 }}>
+          <div className="adm-section-title" style={{ marginBottom: 12 }}>Status geral de contratação</div>
+          {TOGGLES_STATUS.map(t => (
             <div key={t.chave} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--adm-border)' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '.88rem', fontWeight: 600, marginBottom: 2 }}>{t.label}</div>
