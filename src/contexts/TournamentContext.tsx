@@ -13,5 +13,5 @@ export function useTournamentCategory(): TournamentCategory {
 }
 
 export const TOURNAMENT_PRESENTATION = {
-  misto: { title: '2° Pior Campeonato de Bici Polo — Misto', short: '2° PCP', official: '2° Pior Campeonato de Bici Polo Misto' },
+  misto: { title: '2° Pior Campeonato de Bici Polo', short: '2° PCP', official: '2° Pior Campeonato de Bici Polo' },
 } as const

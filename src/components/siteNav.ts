@@ -7,7 +7,7 @@ export const SITE_NAV_LINKS: SiteNavLink[] = [
   { label: 'Resultados', href: '/torneio/resultados' },
   { label: 'Torneio', href: '/torneio' },
   { label: 'Equipes', href: '/equipes' },
-  { label: 'Regulamento', href: '/torneio/misto?aba=regulamento' },
+  { label: 'Regulamento', href: '/torneio?aba=regulamento' },
   { label: 'Lojinha', href: '/lojinha' },
   { label: 'Apoie', href: '/apoie' },
   { label: 'Dúvidas', href: '/faq' },
