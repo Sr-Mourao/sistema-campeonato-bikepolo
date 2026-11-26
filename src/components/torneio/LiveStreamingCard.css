@@ -1,0 +1,218 @@
+.ov-live-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(222, 4, 172, 0.12), rgba(255, 147, 30, 0.12)), rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 147, 30, 0.35);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.ov-live-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #de04ac, #ff931e, #de04ac);
+  background-size: 200% 100%;
+  animation: ov-live-shimmer 3s infinite linear;
+}
+
+@keyframes ov-live-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.ov-live-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ov-live-pulse-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: rgba(255, 59, 48, 0.18);
+  border: 1px solid rgba(255, 59, 48, 0.4);
+  border-radius: 999px;
+  color: #ff4b4b;
+  font: 800 11px system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ov-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff3b30;
+  box-shadow: 0 0 8px #ff3b30;
+  animation: ov-live-blink 1.2s infinite ease-in-out;
+}
+
+@keyframes ov-live-blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.ov-live-clock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
+.ov-live-clock-time {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.ov-live-clock-status {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.ov-live-clock-status.run { color: #55e68b; }
+.ov-live-clock-status.pause { color: var(--pal-amber-96, #f59e0b); }
+
+.ov-live-match-meta {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.ov-live-scoreboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.ov-live-team {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ov-live-team.a { align-items: flex-start; text-align: left; }
+.ov-live-team.b { align-items: flex-end; text-align: right; }
+
+.ov-live-chip {
+  width: 16px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.ov-live-team-name {
+  font-size: clamp(16px, 4vw, 22px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1.1;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.ov-live-fouls {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+.ov-live-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: clamp(38px, 10vw, 56px);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+}
+.ov-live-score small {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.5em;
+  font-weight: 500;
+}
+
+.ov-live-events {
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+}
+
+.ov-live-events-title {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pal-orange, #ff931e);
+  margin-bottom: 6px;
+}
+
+.ov-live-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ov-live-event-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 3px 0;
+}
+
+.ov-live-ev-time {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  width: 24px;
+}
+
+.ov-live-ev-badge {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.ov-live-ev-badge.goal { background: #2a9d55; color: #fff; }
+.ov-live-ev-badge.foul { background: #f59e0b; color: #111; }
+
+.ov-live-ev-team {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ov-live-ev-player {
+  color: rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 500px) {
+  .ov-live-card { padding: 14px; }
+  .ov-live-score { gap: 4px; }
+}
