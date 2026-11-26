@@ -15,8 +15,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // Precisa vir antes de '/api': o Vite usa a primeira regra que casar.
-      '/api/streaming': {
+      // /api/streaming.php vai para o backend PHP (porta 8000).
+      // Rotas /api/streaming/* vão para o servidor Python local (porta 8787), se estiver rodando.
+      '^/api/streaming/': {
         target: STREAMING_SERVER,
         changeOrigin: true,
       },

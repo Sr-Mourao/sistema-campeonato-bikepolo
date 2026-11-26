@@ -35,14 +35,7 @@ async function callStreamingApi(endpoint: 'state' | 'teams' | 'hello' | 'ping', 
     // fallback
   }
 
-  try {
-    const res = await fetch(`/api/streaming/${endpoint}`, init)
-    if (res.ok || res.status === 409) return res
-  } catch {
-    // fallback
-  }
-
-  return fetch(`/api/${endpoint}`, init)
+  return fetch(`/api/streaming/${endpoint}`, init)
 }
 
 export interface PeerDevice {
