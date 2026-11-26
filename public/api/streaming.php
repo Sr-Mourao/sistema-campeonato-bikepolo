@@ -90,9 +90,14 @@ if ($action === 'state') {
         if (!file_exists($stateFile)) {
             respond(null);
         }
+        // Devolve o arquivo como está: decodificar e recodificar trocaria
+        // objetos vazios {} por listas [] (json_decode associativo) e quebraria o estado.
         $raw = @file_get_contents($stateFile);
-        $data = json_decode($raw ?: '', true);
-        respond($data);
+        if ($raw === false || json_decode($raw) === null) {
+            respond(null);
+        }
+        echo $raw;
+        exit;
     }
 
     if ($method === 'POST') {
