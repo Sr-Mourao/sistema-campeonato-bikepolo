@@ -887,3 +887,9 @@
 .role-overlays .stm-tourney-bar,
 .role-overlays .stm-label-row,
 .role-overlays .stm-danger-zone { display: none !important; }
+
+/* Partida encerrada aberta (aba Resultados) */
+.stm-hist { width: min(760px, 94vw); }
+.stm-hist h3 b { color: var(--pal-orange, #ff931e); margin: 0 6px; }
+.stm-hist .stm-log { max-height: 60vh; }
+.stm-hist .stm-ev .stm-input { padding: 4px 8px; }

@@ -19,7 +19,9 @@ import {
   type StreamingState,
   type StreamingTeam,
   type StreamingTextItem,
+  applyHistoryEdit,
   type StreamingTextTpl,
+  type HistoryEventPatch,
   type StreamingTournamentLink,
   type StreamingScene,
 } from '../services/streamingState'
@@ -431,6 +433,13 @@ export function useStreamingSync() {
     mutate(s => {
       const ev = s.events.find(e => e.id === eventId)
       s.events = s.events.filter(e => e.id !== eventId)
+      if (ev?.type === 'pause') {
+        const ps = s.pauses[ev.side]
+        if (ev.pauseKind === 'tech') ps.techUsed = Math.max(0, ps.techUsed - 1)
+        else ps.mechUsed = Math.max(0, ps.mechUsed - 1)
+        if (ps.active?.eventId === ev.id) ps.active = null
+        return s
+      }
       // Lance pendente nunca apareceu no overlay: não há o que anunciar como anulado
       if (ev && !ev.fxPending) {
         s.fx = {
@@ -498,7 +507,7 @@ export function useStreamingSync() {
   const assignPlayer = useCallback((eventId: string, pid: string | null, customName?: string, own = false) => {
     mutate(s => {
       const ev = s.events.find(e => e.id === eventId)
-      if (!ev) return s
+      if (!ev || ev.type === 'pause') return s
       const playerSide = own ? (ev.side === 'a' ? 'b' : 'a') : ev.side
       const p = pid ? s[playerSide]?.players.find(x => x.id === pid) : null
       ev.pid = p ? p.id : (pid || null)
@@ -630,10 +639,11 @@ export function useStreamingSync() {
 
   const addScheduleGame = useCallback((aId: string, bId: string, label: string) => {
     mutate(s => {
-      s.schedule.push({ id: uid(), a: aId, b: bId, label })
+      const nome = (id: string) => teams.find(t => t.id === id)?.name
+      s.schedule.push({ id: uid(), a: aId, b: bId, label, aName: nome(aId), bName: nome(bId) })
       return s
     }, { stampDomain: 'jogo' })
-  }, [mutate])
+  }, [mutate, teams])
 
   const nextGame = useCallback(() => {
     mutate(s => {
@@ -688,7 +698,22 @@ export function useStreamingSync() {
         s.clock = { running: false, elapsed: calculateElapsed(s.clock, clockOffsetRef.current), startedAt: 0, pausedAt: now }
       }
       const min = kind === 'tech' ? s.settings.techMin ?? 2 : s.settings.mechMin ?? 5
-      ps.active = { kind, durMs: min * 60000, elapsed: 0, startedAt: now, running: true }
+      // O pedido entra na lista de lances: se foi engano, a mesa anula por lá e a pausa volta ao time
+      const eventId = uid()
+      s.events.push({
+        id: eventId,
+        type: 'pause',
+        pauseKind: kind,
+        side,
+        teamId: s[side].id,
+        team: s[side].name,
+        pid: null,
+        player: '',
+        clock: getClockDisplayText(s.clock, s.settings, clockOffsetRef.current),
+        gt: Math.round(Math.max(0, calculateElapsed(s.clock, clockOffsetRef.current))),
+        at: now,
+      })
+      ps.active = { kind, durMs: min * 60000, elapsed: 0, startedAt: now, running: true, eventId }
       if (kind === 'tech') ps.techUsed++
       else ps.mechUsed++
       return s
@@ -729,6 +754,8 @@ export function useStreamingSync() {
       if (refund) {
         if (ps.active.kind === 'tech') ps.techUsed = Math.max(0, ps.techUsed - 1)
         else ps.mechUsed = Math.max(0, ps.mechUsed - 1)
+        const linked = ps.active.eventId
+        if (linked) s.events = s.events.filter(e => e.id !== linked)
       }
       ps.active = null
       return s
@@ -760,6 +787,15 @@ export function useStreamingSync() {
       s.scene = scene
       return s
     }, { stampDomain: 'ov' })
+  }, [mutate])
+
+  /** Corrige (ou apaga, com patch null) um lance de uma partida já encerrada */
+  const editHistoryEvent = useCallback((historyIndex: number, eventId: string, patch: HistoryEventPatch) => {
+    mutate(s => {
+      const h = s.history[historyIndex]
+      if (h) s.history[historyIndex] = applyHistoryEdit(h, eventId, patch)
+      return s
+    }, { stampDomain: 'jogo' })
   }, [mutate])
 
   const unlinkTournamentMatch = useCallback(() => {
@@ -846,6 +882,7 @@ export function useStreamingSync() {
     setHidden,
     setLabel,
     setScene,
+    editHistoryEvent,
     addScheduleGame,
     nextGame,
     linkTournamentMatch,

@@ -88,6 +88,8 @@ export interface TeamPause {
   elapsed: number
   startedAt: number
   running: boolean
+  /** Lance (na lista do jogo) que registrou o pedido desta pausa */
+  eventId?: string
 }
 
 export interface TeamPauseState {
@@ -143,7 +145,10 @@ export interface StreamingFx {
 
 export interface StreamingEvent {
   id: string
-  type: 'goal' | 'foul'
+  /** pause = pedido de pausa do time (registrado para poder ser anulado na revisão) */
+  type: 'goal' | 'foul' | 'pause'
+  /** Só em type 'pause' */
+  pauseKind?: 'tech' | 'mech'
   side: 'a' | 'b'
   teamId: string | null
   team: string
@@ -166,6 +171,9 @@ export interface StreamingScheduleItem {
   id: string
   a: string
   b: string
+  /** Nomes no momento do agendamento: a lista de times é local de cada navegador (o OBS não a tem) */
+  aName?: string
+  bName?: string
   label: string
   done?: boolean
 }
@@ -504,7 +512,10 @@ export function hydrateStreamingState(o: unknown): StreamingState {
   }
 
   d.texts.on = Object.assign({ lower: null, center: null, ticker: null, badge: null, popup: null }, d.texts?.on || {})
-  d.texts.at = d.texts.at || {}
+  // O PHP (json_decode) devolve objeto vazio {} como lista []: numa lista o campo
+  // "popup" não sobrevive ao JSON e o pop-up nunca entrava no ar.
+  const at = d.texts.at as unknown
+  d.texts.at = at && typeof at === 'object' && !Array.isArray(at) ? (at as Record<string, number>) : {}
 
   const basePauses = emptyPauses()
   for (const side of ['a', 'b'] as const) {
@@ -643,4 +654,46 @@ export function pausedForText(clock: StreamingClock, offset = 0, now = Date.now(
 /** Há quanto tempo um texto entrou no ar (ms); Infinity se não há registro */
 export function textAgeMs(at: number | undefined, offset = 0, now = Date.now()): number {
   return at ? now + offset - at : Infinity
+}
+
+/** Próxima partida da fila da mesa (aba Jogos): a primeira depois da atual que ainda não foi jogada */
+export function nextScheduledMatch(
+  state: Pick<StreamingState, 'schedule' | 'current'>,
+  teams: Pick<StreamingTeam, 'id' | 'name'>[],
+): { a: string; b: string; label: string } | null {
+  const item = state.schedule.slice(Math.max(0, state.current + 1)).find(m => !m.done)
+  if (!item) return null
+  const nome = (id: string, salvo?: string) => teams.find(t => t.id === id)?.name ?? salvo ?? 'A definir'
+  return { a: nome(item.a, item.aName), b: nome(item.b, item.bName), label: item.label }
+}
+
+/** Correção de um lance de partida já encerrada: null apaga o lance. */
+export type HistoryEventPatch = { player?: string; moveSide?: boolean } | null
+
+/**
+ * Aplica a correção num jogo do histórico e recalcula o placar pelos lances
+ * (gols que contam: sem pendência; pausas e faltas não somam no placar).
+ */
+export function applyHistoryEdit(h: StreamingHistoryItem, eventId: string, patch: HistoryEventPatch): StreamingHistoryItem {
+  const events = (h.events || []).flatMap(ev => {
+    if (ev.id !== eventId) return [ev]
+    if (patch === null) return []
+    const next = { ...ev }
+    if (patch.moveSide) {
+      next.side = ev.side === 'a' ? 'b' : 'a'
+      next.team = next.side === 'a' ? h.a : h.b
+      next.teamId = null
+      next.pid = null
+      next.player = ''
+      delete next.own
+      delete next.playerTeam
+    }
+    if (patch.player !== undefined) {
+      next.player = patch.player.trim()
+      next.pid = null
+    }
+    return [next]
+  })
+  const gols = (side: 'a' | 'b') => events.filter(e => e.type === 'goal' && e.side === side && !e.fxPending).length
+  return { ...h, events, sa: gols('a'), sb: gols('b') }
 }

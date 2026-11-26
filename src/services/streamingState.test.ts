@@ -7,6 +7,8 @@ import {
   formatClockTime,
   getClockDisplayText,
   hydrateStreamingState,
+  applyHistoryEdit,
+  nextScheduledMatch,
   normPlayers,
   normTeams,
   pauseRemainingMs,
@@ -171,5 +173,54 @@ describe('integração com torneio oficial', () => {
     expect(state.tournament?.faseTipo).toBe('double')
     expect(state.a.players[0].membroId).toBe(101)
     expect(state.events[0].membroId).toBe(101)
+  })
+})
+
+describe('hidratação vinda do PHP', () => {
+  it('texts.at volta a ser objeto quando o servidor manda lista vazia', () => {
+    const s = hydrateStreamingState({ texts: { items: [], on: {}, at: [] } })
+    expect(Array.isArray(s.texts.at)).toBe(false)
+    s.texts.at.popup = 123
+    expect(JSON.parse(JSON.stringify(s)).texts.at.popup).toBe(123)
+  })
+})
+
+describe('próxima partida da fila', () => {
+  const teams = [{ id: 'a', name: 'Alento' }, { id: 'b', name: 'Buena Mira' }, { id: 'c', name: 'Velkro' }]
+  it('pega a primeira depois da atual que não foi jogada', () => {
+    const schedule = [
+      { id: '1', a: 'a', b: 'b', label: 'J1', done: true },
+      { id: '2', a: 'b', b: 'c', label: 'J2', done: true },
+      { id: '3', a: 'c', b: 'a', label: 'J3' },
+    ]
+    expect(nextScheduledMatch({ schedule, current: 0 }, teams)).toEqual({ a: 'Velkro', b: 'Alento', label: 'J3' })
+  })
+  it('sem a lista de times (OBS), usa os nomes guardados na fila', () => {
+    const schedule = [{ id: '1', a: 'q', b: 'r', label: 'J', aName: 'Hito', bName: 'Lama' }]
+    expect(nextScheduledMatch({ schedule, current: -1 }, [])).toEqual({ a: 'Hito', b: 'Lama', label: 'J' })
+  })
+  it('sem próxima partida devolve null; time apagado vira "A definir"', () => {
+    expect(nextScheduledMatch({ schedule: [], current: -1 }, teams)).toBeNull()
+    expect(nextScheduledMatch({ schedule: [{ id: '1', a: 'x', b: 'a', label: '' }], current: -1 }, teams))
+      .toEqual({ a: 'A definir', b: 'Alento', label: '' })
+  })
+})
+
+describe('correção de partida encerrada', () => {
+  const ev = (id: string, type: 'goal' | 'foul' | 'pause', side: 'a' | 'b', player = 'P') =>
+    ({ id, type, side, teamId: null, team: side === 'a' ? 'T1' : 'T2', pid: 'x', player, clock: '10:00', gt: 0, at: 0 })
+  const h = { label: 'J1', a: 'T1', b: 'T2', sa: 2, sb: 0, at: 0, events: [ev('1', 'goal', 'a'), ev('2', 'goal', 'a'), ev('3', 'pause', 'b', ''), ev('4', 'foul', 'b')] }
+  it('apagar um gol recalcula o placar', () => {
+    const r = applyHistoryEdit(h, '2', null)
+    expect([r.sa, r.sb, r.events?.length]).toEqual([1, 0, 3])
+  })
+  it('mover gol de time troca o placar e limpa a autoria', () => {
+    const r = applyHistoryEdit(h, '1', { moveSide: true })
+    expect([r.sa, r.sb]).toEqual([1, 1])
+    expect(r.events?.[0]).toMatchObject({ side: 'b', team: 'T2', player: '' })
+  })
+  it('renomear a jogadora não mexe no placar', () => {
+    const r = applyHistoryEdit(h, '4', { player: ' Ana ' })
+    expect([r.sa, r.sb, r.events?.[3].player]).toEqual([2, 0, 'Ana'])
   })
 })

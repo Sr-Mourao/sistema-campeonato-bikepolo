@@ -268,3 +268,18 @@
   animation: iv-lobo 900ms 700ms cubic-bezier(.2,.9,.3,1.15) both;
 }
 @keyframes iv-lobo { from { opacity: 0; transform: translateY(40px) rotate(4deg); } }
+
+/* Próxima partida (fila da mesa), no pé da coluna, acima da data e do local */
+.iv-meta { bottom: 64px; }
+.iv-meta-rule { margin-bottom: 22px; }
+.iv-proxima { display: flex; flex-direction: column; gap: 4px; margin-bottom: 18px; max-width: 440px; }
+.iv-proxima-k { color: var(--pal-black); font-size: 21px; font-weight: 900; letter-spacing: .2em; text-transform: uppercase; }
+.iv-proxima-k i { font-style: normal; color: var(--pal-magenta); letter-spacing: .08em; }
+.iv-proxima b {
+  font-family: var(--marcador); font-weight: 400; font-size: 34px; line-height: 1.1;
+  color: var(--pal-magenta); text-shadow: 3px 3px 0 var(--pal-purple); text-transform: uppercase;
+}
+.iv-proxima em { font-style: normal; color: var(--pal-orange); margin: 0 6px; }
+/* Data e local numa linha só, para dar espaço à próxima partida */
+.iv-proxima ~ .iv-meta-data { height: 34px; display: inline-block; vertical-align: middle; }
+.iv-proxima ~ .iv-meta-local { display: inline-block; vertical-align: middle; margin: 0 0 0 16px; height: 26px; }

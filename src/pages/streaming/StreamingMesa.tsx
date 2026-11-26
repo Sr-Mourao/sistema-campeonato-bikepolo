@@ -38,6 +38,7 @@ export default function StreamingMesa() {
     moveEventSide,
     setTeam,
     setScene,
+    editHistoryEvent,
     updateSettings,
     setTextActive,
     addTextItem,
@@ -70,6 +71,9 @@ export default function StreamingMesa() {
       },
     })
   }
+
+  // Partida encerrada aberta na aba Resultados (índice no histórico)
+  const [histOpen, setHistOpen] = useState<number | null>(null)
 
   // Cenas da Central com dados simulados (?preview=1), para ensaiar a live
   const [centralPreview, setCentralPreview] = useState(false)
@@ -380,18 +384,23 @@ export default function StreamingMesa() {
   // Algum modal aberto: atalhos de teclado ficam desligados
   const modalOpen = !!(attrPrompt || confirmDlg || pickerSide || showDeviceModal || showMatchPicker || showFinalizeModal)
 
-  const describeEvent = (ev: { type: string; team: string; player?: string; clock?: string }) =>
-    `${ev.type === 'goal' ? 'Gol' : 'Falta'} · ${ev.team}${ev.player ? ` · ${ev.player}` : ''}${ev.clock ? ` (${ev.clock})` : ''}`
+  const evLabel = (ev: { type: string; own?: boolean; pauseKind?: string }) =>
+    ev.type === 'goal' ? (ev.own ? 'Gol contra' : 'Gol') : ev.type === 'pause' ? (ev.pauseKind === 'mech' ? 'Pausa mecânica' : 'Pausa técnica') : 'Falta'
+  const describeEvent = (ev: { type: string; team: string; player?: string; clock?: string; own?: boolean; pauseKind?: string }) =>
+    `${evLabel(ev)} · ${ev.team}${ev.player ? ` · ${ev.player}` : ''}${ev.clock ? ` (${ev.clock})` : ''}`
 
+  const s_pauseAtiva = (ev: { id: string; side: 'a' | 'b' }) => state.pauses[ev.side].active?.eventId === ev.id
   const askRemoveEvent = (eventId: string) => {
     const ev = state.events.find(e => e.id === eventId)
     if (!ev) return
     setConfirmDlg({
       title: 'Anular lance?',
-      msg: `${describeEvent(ev)}. O overlay vai mostrar o aviso de lance anulado.`,
+      msg: ev.type === 'pause'
+        ? `${describeEvent(ev)}. A pausa volta a ficar disponível para o time${s_pauseAtiva(ev) ? ' e o cronômetro dela é encerrado' : ''}.`
+        : `${describeEvent(ev)}. O overlay vai mostrar o aviso de lance anulado.`,
       onYes: () => {
         removeEvent(eventId)
-        showToast('Lance anulado')
+        showToast(ev.type === 'pause' ? 'Pausa anulada e devolvida ao time' : 'Lance anulado')
       },
     })
   }
@@ -1062,20 +1071,22 @@ export default function StreamingMesa() {
               <div key={ev.id} className="stm-ev">
                 <span className="t">{ev.clock}</span>
                 <span className={`stm-tag ${ev.type}`}>
-                  {ev.type === 'goal' ? (ev.own ? 'GOL CONTRA' : 'GOL') : 'FALTA'}
+                  {ev.type === 'pause' ? (ev.pauseKind === 'mech' ? 'PAUSA MEC.' : 'PAUSA TÉC.') : ev.type === 'goal' ? (ev.own ? 'GOL CONTRA' : 'GOL') : 'FALTA'}
                 </span>
                 <span className="tm">{ev.team}</span>
                 <span style={{ flex: 1, fontWeight: 700 }}>
-                  {ev.fxPending ? '⏳ definir jogadora' : ev.own ? `${ev.player || 'contra'} (${ev.playerTeam || 'adversário'})` : ev.player || 'Sem autoria'}
+                  {ev.type === 'pause' ? (s_pauseAtiva(ev) ? '⏱ em andamento' : 'pedida pelo time') : ev.fxPending ? '⏳ definir jogadora' : ev.own ? `${ev.player || 'contra'} (${ev.playerTeam || 'adversário'})` : ev.player || 'Sem autoria'}
                 </span>
-                <button
-                  type="button"
-                  className="stm-btn mini"
-                  onClick={() => setAttrPrompt({ id: ev.id, type: ev.type, side: ev.side, edit: true })}
-                  title="Corrigir lance (jogadora ou time)"
-                >
-                  ✎
-                </button>
+                {ev.type !== 'pause' && (
+                  <button
+                    type="button"
+                    className="stm-btn mini"
+                    onClick={() => ev.type !== 'pause' && setAttrPrompt({ id: ev.id, type: ev.type, side: ev.side, edit: true })}
+                    title="Corrigir lance (jogadora ou time)"
+                  >
+                    ✎
+                  </button>
+                )}
                 <button
                   type="button"
                   className="stm-btn mini danger"
@@ -1088,7 +1099,7 @@ export default function StreamingMesa() {
             ))}
             {state.events.length === 0 && (
               <div style={{ color: 'var(--pal-gray-60, #888)', fontSize: 14, padding: 8 }}>
-                Nenhum gol ou falta registrado nesta partida.
+                Nenhum lance registrado nesta partida.
               </div>
             )}
           </div>
@@ -1544,8 +1555,13 @@ export default function StreamingMesa() {
                       }}
                     >
                       <span>{h.label || 'Jogo'}: <strong>{h.a}</strong> {h.sa} x {h.sb} <strong>{h.b}</strong></span>
-                      <span style={{ color: 'var(--pal-gray-60, #888)', fontSize: 12 }}>
-                        {new Date(h.at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                      <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <span style={{ color: 'var(--pal-gray-60, #888)', fontSize: 12 }}>
+                          {new Date(h.at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        <button type="button" className="stm-btn mini" onClick={() => setHistOpen(i)}>
+                          Abrir
+                        </button>
                       </span>
                     </div>
                   ))}
@@ -2027,6 +2043,85 @@ export default function StreamingMesa() {
       })()}
 
       {/* Modal: Confirmação de exclusão/anulação */}
+      {/* Partida encerrada: ver e corrigir os lances (o placar é recalculado pelos lances) */}
+      {histOpen !== null && state.history[histOpen] && (() => {
+        const h = state.history[histOpen]
+        const evs = h.events || []
+        return (
+          <div className="stm-modal-backdrop" onClick={() => setHistOpen(null)}>
+            <div className="stm-modal-box stm-hist" role="dialog" aria-modal="true" onClick={e => e.stopPropagation()}>
+              <h3>{h.label || 'Jogo'} · {h.a} <b>{h.sa} x {h.sb}</b> {h.b}</h3>
+              <p className="stm-central-hint">Corrija a autoria, troque o time de um lance ou apague. O placar acompanha.</p>
+              <div className="stm-log">
+                {evs.map(ev => (
+                  <div key={ev.id} className="stm-ev">
+                    <span className="t">{ev.clock}</span>
+                    <span className={`stm-tag ${ev.type}`}>{evLabel(ev).toUpperCase()}</span>
+                    <span className="tm">{ev.team}</span>
+                    {ev.type === 'pause' ? (
+                      <span style={{ flex: 1, opacity: 0.7 }}>pedida pelo time</span>
+                    ) : (
+                      <input
+                        key={`${ev.id}:${ev.player}`}
+                        className="stm-input"
+                        style={{ flex: 1, minWidth: 0 }}
+                        defaultValue={ev.player}
+                        placeholder="Sem autoria"
+                        aria-label="Jogadora"
+                        onBlur={e => {
+                          if (e.target.value.trim() !== ev.player) {
+                            editHistoryEvent(histOpen, ev.id, { player: e.target.value })
+                            showToast('Lance corrigido')
+                          }
+                        }}
+                        onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+                      />
+                    )}
+                    {ev.type !== 'pause' && (
+                      <button
+                        type="button"
+                        className="stm-btn mini"
+                        title={`Mover para ${ev.side === 'a' ? h.b : h.a}`}
+                        onClick={() => {
+                          editHistoryEvent(histOpen, ev.id, { moveSide: true })
+                          showToast(`Lance movido para ${ev.side === 'a' ? h.b : h.a}`)
+                        }}
+                      >
+                        ⇄
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="stm-btn mini danger"
+                      title="Apagar lance"
+                      onClick={() =>
+                        setConfirmDlg({
+                          title: 'Apagar lance da partida encerrada?',
+                          msg: `${describeEvent(ev)}. O placar final é recalculado.`,
+                          yes: 'Sim, apagar',
+                          onYes: () => {
+                            editHistoryEvent(histOpen, ev.id, null)
+                            showToast('Lance apagado')
+                          },
+                        })
+                      }
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                {evs.length === 0 && <div style={{ opacity: 0.6, padding: 8 }}>Esta partida não tem lances salvos.</div>}
+              </div>
+              <div className="stm-confirm-actions">
+                <button type="button" className="stm-btn primary" onClick={() => setHistOpen(null)}>
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
       {confirmDlg && (
         <div className="stm-modal-backdrop" onClick={() => setConfirmDlg(null)}>
           <div className="stm-modal-box stm-confirm" role="alertdialog" aria-modal="true" onClick={e => e.stopPropagation()}>
