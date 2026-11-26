@@ -12,6 +12,16 @@ import {
 } from '../../services/streamingState'
 import './StreamingOverlay.css'
 
+/**
+ * Endereço da cena da Central. A Emissora é um selo de canto: vai para o canto
+ * oposto ao do placar, para não ficar escondida atrás dele.
+ */
+function sceneSrc(path: string, boardPos?: string): string {
+  if (!path.includes('/overlay/emissora')) return path
+  const canto = boardPos === 'tr' ? 'tl' : 'tr'
+  return path + (path.includes('?') ? '&' : '?') + 'canto=' + canto
+}
+
 export default function StreamingOverlay() {
   useObsDocument('OBS · Placar Streaming')
   const { state, clockOffset } = useStreamingSync()
@@ -229,7 +239,7 @@ export default function StreamingOverlay() {
         <iframe
           key={`${state.scene.path}@${state.scene.at}`}
           className="str-scene"
-          src={state.scene.path}
+          src={sceneSrc(state.scene.path, state.settings.pos)}
           title={state.scene.nome}
         />
       )}

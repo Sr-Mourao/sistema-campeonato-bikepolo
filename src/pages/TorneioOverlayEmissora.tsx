@@ -46,8 +46,11 @@ export default function TorneioOverlayEmissora() {
     return () => { clearTimeout(troca); clearTimeout(fim) }
   }, [trocando])
 
+  // ?canto=tr|tl|br|bl: posição do selo (sem o parâmetro, fica em 0,0 e o OBS posiciona)
+  const canto = new URLSearchParams(window.location.search).get('canto')
+
   return (
-    <main className="em-overlay">
+    <main className="em-overlay" data-canto={canto ?? undefined}>
       <aside className="em-bug" data-marca={marca} data-trocando={trocando ? 'sim' : undefined}>
         <span className="em-accent" aria-hidden="true" />
         <span className="em-brilho" aria-hidden="true" />

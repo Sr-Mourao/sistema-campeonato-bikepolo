@@ -132,3 +132,8 @@
 .em-live i { background: var(--pal-magenta); box-shadow: none; }
 .em-papel { color: var(--pal-black); font-size: 21px; letter-spacing: .14em; }
 .em-lamina { background: var(--pal-orange); box-shadow: 0 0 0 3px var(--pal-black); }
+/* ?canto=: selo afastado da borda, no canto pedido (usado dentro do overlay principal) */
+.em-overlay[data-canto] .em-bug { top: 40px; left: 48px; }
+.em-overlay[data-canto='tr'] .em-bug { left: auto; right: 48px; }
+.em-overlay[data-canto='bl'] .em-bug { top: auto; bottom: 40px; }
+.em-overlay[data-canto='br'] .em-bug { top: auto; bottom: 40px; left: auto; right: 48px; }
