@@ -5,6 +5,9 @@ import {
   SIMULATION_TEAMS,
   getClockDisplayText,
   pausedForText,
+  POPUP_MS,
+  textAgeMs,
+  type StreamingTextTpl,
   type StreamingPlayer,
   type StreamingTeam,
 } from '../../services/streamingState'
@@ -87,7 +90,7 @@ export default function StreamingMesa() {
 
   // Novo texto na tela
   const [newText, setNewText] = useState<{
-    tpl: 'lower' | 'center' | 'ticker' | 'badge'
+    tpl: StreamingTextTpl
     title: string
     sub: string
     secs: number
@@ -1111,7 +1114,9 @@ export default function StreamingMesa() {
 
             <div className="stm-txlist">
               {state.texts.items.map(item => {
-                const isLive = state.texts.on[item.tpl] === item.id
+                // Pop-up sai sozinho: depois do tempo dele, o botão volta a "Mostrar" (e repete)
+                const isLive = state.texts.on[item.tpl] === item.id &&
+                  (item.tpl !== 'popup' || textAgeMs(state.texts.at.popup, clockOffset) < POPUP_MS)
                 return (
                   <div key={item.id} className={`stm-txrow ${isLive ? 'live' : ''}`}>
                     <span className="tpl">
@@ -1121,6 +1126,8 @@ export default function StreamingMesa() {
                         ? 'Cartão'
                         : item.tpl === 'ticker'
                         ? 'Letreiro'
+                        : item.tpl === 'popup'
+                        ? 'Pop-up'
                         : 'Selo'}
                     </span>
                     <div>
@@ -1160,6 +1167,7 @@ export default function StreamingMesa() {
                 <option value="center">Cartão Central</option>
                 <option value="ticker">Letreiro Rolante</option>
                 <option value="badge">Selo de Canto</option>
+                <option value="popup">Pop-up animado</option>
               </select>
               <input
                 type="text"
@@ -1220,7 +1228,7 @@ export default function StreamingMesa() {
               <input type="checkbox" checked={centralPreview} onChange={e => setCentralPreview(e.target.checked)} />
               ensaiar com dados de teste (não usa o banco do torneio)
             </label>
-            {(['Misto', 'MTNB'] as const).map(torneio => (
+            {(['Misto'] as const).map(torneio => (
               <div key={torneio} className="stm-central-group">
                 <h3>{torneio}</h3>
                 {CENTRAL_SCENES.filter(c => c.torneio === torneio).map(c => {

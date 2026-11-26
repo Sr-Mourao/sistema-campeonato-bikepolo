@@ -16,12 +16,6 @@ const STATUS_ROTULO: Record<string, string> = {
   encerrado: 'Encerrado', wo: 'W.O.', cancelado: 'Cancelado',
 }
 
-/** Placar só entra em cena quando significa alguma coisa — 0×0 de jogo agendado, não. */
-function placarRelevante(status: string, a: number | null, b: number | null): boolean {
-  if (status === 'em_andamento') return true
-  return status === 'encerrado' && (a !== null || b !== null)
-}
-
 /**
  * Apresentação do confronto — composição fullscreen para OBS montada AO REDOR da câmera.
  *
@@ -66,7 +60,6 @@ export default function TorneioOverlayConfronto() {
   if (!jogo) return <main className="cf-overlay" ref={overlay} />
 
   const aoVivo = jogo.status === 'em_andamento'
-  const comPlacar = placarRelevante(jogo.status, jogo.placar_a, jogo.placar_b)
   const horario = aoVivo ? jogo.horario_inicio_real : jogo.horario_previsto
 
   return (
@@ -102,13 +95,8 @@ export default function TorneioOverlayConfronto() {
           />
 
           <div className="cf-centro">
-            {comPlacar ? (
-              <div className="cf-placar">
-                <b>{jogo.placar_a ?? 0}</b><i>×</i><b>{jogo.placar_b ?? 0}</b>
-              </div>
-            ) : (
-              <div className="cf-versus"><span>VS</span></div>
-            )}
+            {/* Apresentação do confronto: só o VS (o placar fica com o overlay principal) */}
+            <div className="cf-versus"><span>VS</span></div>
           </div>
 
           <ConfrontoTime

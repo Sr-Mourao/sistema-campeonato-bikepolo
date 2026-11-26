@@ -4,6 +4,8 @@ import { useStreamingSync } from '../../hooks/useStreamingSync'
 import {
   calculateElapsed,
   eventPlayerTeam,
+  POPUP_MS,
+  textAgeMs,
   playerStatsFor,
   formatPauseTime,
   fxAgeMs,
@@ -171,6 +173,10 @@ export default function StreamingOverlay() {
   // Jogadora pode ser escolhida na mesa depois que a animação começou: lê do fx atual
   const liveFx = state.fx && state.fx.id === goalGfx.id ? state.fx : null
 
+  // Cena da Central: qual quadro já terminou de carregar (para entrar sem piscar)
+  const sceneKey = state.scene ? `${state.scene.path}@${state.scene.at}` : ''
+  const [sceneLoaded, setSceneLoaded] = useState('')
+
   // Cores: as dos times (como cadastradas) ou o padrão da IDV do site
   const idv = state.settings.colorMode === 'idv'
   const sideColor = (side: 'a' | 'b') =>
@@ -210,8 +216,14 @@ export default function StreamingOverlay() {
       center: items.find(t => t.id === onMap.center) ?? null,
       ticker: items.find(t => t.id === onMap.ticker) ?? null,
       badge: items.find(t => t.id === onMap.badge) ?? null,
+      popup: items.find(t => t.id === onMap.popup) ?? null,
     }
   }, [state.texts])
+
+  // Pop-up: derivado da idade (sai sozinho, sem timer); os últimos 600 ms são a saída
+  const popupAge = textAgeMs(state.texts.at.popup, clockOffset)
+  const popup = activeTexts.popup && popupAge < POPUP_MS ? activeTexts.popup : null
+  const popupOut = popupAge > POPUP_MS - 600
 
   // Posição e escala
   const posClass = `str-pos-${state.settings.pos || 'tl'}`
@@ -237,10 +249,12 @@ export default function StreamingOverlay() {
           A key muda a cada envio, então mandar a mesma cena de novo recarrega a animação. */}
       {state.scene && (
         <iframe
-          key={`${state.scene.path}@${state.scene.at}`}
-          className="str-scene"
+          key={sceneKey}
+          className={`str-scene ${sceneLoaded === sceneKey ? 'loaded' : ''}`}
           src={sceneSrc(state.scene.path, state.settings.pos)}
           title={state.scene.nome}
+          // Fica invisível até a página da cena carregar: sem isso o quadro pisca em branco
+          onLoad={() => setSceneLoaded(sceneKey)}
         />
       )}
 
@@ -348,6 +362,20 @@ export default function StreamingOverlay() {
           </div>
         </div>
       </div>
+
+      {/* 5. Pop-up: cartão que entra pulando, com o lobo espiando e ✱ estourando.
+          A key é o horário de entrada: mostrar de novo repete a animação. */}
+      {popup && (
+        <div className={`str-popup ${popupOut ? 'out' : ''}`} key={state.texts.at.popup}>
+          <img className="str-popup-lobo" src="/identidade/artes/lobo-taco.webp" alt="" />
+          <img className="str-popup-braco" src="/identidade/artes/braco-bola.webp" alt="" />
+          <div className="str-popup-card">
+            <b>{popup.title}</b>
+            {popup.sub && <span>{popup.sub}</span>}
+          </div>
+          {[1, 2, 3, 4, 5, 6].map(n => <i key={n} className={`str-popup-star s${n}`}>✱</i>)}
+        </div>
+      )}
 
       {/* 4. Selo de canto */}
       <div id="strBadge" className={`str-tx ${activeTexts.badge ? 'on' : ''}`}>

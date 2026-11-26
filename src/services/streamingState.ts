@@ -101,9 +101,15 @@ export interface StreamingPauses {
   b: TeamPauseState
 }
 
+/** Tipos de "Texto na Tela". popup = aviso rápido que entra pulando e sai sozinho */
+export type StreamingTextTpl = 'lower' | 'center' | 'ticker' | 'badge' | 'popup'
+
+/** Quanto tempo o pop-up fica na tela */
+export const POPUP_MS = 7000
+
 export interface StreamingTextItem {
   id: string
-  tpl: 'lower' | 'center' | 'ticker' | 'badge'
+  tpl: StreamingTextTpl
   title: string
   sub: string
   secs: number
@@ -116,6 +122,7 @@ export interface StreamingTexts {
     center: string | null
     ticker: string | null
     badge: string | null
+    popup: string | null
   }
   at: Record<string, number>
 }
@@ -383,8 +390,9 @@ export const DEFAULT_STREAMING_STATE: StreamingState = {
       { id: 'tx2', tpl: 'center', title: 'Grande Final', sub: '2º PCP · Curitiba', secs: 8 },
       { id: 'tx3', tpl: 'ticker', title: 'PIOR', sub: 'Transmissão ao vivo · Curitiba Bike Polo', secs: 0 },
       { id: 'tx4', tpl: 'badge', title: 'Ao vivo', sub: '', secs: 0 },
+      { id: 'tx5', tpl: 'popup', title: 'Que jogada!', sub: '2º PIOR · Curitiba', secs: 7 },
     ],
-    on: { lower: null, center: null, ticker: null, badge: null },
+    on: { lower: null, center: null, ticker: null, badge: null, popup: null },
     at: {},
   },
   lastBy: {},
@@ -495,7 +503,7 @@ export function hydrateStreamingState(o: unknown): StreamingState {
     }
   }
 
-  d.texts.on = Object.assign({ lower: null, center: null, ticker: null, badge: null }, d.texts?.on || {})
+  d.texts.on = Object.assign({ lower: null, center: null, ticker: null, badge: null, popup: null }, d.texts?.on || {})
   d.texts.at = d.texts.at || {}
 
   const basePauses = emptyPauses()
@@ -630,4 +638,9 @@ export function pausedForText(clock: StreamingClock, offset = 0, now = Date.now(
   if (clock.running || !clock.pausedAt) return ''
   const sec = Math.max(0, Math.floor((now + offset - clock.pausedAt) / 1000))
   return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`
+}
+
+/** Há quanto tempo um texto entrou no ar (ms); Infinity se não há registro */
+export function textAgeMs(at: number | undefined, offset = 0, now = Date.now()): number {
+  return at ? now + offset - at : Infinity
 }

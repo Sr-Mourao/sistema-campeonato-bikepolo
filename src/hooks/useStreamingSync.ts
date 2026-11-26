@@ -19,6 +19,7 @@ import {
   type StreamingState,
   type StreamingTeam,
   type StreamingTextItem,
+  type StreamingTextTpl,
   type StreamingTournamentLink,
   type StreamingScene,
 } from '../services/streamingState'
@@ -568,7 +569,7 @@ export function useStreamingSync() {
     }, { stampDomain: 'ov' })
   }, [mutate])
 
-  const setTextActive = useCallback((tpl: 'lower' | 'center' | 'ticker' | 'badge', textId: string | null) => {
+  const setTextActive = useCallback((tpl: StreamingTextTpl, textId: string | null) => {
     mutate(s => {
       s.texts.on[tpl] = textId
       if (textId) {
@@ -598,7 +599,7 @@ export function useStreamingSync() {
   const removeTextItem = useCallback((id: string) => {
     mutate(s => {
       s.texts.items = s.texts.items.filter(t => t.id !== id)
-      for (const tpl of ['lower', 'center', 'ticker', 'badge'] as const) {
+      for (const tpl of ['lower', 'center', 'ticker', 'badge', 'popup'] as const) {
         if (s.texts.on[tpl] === id) s.texts.on[tpl] = null
       }
       return s
@@ -607,7 +608,7 @@ export function useStreamingSync() {
 
   const hideAllTexts = useCallback(() => {
     mutate(s => {
-      s.texts.on = { lower: null, center: null, ticker: null, badge: null }
+      s.texts.on = { lower: null, center: null, ticker: null, badge: null, popup: null }
       s.texts.at = {}
       return s
     }, { stampDomain: 'ov' })
