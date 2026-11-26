@@ -828,3 +828,11 @@
 /* Há quanto tempo o relógio está parado (só na mesa) */
 .stm-paused-for { margin: -4px 0 6px; font: 700 14px ui-monospace, Consolas, monospace; color: #ffb35c; text-align: center; letter-spacing: .04em; }
 .role-mesa .stm-paused-for { font-size: 17px; }
+/* Reiniciar partida: longe dos botões de jogo, discreto */
+.stm-danger-zone { display: flex; justify-content: flex-end; margin-top: 18px; padding-top: 12px; border-top: 1px dashed rgba(255, 255, 255, .12); }
+.stm-danger-zone .stm-btn { opacity: .7; color: #ffb3b3; }
+.stm-confirm-type { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 10px; font-size: 14px; }
+.stm-confirm-type b { color: #ff6b6b; letter-spacing: .08em; }
+.stm-btn:disabled { opacity: .4; cursor: not-allowed; }
+/* Modo árbitro: lista inteira na página, sem rolagem escondida */
+.role-mesa .stm-log { max-height: none; overflow: visible; }

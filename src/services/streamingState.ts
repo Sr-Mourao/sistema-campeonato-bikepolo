@@ -51,6 +51,8 @@ export interface StreamingSettings {
   autoPause: boolean
   autoPauseMin: number
   brand: string
+  /** Cores do overlay: dos times (como cadastradas) ou padrão da IDV do site */
+  colorMode: 'times' | 'idv'
   /** Pausas técnicas por time por jogo */
   techMax: number
   /** Duração da pausa técnica (min) */
@@ -350,6 +352,7 @@ export const DEFAULT_STREAMING_STATE: StreamingState = {
     autoPause: true,
     autoPauseMin: 2,
     brand: '#ff931e',
+    colorMode: 'times',
     techMax: 2,
     techMin: 2,
     mechMin: 5,

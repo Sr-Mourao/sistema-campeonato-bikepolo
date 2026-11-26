@@ -873,3 +873,52 @@
 .str-pcard .tm { font-size: 20px; font-weight: 700; opacity: .75; }
 .str-pcard .st { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .15); font-size: 18px; font-weight: 700; }
 .str-pcard .st b { font-size: 28px; font-weight: 900; color: var(--tc); filter: brightness(1.35); margin-right: 2px; }
+
+/* ================= CORES PADRÃO IDV (Ajustes → Cores do overlay) =================
+   Times: magenta (A) e laranja (B). Painéis: preto arroxeado da paleta.
+   Alertas (anulado, tempo esgotado): rosa PIOR, em vez do vermelho genérico. */
+.str-idv {
+  --str-idv-panel: color-mix(in srgb, color-mix(in srgb, var(--pal-purple) 16%, var(--pal-black)) 94%, transparent);
+  --str-idv-alert: var(--pal-pink);
+  --str-foul: var(--pal-orange);
+}
+.str-idv .str-label,
+.str-idv .str-strip-inner,
+.str-idv .str-clock,
+.str-idv #strLower .t,
+.str-idv #strCenter .card,
+.str-idv #strTicker,
+.str-idv #strBadge,
+.str-idv .str-pause,
+.str-idv .str-pcard,
+.str-idv .str-annul { background: var(--str-idv-panel); }
+.str-idv .str-bar { background: linear-gradient(135deg, var(--str-idv-panel), color-mix(in srgb, var(--pal-wine) 40%, var(--pal-black))); }
+.str-idv .str-label, .str-idv #strLower .t { color: var(--pal-beige); }
+.str-idv .str-clock.paused { color: var(--pal-gray-beige); }
+.str-idv .str-clock.ended,
+.str-idv .str-pause.over .tt,
+.str-idv .str-annul .t { color: var(--str-idv-alert); }
+.str-idv .str-strip .tag.cancel,
+.str-idv #strBadge i,
+.str-idv .str-annul .x { background: var(--str-idv-alert); }
+.str-idv .str-pause.over,
+.str-idv .str-annul { border-left-color: var(--str-idv-alert); }
+.str-idv .str-strip .tag.goal { background: var(--pal-magenta); color: var(--pal-white); }
+.str-idv #strGfx .b2 { background: var(--pal-black); }
+
+/* ================= OVERLAY AJUSTADO (celular da live) =================
+   O overlay ocupa a área virtual (1920×1080 ou 1080×1920), não a tela toda:
+   antes ele media a janela e, no celular, ficava minúsculo e cortado. */
+.str-fit .str-overlay-root { position: absolute; width: 100%; height: 100%; }
+
+/* Vertical (1080×1920): placar grande no topo, cartões embaixo, centralizados */
+.str-vertical .str-board {
+  top: 70px; left: 50%; right: auto; bottom: auto;
+  transform: translateX(-50%) scale(calc(var(--str-s) * 1.55));
+  transform-origin: top center;
+}
+.str-vertical .str-pcard,
+.str-vertical .str-annul { left: 60px; right: 60px; bottom: 300px; min-width: 0; max-width: none; }
+.str-vertical #strGfx .gol { font-size: 170px; }
+.str-vertical #strGfx .tm { font-size: 50px; }
+.str-vertical #strLower { left: 40px; right: 40px; }

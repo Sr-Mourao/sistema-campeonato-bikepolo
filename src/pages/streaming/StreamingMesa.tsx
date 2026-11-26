@@ -111,7 +111,22 @@ export default function StreamingMesa() {
   const [finalizeNotes, setFinalizeNotes] = useState('')
 
   // Confirmação antes de excluir/anular lances
-  const [confirmDlg, setConfirmDlg] = useState<{ title: string; msg: string; yes?: string; onYes: () => void } | null>(null)
+  // typeWord: ação grave, só libera o botão depois de digitar a palavra
+  const [confirmDlg, setConfirmDlg] = useState<{ title: string; msg: string; yes?: string; typeWord?: string; onYes: () => void } | null>(null)
+  const [confirmTyped, setConfirmTyped] = useState('')
+  const askRestartMatch = () => {
+    setConfirmTyped('')
+    setConfirmDlg({
+      title: 'Reiniciar a partida?',
+      msg: `Zera placar, faltas, todos os ${state.events.length} lances, pausas e relógio de ${state.a.name} x ${state.b.name}. Os times continuam.`,
+      yes: 'Reiniciar partida',
+      typeWord: 'ZERAR',
+      onYes: () => {
+        resetAllMatch()
+        showToast('Partida reiniciada')
+      },
+    })
+  }
 
   const loadGameIntoMesa = async (torneioId: number, torneioNome: string, jogo: Jogo) => {
     setLoadingTournament(true)
@@ -1027,7 +1042,7 @@ export default function StreamingMesa() {
             Lances do Jogo ({state.events.length})
           </h3>
           <div className="stm-log">
-            {state.events.map(ev => (
+            {[...state.events].reverse().map(ev => (
               <div key={ev.id} className="stm-ev">
                 <span className="t">{ev.clock}</span>
                 <span className={`stm-tag ${ev.type}`}>
@@ -1060,6 +1075,13 @@ export default function StreamingMesa() {
                 Nenhum gol ou falta registrado nesta partida.
               </div>
             )}
+          </div>
+
+          {/* Reiniciar: discreto, no fim da coluna, e pede para digitar ZERAR */}
+          <div className="stm-danger-zone">
+            <button type="button" className="stm-btn mini" onClick={askRestartMatch}>
+              ↺ Reiniciar partida (zera lances)
+            </button>
           </div>
         </section>
 
@@ -1519,6 +1541,16 @@ export default function StreamingMesa() {
                   <span>min (sem limite de quantidade)</span>
                 </div>
 
+                <span>Cores do overlay</span>
+                <select
+                  className="stm-select"
+                  value={state.settings.colorMode ?? 'times'}
+                  onChange={e => updateSettings({ colorMode: e.target.value as 'times' | 'idv' })}
+                >
+                  <option value="times">Cores dos times (como cadastradas)</option>
+                  <option value="idv">Padrão do site (IDV PIOR)</option>
+                </select>
+
                 <span>Cartão da jogadora</span>
                 <div style={{ display: 'flex', gap: '6px 12px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <label style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
@@ -1669,12 +1701,7 @@ export default function StreamingMesa() {
                   <button
                     type="button"
                     className="stm-btn danger"
-                    onClick={() => {
-                      if (window.confirm('Deseja zerar os lances e o tempo do jogo atual?')) {
-                        resetAllMatch()
-                        showToast('Partida zerada')
-                      }
-                    }}
+                    onClick={askRestartMatch}
                   >
                     Zerar partida atual (lances e relógio)
                   </button>
@@ -1901,6 +1928,18 @@ export default function StreamingMesa() {
           <div className="stm-modal-box stm-confirm" role="alertdialog" aria-modal="true" onClick={e => e.stopPropagation()}>
             <h3>{confirmDlg.title}</h3>
             <p>{confirmDlg.msg}</p>
+            {confirmDlg.typeWord && (
+              <label className="stm-confirm-type">
+                Para confirmar, digite <b>{confirmDlg.typeWord}</b>
+                <input
+                  type="text"
+                  className="stm-input"
+                  autoComplete="off"
+                  value={confirmTyped}
+                  onChange={e => setConfirmTyped(e.target.value)}
+                />
+              </label>
+            )}
             <div className="stm-confirm-actions">
               <button type="button" className="stm-btn" autoFocus onClick={() => setConfirmDlg(null)}>
                 Manter
@@ -1908,6 +1947,7 @@ export default function StreamingMesa() {
               <button
                 type="button"
                 className="stm-btn danger"
+                disabled={!!confirmDlg.typeWord && confirmTyped.trim().toUpperCase() !== confirmDlg.typeWord}
                 onClick={() => {
                   confirmDlg.onYes()
                   setConfirmDlg(null)

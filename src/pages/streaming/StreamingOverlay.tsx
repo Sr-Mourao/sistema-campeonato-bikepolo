@@ -138,6 +138,11 @@ export default function StreamingOverlay() {
   // Jogadora pode ser escolhida na mesa depois que a animação começou: lê do fx atual
   const liveFx = state.fx && state.fx.id === goalGfx.id ? state.fx : null
 
+  // Cores: as dos times (como cadastradas) ou o padrão da IDV do site
+  const idv = state.settings.colorMode === 'idv'
+  const sideColor = (side: 'a' | 'b') =>
+    idv ? (side === 'a' ? 'var(--pal-magenta)' : 'var(--pal-orange)') : state[side].color
+
   // Aviso grande de lance anulado (derivado do fx; o ticker de 250 ms re-renderiza)
   const annul = state.fx?.type === 'cancel' && fxAgeMs(state.fx, clockOffset) < 4500 ? state.fx : null
 
@@ -153,7 +158,7 @@ export default function StreamingOverlay() {
     const start = fx.at + Math.max(0, st.pcDelay ?? 5) * 1000
     if (now < start || now > start + (st.pcSecs || 7) * 1000) return null
     const team = eventPlayerTeam(ev)
-    const color = team === state.b.name ? state.b.color : state.a.color
+    const color = sideColor(team === state.b.name ? 'b' : 'a')
     const s = playerStatsFor(state, ev.player, team)
     const items: [number, string][] = []
     if (st.pcMatchGoals) items.push([s.matchGoals, s.matchGoals === 1 ? 'gol no jogo' : 'gols no jogo'])
@@ -184,14 +189,14 @@ export default function StreamingOverlay() {
 
   return (
     <main
-      className="str-overlay-root"
+      className={`str-overlay-root ${idv ? 'str-idv' : ''}`}
       style={{
         ...scaleStyle,
         // @ts-expect-error CSS variable
-        '--str-a': state.a.color || '#de04ac',
-        '--str-b': state.b.color || '#ff931e',
-        '--str-gc': goalGfx.color,
-        '--str-brand': state.settings.brand || '#ff931e',
+        '--str-a': sideColor('a') || '#de04ac',
+        '--str-b': sideColor('b') || '#ff931e',
+        '--str-gc': idv && state.fx?.type === 'goal' ? sideColor(state.fx.side || 'a') : goalGfx.color,
+        '--str-brand': idv ? 'var(--pal-orange)' : state.settings.brand || '#ff931e',
       }}
     >
       {/* Placar permanente */}
@@ -253,7 +258,7 @@ export default function StreamingOverlay() {
               <div
                 key={side}
                 className={`str-pause ${remaining < 0 ? 'over' : ''} ${p.running ? '' : 'held'}`}
-                style={{ '--tc': state[side].color } as React.CSSProperties}
+                style={{ '--tc': sideColor(side) } as React.CSSProperties}
               >
                 <i className="dot" />
                 <span className="k">
@@ -301,7 +306,7 @@ export default function StreamingOverlay() {
       </div>
 
       {/* Lance anulado */}
-      <div className={`str-annul ${annul ? 'on' : ''}`} style={{ '--str-ac': annul?.color || '#ff3b3b' } as React.CSSProperties}>
+      <div className={`str-annul ${annul ? 'on' : ''}`} style={{ '--str-ac': (annul && idv ? sideColor(annul.side || 'a') : annul?.color) || '#ff3b3b' } as React.CSSProperties}>
         <div className="x">✕</div>
         <div className="t">{annul?.of === 'foul' ? 'Falta anulada' : 'Gol anulado'}</div>
         <div className="s">{[annul?.team, annul?.player].filter(Boolean).join(' · ')}</div>

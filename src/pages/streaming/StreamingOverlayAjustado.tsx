@@ -1,19 +1,31 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useObsDocument } from '../../hooks/useObsDocument'
 import StreamingOverlay from './StreamingOverlay'
 
+/**
+ * Overlay para o celular da live (Moblin etc.): desenha numa área virtual e
+ * escala para caber na tela. Tela em pé usa a área vertical 1080×1920, com o
+ * placar grande no topo; tela deitada usa a 1920×1080 de sempre.
+ */
 export default function StreamingOverlayAjustado() {
   useObsDocument('OBS · Overlay Ajustado')
   const wrapRef = useRef<HTMLDivElement>(null)
+  const [vertical, setVertical] = useState(() => window.innerHeight > window.innerWidth)
 
   useEffect(() => {
     function fit() {
       if (!wrapRef.current) return
       const w = window.innerWidth
       const h = window.innerHeight
-      const s = Math.min(w / 1920, h / 1080)
-      const x = (w - 1920 * s) / 2
-      const y = (h - 1080 * s) / 2
+      const isVertical = h > w
+      setVertical(isVertical)
+      const cw = isVertical ? 1080 : 1920
+      const ch = isVertical ? 1920 : 1080
+      const s = Math.min(w / cw, h / ch)
+      const x = (w - cw * s) / 2
+      const y = (h - ch * s) / 2
+      wrapRef.current.style.width = `${cw}px`
+      wrapRef.current.style.height = `${ch}px`
       wrapRef.current.style.transform = `translate(${x}px, ${y}px) scale(${s})`
     }
 
@@ -35,6 +47,7 @@ export default function StreamingOverlayAjustado() {
     >
       <div
         ref={wrapRef}
+        className={`str-fit ${vertical ? 'str-vertical' : ''}`}
         style={{
           position: 'absolute',
           left: 0,
