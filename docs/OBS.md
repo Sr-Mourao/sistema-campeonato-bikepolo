@@ -11,7 +11,27 @@ Todas as páginas de overlay são **públicas, somente leitura, sem login**
 
 ---
 
-## Central de overlays
+## Novo Sistema de Streaming ao Vivo (Mesa + Overlay Dinâmico)
+
+Para transmissão em tempo real sincronizada com a mesa de arbitragem:
+
+| Recurso | URL | Destino | Acesso |
+|---|---|---|---|
+| **Overlay Dinâmico 1080p** | `/streaming/overlay` | Browser Source no OBS (1920×1080) | Público |
+| **Overlay Mobile / Ajustado** | `/streaming/overlay/ajustado` | Streaming via celular (Moblin, Streamlabs) | Público |
+| **Mesa de Arbitragem** | `/streaming/mesa` | Celular ou tablet do árbitro na quadra | Requer login admin |
+| **Gestão de Transmissão** | `/admin/streaming` | Painel de controle de links e atalhos | Requer login admin |
+
+### Como funciona no OBS:
+1. No OBS Studio, adicione uma fonte **Browser (Navegador)**.
+2. Defina a URL: `https://SEU-DOMINIO/streaming/overlay` (ou `http://localhost:5173/streaming/overlay` em desenvolvimento).
+3. Resolução: **1920 largura × 1080 altura**.
+4. Fundo: transparente por padrão (suporta `?bg=green` se preferir chroma key verde).
+5. O árbitro opera o jogo em `/streaming/mesa` (carrega a partida da fila, aciona gols, faltas e relógio), e o overlay no OBS atualiza instantaneamente com animações e cartões de jogadoras.
+
+---
+
+## Central de overlays clássicos
 
 **`/overlays`** — abra isto primeiro.
 

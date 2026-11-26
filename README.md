@@ -187,9 +187,13 @@ Tudo abaixo foi conferido no código. O que não está aqui, não existe.
 - **Awards MTNB** por cadastro administrativo, sem votação
 - **Telas de projeção** para pódio e para cada prêmio
 
-### Transmissão
+### Transmissão e Streaming ao Vivo
 
-- **Nove overlays** transparentes para OBS, mais URLs próprias do MTNB
+- **Mesa de controle de arbitragem** em `/streaming/mesa` com cronômetro em tempo real, botões de gols e faltas, pausas técnicas e mecânicas, e seleção de atletas
+- **Overlay dinâmico de streaming** em `/streaming/overlay` (1920×1080) com scorebug animado, cartões de jogador, tiras de faltas e letreiros
+- **Integração total com o torneio oficial**: carga da próxima partida com 1 clique e envio atômico da súmula final para avanço automático de chaves
+- **Card ao vivo para o público** em `/torneio` com relógio correndo e histórico de lances
+- **Nove overlays clássicos** transparentes para OBS, mais URLs próprias do MTNB
 - **Telão** fullscreen para a quadra
 - **Central de overlays** em `/overlays` com todas as URLs e resoluções
 - Partida em foco resolvida **no backend**, então telão, overlays e site nunca
@@ -345,16 +349,26 @@ php scripts/db-init.php
 # 4. dados fictícios de demonstração (opcional, mas recomendado)
 php scripts/db-seed-demo.php
 
-# 5. dois terminais
-php -S localhost:8000 -t public   # terminal 1: backend
-npm run dev                       # terminal 2: frontend
+# 5. dois terminais para rodar o sistema completo
+php -S localhost:8000 -t public   # terminal 1: backend PHP (API, banco e sincronização de streaming)
+npm run dev                       # terminal 2: frontend Vite
 ```
 
 Abra **http://localhost:5173**.
 
-O painel fica em **http://localhost:5173/admin** — usuário e senha são os que
-você pôs em `ADMIN_USER` / `ADMIN_PASS`.
+### URLs principais de operação:
 
+| O que é | URL local | Acesso |
+|---|---|---|
+| **Página pública do torneio** | `http://localhost:5173/torneio` | Livre (público / celular) |
+| **Painel administrativo** | `http://localhost:5173/admin` | `ADMIN_USER` / `ADMIN_PASS` |
+| **Gestão de streaming** | `http://localhost:5173/admin/streaming` | Requer login admin |
+| **Mesa de arbitragem (live)** | `http://localhost:5173/streaming/mesa` | Requer login admin |
+| **Overlay OBS (1080p transparente)** | `http://localhost:5173/streaming/overlay` | Livre (Browser Source no OBS) |
+| **Central de overlays clássicos** | `http://localhost:5173/overlays` | Livre (catálogo de links) |
+
+> **Nota sobre o Streaming:** Toda a sincronização em tempo real entre a mesa de arbitragem e os overlays do OBS é atendida nativamente pelo endpoint PHP (`public/api/streaming.php`). Não é necessário rodar processos em segundo plano (como Python) nem configurar portas extras.
+>
 > O Vite faz proxy de `/api` para `http://localhost:8000`. Se você usar outra
 > porta no PHP, ajuste `PHP_SERVER` em [`vite.config.ts`](vite.config.ts).
 
@@ -990,6 +1004,9 @@ Coisas que existem, funcionam, e não aparecem em menu nenhum.
 
 | Rota / ferramenta | O que é | Auth | Risco |
 |---|---|---|---|
+| `/streaming/mesa` | Mesa de arbitragem ao vivo (placar, relógio, faltas) | **admin** | Controle de partida ao vivo |
+| `/streaming/overlay` | Overlay dinâmico 1080p para OBS | **nenhuma** | Só dado da partida atual |
+| `/admin/streaming` | Gestão de links e atalhos de streaming | **admin** | Apenas links operacionais |
 | `/overlays` | Central de overlays | **nenhuma** | Expõe a existência do torneio. Sem risco de dado. |
 | `/torneio/placar`, `/torneio/mtnb/placar` | Telão | **nenhuma** | Só dado esportivo público |
 | `/torneio/**/overlay/*` | Overlays | **nenhuma** | Idem |
