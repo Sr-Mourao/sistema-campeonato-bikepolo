@@ -9,6 +9,7 @@ import { useTournamentBroadcast } from '../hooks/useTournamentBroadcast'
 import type { StandingRowPublico } from '../services/torneioPublico'
 import './TorneioTournamentOverlays.css'
 import { TOURNAMENT_PRESENTATION, useTournamentCategory } from '../contexts/TournamentContext'
+import { formatoDe } from '../services/formatoTorneio'
 
 const ROTULO_CRITERIO: Record<string, string> = { ...CRITERIO_CURTO, buchholz: 'BUCH' }
 
@@ -37,16 +38,19 @@ export default function TorneioOverlayClassificacao() {
   if (!payload) return <main className="tg-overlay" />
 
   const classificacao = classificacaoOficial(payload.classificacao)
+  const formato = formatoDe(payload.torneio)
+  // Buchholz só no suíço; no todos contra todos a coluna mostra Gols Pró (critério real).
+  const mostrarBuch = formato.primeira_fase === 'swiss'
   return (
-    <BroadcastFrame className={`tc-classificacao ${false ? 'tc-classificacao--mtnb' : ''}`} intro={intro}>
+    <BroadcastFrame className={`tc-classificacao ${formato.repescagem ? '' : 'tc-classificacao--seeds'}`} intro={intro}>
       <section className="tc-standing-panel">
         <BroadcastTitle eyebrow="Primeira fase" title="Classificação" subtitle={`${TOURNAMENT_PRESENTATION[categoria].short} · Curitiba 2026`} />
-        <div className="tc-standing-head"><span>Pos</span><b>Equipe</b><strong>Pts</strong><i>J</i><i>V</i><i>E</i><i>SG</i><i>BUCH</i><i>FP</i></div>
+        <div className="tc-standing-head"><span>Pos</span><b>Equipe</b><strong>Pts</strong><i>J</i><i>V</i><i>E</i><i>SG</i><i>{mostrarBuch ? 'BUCH' : 'GP'}</i><i>FP</i></div>
         <ol className="tc-standing-list">
           {classificacao.map((time, i) => (
-            <li key={time.time_id} className={time.classificado_direto ? 'is-direct' : 'is-rep'} style={{ '--order': i } as CSSProperties}>
-              {i === 0 && <small className="tc-zone tc-zone--direct">{false ? 'Seeds da Double' : 'Classificação direta'}</small>}
-              {categoria === 'misto' && i === payload.torneio.classificados_diretos && <small className="tc-zone tc-zone--rep">Repescagem</small>}
+            <li key={time.time_id} className={!formato.repescagem || time.classificado_direto ? 'is-direct' : 'is-rep'} style={{ '--order': i } as CSSProperties}>
+              {i === 0 && <small className="tc-zone tc-zone--direct">{formato.repescagem ? 'Classificação direta' : 'Seeds da Double'}</small>}
+              {formato.repescagem && i === payload.torneio.classificados_diretos && <small className="tc-zone tc-zone--rep">Repescagem</small>}
               <span className="tc-pos">{time.posicao}<sup>º</sup></span>
               <span className="tc-team">
                 <Crest nome={time.nome} logo={time.logo} /><b>{time.nome}</b>
@@ -61,7 +65,9 @@ export default function TorneioOverlayClassificacao() {
               <Stat time={time} coluna="v">{time.v}</Stat>
               <Stat time={time} coluna="e">{time.e}</Stat>
               <Stat time={time} coluna="sg" criterio>{time.sg > 0 ? `+${time.sg}` : time.sg}</Stat>
-              <Stat time={time} coluna="buch" criterio>{time.buchholz}</Stat>
+              {mostrarBuch
+                ? <Stat time={time} coluna="buch" criterio>{time.buchholz}</Stat>
+                : <Stat time={time} coluna="gp" criterio>{time.gp}</Stat>}
               <Stat time={time} coluna="fp" criterio>{time.faltas}</Stat>
             </li>
           ))}

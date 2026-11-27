@@ -59,7 +59,7 @@ function rodarMatching(PDO $db, string $categoria, array $confirmacoes = []): ar
         $timeInternoId = $mt['interno']['id'];
         $roster = rosterInternoDoTime($db, $timeInternoId);
         $rosterPorId = array_column($roster, null, 'id');
-        $mAtletas = casarComInternos($mt['externo']['players'] ?? [], $roster);
+        $mAtletas = casarComInternos($mt['externo']['players'] ?? [], $roster, POLOPERATOR_APELIDOS[$torneioPoloperator] ?? []);
         $mAtletas = aplicarConfirmacoesManuais($mAtletas, $confirmacoes['atletas'] ?? [], $rosterPorId);
         $matchesAtletasPorTime[$timeInternoId] = ['time' => $mt['interno'], 'matches' => $mAtletas];
     }

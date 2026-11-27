@@ -202,7 +202,9 @@ function confirmarEqualizacao(PDO $db, int $torneioId, array $pares, string $usu
 function fecharClassificacao(PDO $db, int $torneioId, string $usuario): array {
     return torneioTx($db, function (PDO $db) use ($torneioId, $usuario) {
         $torneio = getTorneio($db, $torneioId);
-        if (torneioEhMtnb($torneio)) validarRoundRobinCompleto($db, $torneioId);
+        if (!$torneio) throw new RuntimeException('Torneio não encontrado.');
+        $roundRobin = formatoEhRoundRobin($torneio);
+        if ($roundRobin) validarRoundRobinCompleto($db, $torneioId);
         $classificacao = calcularClassificacao($db, $torneioId);
         $n = count($classificacao);
         // gerarRepescagem() sempre precisa de EXATAMENTE 7 times além dos classificados
@@ -210,10 +212,12 @@ function fecharClassificacao(PDO $db, int $torneioId, string $usuario): array {
         // literais logo abaixo). NÃO é `classificados_diretos + vagas_repescagem`: vagas
         // é quantas vagas a Repescagem CONCEDE na Double (hoje 2), não quantos times a
         // disputam (sempre 7, do 7º ao 13º com a config atual — 6 diretos + 7 repescagem).
-        if (!torneioEhMtnb($torneio) && $n < (int)$torneio['classificados_diretos'] + 7) {
+        if (formatoTemRepescagem($torneio) && $n < (int)$torneio['classificados_diretos'] + 7) {
             throw new RuntimeException('Número de participantes insuficiente para fechar a classificação com esta configuração.');
         }
-        if (torneioEhMtnb($torneio) && $n !== 5) throw new RuntimeException('A classificação MTNB deve possuir exatamente 5 times.');
+        if ($roundRobin && $n !== formatoParticipantes($torneio)) {
+            throw new RuntimeException('A classificação deste formato deve possuir exatamente ' . formatoParticipantes($torneio) . ' times.');
+        }
         $db->prepare("UPDATE torneios SET estado = 'CLASSIFICACAO_FECHADA', atualizado_em = datetime('now') WHERE id = ?")
            ->execute([$torneioId]);
         torneioAuditoria($db, $torneioId, $usuario, 'fechar_classificacao', 'torneios', $torneioId, null, $classificacao, null);
@@ -229,6 +233,8 @@ function fecharClassificacao(PDO $db, int $torneioId, string $usuario): array {
 function gerarRepescagem(PDO $db, int $torneioId, string $usuario): array {
     return torneioTx($db, function (PDO $db) use ($torneioId, $usuario) {
         $torneio = getTorneio($db, $torneioId);
+        if (!$torneio) throw new RuntimeException('Torneio não encontrado.');
+        if (!formatoTemRepescagem($torneio)) throw new RuntimeException('Este formato de torneio não possui Repescagem.');
         if ($torneio['estado'] !== 'CLASSIFICACAO_FECHADA' && $torneio['estado'] !== 'REPESCAGEM') {
             throw new RuntimeException('Feche a classificação antes de gerar a repescagem.');
         }
@@ -324,7 +330,10 @@ function getRepescados(PDO $db, int $torneioId): array {
 
 function gerarDouble(PDO $db, int $torneioId, string $usuario): array {
     $torneioFormato = getTorneio($db, $torneioId);
-    if ($torneioFormato && torneioEhMtnb($torneioFormato)) return gerarDoubleMtnb($db, $torneioId, $usuario);
+    if (!$torneioFormato) throw new RuntimeException('Torneio não encontrado.');
+    $tipoDouble = formatoDouble($torneioFormato);
+    if ($tipoDouble === 'mtnb_5') return gerarDoubleMtnb($db, $torneioId, $usuario);
+    if ($tipoDouble === 'direta_8') return gerarDoubleDireta8($db, $torneioId, $usuario);
     return torneioTx($db, function (PDO $db) use ($torneioId, $usuario) {
         $torneio = getTorneio($db, $torneioId);
         if (!repescagemConcluida($db, $torneioId)) {
@@ -341,50 +350,94 @@ function gerarDouble(PDO $db, int $torneioId, string $usuario): array {
         // o 1º — nunca o caminho REP-R4/REP-R5 percorrido (ver seedsRepescados()).
         $seeds = seedsRepescados($classificacao, $rep);
 
-        $db->prepare("
-            INSERT INTO torneio_fases (torneio_id, tipo, rodada, rotulo, estado, conta_classificacao)
-            VALUES (?, 'double', NULL, 'Double Elimination', 'confirmada', 0)
-        ")->execute([$torneioId]);
-        $faseId = (int)$db->lastInsertId();
-
-        $j = fn($v) => $v !== null ? json_encode($v) : null;
-        $stmtIns = $db->prepare("
-            INSERT INTO torneio_jogos (torneio_id, fase_id, codigo, bracket, ordem, time_a_id, time_b_id, time_a_origem, time_b_origem, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'agendado')
-        ");
-        $ins = function (string $codigo, string $bracket, ?int $a, ?int $b, ?array $oa, ?array $ob) use ($stmtIns, $torneioId, $faseId, $j) {
-            $ordem = ordemOperacionalDouble($codigo);
-            if ($ordem === null) throw new LogicException("Partida $codigo não possui ordem operacional oficial.");
-            $stmtIns->execute([$torneioId, $faseId, $codigo, $bracket, $ordem, $a, $b, $j($oa), $j($ob)]);
-        };
-
-        // Chave inicial
-        $ins('QA', 'winners', $pos(4), $pos(5), null, null);
-        $ins('QB', 'winners', $pos(3), $pos(6), null, null);
-        $ins('QC', 'winners', $pos(2), $seeds['melhor'], null, null);
-        $ins('QD', 'winners', $pos(1), $seeds['pior'], null, null);
-
-        // Semis e final Winners
-        $ins('SF1', 'winners', null, null, origemJogo('QD', 'vencedor'), origemJogo('QA', 'vencedor'));
-        $ins('SF2', 'winners', null, null, origemJogo('QC', 'vencedor'), origemJogo('QB', 'vencedor'));
-        $ins('FA', 'winners', null, null, origemJogo('SF1', 'vencedor'), origemJogo('SF2', 'vencedor'));
-
-        // Losers
-        $ins('B1', 'losers', null, null, origemJogo('QA', 'perdedor'), origemJogo('QB', 'perdedor'));
-        $ins('B2', 'losers', null, null, origemJogo('QC', 'perdedor'), origemJogo('QD', 'perdedor'));
-        $ins('B3', 'losers', null, null, origemJogo('B1', 'vencedor'), origemJogo('SF2', 'perdedor'));
-        $ins('B4', 'losers', null, null, origemJogo('B2', 'vencedor'), origemJogo('SF1', 'perdedor'));
-        $ins('B5', 'losers', null, null, origemJogo('B3', 'vencedor'), origemJogo('B4', 'vencedor'));
-        $ins('B6', 'losers', null, null, origemJogo('B5', 'vencedor'), origemJogo('FA', 'perdedor'));
-
-        // Grande Final — time_a sempre lado Winners, time_b sempre lado Losers (ver talvezGerarGF2)
-        $ins('GF', 'final', null, null, origemJogo('FA', 'vencedor'), origemJogo('B6', 'vencedor'));
+        $faseId = inserirChaveDouble8($db, $torneioId, [
+            1 => $pos(1), 2 => $pos(2), 3 => $pos(3), 4 => $pos(4), 5 => $pos(5), 6 => $pos(6),
+            7 => $seeds['melhor'], 8 => $seeds['pior'],
+        ]);
 
         torneioAuditoria($db, $torneioId, $usuario, 'gerar_double', 'torneio_fases', $faseId, null, [
             'repescados' => $rep, 'seeds_1a6' => array_map(fn($p) => $pos($p), range(1, 6)),
             'reseeding_repescados' => $seeds,
         ], null);
         $db->prepare("UPDATE torneios SET estado = 'DOUBLE' WHERE id = ?")->execute([$torneioId]);
+        return ['fase_id' => $faseId];
+    });
+}
+
+/**
+ * Cria a fase Double Elimination de 8 e seus 14 jogos (GF2 só nasce em talvezGerarGF2).
+ * $seeds = [1..8 => time_id]: QA 4×5, QB 3×6, QC 2×7, QD 1×8. Compartilhada pelo Misto
+ * suíço (7/8 = repescados reordenados) e pelo formato de 8 com entrada direta.
+ */
+function inserirChaveDouble8(PDO $db, int $torneioId, array $seeds): int {
+    for ($s = 1; $s <= 8; $s++) {
+        if (empty($seeds[$s])) throw new LogicException("Seed $s da Double não definido.");
+    }
+    $db->prepare("
+        INSERT INTO torneio_fases (torneio_id, tipo, rodada, rotulo, estado, conta_classificacao)
+        VALUES (?, 'double', NULL, 'Double Elimination', 'confirmada', 0)
+    ")->execute([$torneioId]);
+    $faseId = (int)$db->lastInsertId();
+
+    $j = fn($v) => $v !== null ? json_encode($v) : null;
+    $stmtIns = $db->prepare("
+        INSERT INTO torneio_jogos (torneio_id, fase_id, codigo, bracket, ordem, time_a_id, time_b_id, time_a_origem, time_b_origem, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'agendado')
+    ");
+    $ins = function (string $codigo, string $bracket, ?int $a, ?int $b, ?array $oa, ?array $ob) use ($stmtIns, $torneioId, $faseId, $j) {
+        $ordem = ordemOperacionalDouble($codigo);
+        if ($ordem === null) throw new LogicException("Partida $codigo não possui ordem operacional oficial.");
+        $stmtIns->execute([$torneioId, $faseId, $codigo, $bracket, $ordem, $a, $b, $j($oa), $j($ob)]);
+    };
+    $p = fn(int $s): int => (int)$seeds[$s];
+
+    // Chave inicial
+    $ins('QA', 'winners', $p(4), $p(5), null, null);
+    $ins('QB', 'winners', $p(3), $p(6), null, null);
+    $ins('QC', 'winners', $p(2), $p(7), null, null);
+    $ins('QD', 'winners', $p(1), $p(8), null, null);
+
+    // Semis e final Winners
+    $ins('SF1', 'winners', null, null, origemJogo('QD', 'vencedor'), origemJogo('QA', 'vencedor'));
+    $ins('SF2', 'winners', null, null, origemJogo('QC', 'vencedor'), origemJogo('QB', 'vencedor'));
+    $ins('FA', 'winners', null, null, origemJogo('SF1', 'vencedor'), origemJogo('SF2', 'vencedor'));
+
+    // Losers
+    $ins('B1', 'losers', null, null, origemJogo('QA', 'perdedor'), origemJogo('QB', 'perdedor'));
+    $ins('B2', 'losers', null, null, origemJogo('QC', 'perdedor'), origemJogo('QD', 'perdedor'));
+    $ins('B3', 'losers', null, null, origemJogo('B1', 'vencedor'), origemJogo('SF2', 'perdedor'));
+    $ins('B4', 'losers', null, null, origemJogo('B2', 'vencedor'), origemJogo('SF1', 'perdedor'));
+    $ins('B5', 'losers', null, null, origemJogo('B3', 'vencedor'), origemJogo('B4', 'vencedor'));
+    $ins('B6', 'losers', null, null, origemJogo('B5', 'vencedor'), origemJogo('FA', 'perdedor'));
+
+    // Grande Final — time_a sempre lado Winners, time_b sempre lado Losers (ver talvezGerarGF2)
+    $ins('GF', 'final', null, null, origemJogo('FA', 'vencedor'), origemJogo('B6', 'vencedor'));
+
+    return $faseId;
+}
+
+/**
+ * Double de 8 com entrada direta (formato misto_round_robin_8): sem Repescagem, os seeds
+ * 1..8 são exatamente as posições finais da 1ª fase (todos contra todos).
+ */
+function gerarDoubleDireta8(PDO $db, int $torneioId, string $usuario): array {
+    return torneioTx($db, function (PDO $db) use ($torneioId, $usuario) {
+        $torneio = getTorneio($db, $torneioId);
+        if (!$torneio || formatoDouble($torneio) !== 'direta_8') throw new RuntimeException('Formato sem Double de entrada direta.');
+        if ($torneio['estado'] !== 'CLASSIFICACAO_FECHADA') throw new RuntimeException('Feche a classificação antes de gerar a Double.');
+        $existe = $db->prepare("SELECT 1 FROM torneio_fases WHERE torneio_id=? AND tipo='double'");
+        $existe->execute([$torneioId]);
+        if ($existe->fetchColumn()) throw new RuntimeException('Chave Double Elimination já foi gerada.');
+
+        $classificacao = calcularClassificacao($db, $torneioId);
+        if (count($classificacao) !== 8) throw new RuntimeException('A Double requer os 8 seeds da Primeira Fase.');
+        $seeds = [];
+        foreach ($classificacao as $i => $row) $seeds[$i + 1] = (int)$row['time_id'];
+
+        $faseId = inserirChaveDouble8($db, $torneioId, $seeds);
+        $db->prepare("UPDATE torneios SET estado='DOUBLE', atualizado_em=datetime('now') WHERE id=?")->execute([$torneioId]);
+        torneioAuditoria($db, $torneioId, $usuario, 'gerar_double', 'torneio_fases', $faseId, null,
+            ['formato' => formatoDoTorneio($torneio), 'seeds_1a8' => array_values($seeds)], null);
         return ['fase_id' => $faseId];
     });
 }

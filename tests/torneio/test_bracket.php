@@ -3,7 +3,7 @@
 
 function montarTorneioAteClassificacaoFechada(PDO $db): array {
     seedTimes($db, 13);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     for ($r = 1; $r <= 4; $r++) {
         $sug = sugerirPareamentoSwiss($db, $torneioId, $r);
         confirmarRodadaSwiss($db, $torneioId, $r, $sug['bye'], $sug['pares'], 'teste');
@@ -336,7 +336,7 @@ function test_podio_oficial_usa_jogo_decisivo_e_eliminado_da_b6(): void {
 function test_fechar_classificacao_exige_7_times_alem_dos_diretos(): void {
     $db = testDb();
     seedTimes($db, 10); // preset: 6 diretos + 2 vagas — só 4 sobrariam pra Repescagem, insuficiente pros 7 necessários
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     assertThrowsT(
         fn() => fecharClassificacao($db, $torneioId, 'teste'),
         'Com só 10 times (4 além dos 6 diretos), não há os 7 necessários pra Repescagem — deve falhar'
@@ -364,7 +364,7 @@ function test_eliminatoria_nao_pode_terminar_empatada(): void {
 function test_nomes_dos_times_resolvidos_em_todas_as_fases(): void {
     $db = testDb();
     seedTimes($db, 13);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
 
     // Swiss
     $sug = sugerirPareamentoSwiss($db, $torneioId, 1);

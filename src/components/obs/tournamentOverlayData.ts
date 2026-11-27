@@ -19,7 +19,8 @@ export function classificacaoOficial(rows: StandingRowPublico[]): StandingRowPub
  * Antes do primeiro jogo, mostra a primeira rodada criada.
  */
 export function escolherRodada(jogos: JogoPublico[]): { rodada: number; jogos: JogoPublico[] } | null {
-  const swiss = jogos.filter(j => j.fase_tipo === 'swiss' && j.fase_rodada != null)
+  // Suíço ou todos contra todos: as duas são rodadas numeradas da 1ª fase.
+  const swiss = jogos.filter(j => (j.fase_tipo === 'swiss' || j.fase_tipo === 'round_robin') && j.fase_rodada != null)
   if (!swiss.length) return null
   const rodadas = new Map<number, JogoPublico[]>()
   for (const jogo of swiss) {
@@ -49,12 +50,12 @@ export function escolherEtapaClassificacao(jogos: JogoPublico[]): EtapaClassific
   return rodada ? { tipo: 'rodada', rotulo: `Rodada ${rodada.rodada}`, ...rodada } : null
 }
 
-export type ColunaDesempateOverlay = 'v' | 'e' | 'sg' | 'buch' | 'fp'
+export type ColunaDesempateOverlay = 'v' | 'e' | 'sg' | 'gp' | 'buch' | 'fp'
 
 /** Traduz somente a metadata oficial para a célula editorial do overlay. */
 export function colunaDoDesempate(decisao: string | null): ColunaDesempateOverlay | null {
   return ({
-    vitorias: 'v', empates: 'e', saldo: 'sg', buchholz: 'buch', fair_play: 'fp',
+    vitorias: 'v', empates: 'e', saldo: 'sg', gols_pro: 'gp', buchholz: 'buch', fair_play: 'fp',
   } as Record<string, ColunaDesempateOverlay | undefined>)[decisao ?? ''] ?? null
 }
 

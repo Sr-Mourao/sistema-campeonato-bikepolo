@@ -3,6 +3,7 @@ import { torneioApi, type Jogo, type TorneioDetalhe } from './torneioApi'
 import { ResponsiveBracket } from '../../components/torneio/BracketView'
 import { porCodigo, type BracketColDef, type BracketJogo } from '../../components/torneio/bracketHelpers'
 import Sumula from './Sumula'
+import { formatoDe } from '../../services/formatoTorneio'
 
 interface Props { torneio: TorneioDetalhe; onChange: () => void }
 
@@ -23,7 +24,9 @@ const LOS_COLS: BracketColDef[] = [
 ]
 
 export default function Chaves({ torneio, onChange }: Props) {
-  const mtnb = torneio.formato === 'mtnb_round_robin_5'
+  const formato = formatoDe(torneio)
+  const mtnb = formato.double === 'mtnb_5'
+  const comRepescagem = formato.repescagem
   const [repescagem, setRepescagem] = useState<Jogo[]>([])
   const [double, setDouble] = useState<Jogo[]>([])
   const [jogoAberto, setJogoAberto] = useState<number | null>(null)
@@ -74,16 +77,17 @@ export default function Chaves({ torneio, onChange }: Props) {
 
   return (
     <div>
-      {!mtnb && !temRepescagem && <div className="adm-card">Repescagem ainda não foi gerada — feche a classificação no painel Ao Vivo primeiro.</div>}
+      {comRepescagem && !temRepescagem && <div className="adm-card">Repescagem ainda não foi gerada — feche a classificação no painel Ao Vivo primeiro.</div>}
+      {!comRepescagem && !temDouble && <div className="adm-card">Double Elimination ainda não foi gerada — encerre a 1ª fase, feche a classificação e gere a Double no painel Ao Vivo.</div>}
 
-      {!mtnb && temRepescagem && (
+      {comRepescagem && temRepescagem && (
         <div className="adm-card" style={{ marginBottom: 16 }}>
           <h3>Repescagem (7º–13º → 2 vagas)</h3>
           <ResponsiveBracket cols={REP_COLS} lista={repescagem} onSelect={abrirSumula} badges={repescagemBadges} />
         </div>
       )}
 
-      {!mtnb && temRepescagem && !temDouble && (
+      {comRepescagem && temRepescagem && !temDouble && (
         <button className="adm-btn-primary" disabled={!repescagemPronta || acaoEmCurso} onClick={gerarDouble}>
           {repescagemPronta ? 'GERAR DOUBLE ELIMINATION' : 'Aguardando os 2 repescados…'}
         </button>

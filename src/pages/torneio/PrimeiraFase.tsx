@@ -4,6 +4,7 @@ import ClassificacaoTable from '../../components/torneio/ClassificacaoTable'
 import PartidaHistoricoModal from '../../components/torneio/PartidaHistoricoModal'
 import { CRITERIO_EXPLICACAO } from '../../components/torneio/criteriosMeta'
 import { useTournamentCategory } from '../../contexts/TournamentContext'
+import { formatoDe } from '../../services/formatoTorneio'
 
 const STATUS_LABEL: Record<string, string> = {
   agendado: 'Agendado', atrasado: 'Atrasado', chamado: 'Chamado', em_andamento: 'Ao vivo',
@@ -26,7 +27,9 @@ export default function PrimeiraFase({ resumo, onAbrirTime }: Props) {
   useEffect(() => { torneioPublico.classificacao(categoria).then(d => setRows(d.classificacao)) }, [categoria])
 
   const etapas = resumo.fases.filter(f => f.tipo === 'swiss' || f.tipo === 'round_robin' || f.tipo === 'equalizacao')
-  const ultima = [...etapas].reverse().find(f => f.estado === 'confirmada') ?? etapas[0] ?? null
+  // Todos contra todos: as rodadas nascem juntas, então abre na primeira ainda em aberto.
+  const ultima = (etapas.some(f => f.tipo === 'round_robin') ? etapas.find(f => f.estado === 'confirmada' && !f.completa) : null)
+    ?? [...etapas].reverse().find(f => f.estado === 'confirmada') ?? etapas[0] ?? null
   const [etapaKey, setEtapaKey] = useState<string | null>(ultima ? `${ultima.tipo}-${ultima.rodada}` : null)
   const etapaAtiva = etapas.find(f => `${f.tipo}-${f.rodada}` === etapaKey) ?? ultima
   const idxEtapa = etapaAtiva ? etapas.indexOf(etapaAtiva) : -1
@@ -57,6 +60,7 @@ export default function PrimeiraFase({ resumo, onAbrirTime }: Props) {
           <ClassificacaoTable
             linhas={rows} classificadosDiretos={resumo.torneio.classificados_diretos}
             criterios={resumo.criterios} onAbrirTime={onAbrirTime}
+            comRepescagem={formatoDe(resumo.torneio).repescagem}
           />
         )}
 

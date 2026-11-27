@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import { OVERLAY_CATALOG, overlayUrl, type OverlayCatalogItem, type OverlayGroup } from '../components/overlays/overlayCatalog'
+import { OVERLAY_CATALOG, catalogoDoFormato, overlayUrl, type OverlayCatalogItem, type OverlayGroup } from '../components/overlays/overlayCatalog'
+import { torneioPublico } from '../services/torneioPublico'
+import { formatoDe } from '../services/formatoTorneio'
 import './OverlaysCentral.css'
 
 const GRUPOS: OverlayGroup[] = ['Ao vivo', 'Fases', 'Pausas', 'Projeção / Palco']
@@ -18,6 +20,12 @@ async function copiarUrl(url: string) {
 
 export default function OverlaysCentral() {
   const [copiado, setCopiado] = useState<string | null>(null)
+  // Sem resposta do backend mantém o catálogo completo (nunca esconde por falha de rede).
+  const [comRepescagem, setComRepescagem] = useState(true)
+  useEffect(() => {
+    torneioPublico.resumo('misto').then(r => setComRepescagem(formatoDe(r.torneio).repescagem)).catch(() => {})
+  }, [])
+  const catalogo = catalogoDoFormato(OVERLAY_CATALOG, comRepescagem)
 
   useEffect(() => {
     const tituloAnterior = document.title
@@ -53,7 +61,7 @@ export default function OverlaysCentral() {
       {GRUPOS.map(grupo => (
         <section className={`ovc-group ${grupo === 'Projeção / Palco' ? 'ovc-group--stage' : ''}`} key={grupo}>
           <h2>{grupo}{grupo === 'Projeção / Palco' && <span>Projetor</span>}</h2>
-          {cards(OVERLAY_CATALOG.filter(item => item.grupo === grupo))}
+          {cards(catalogo.filter(item => item.grupo === grupo))}
         </section>
       ))}
     </main>

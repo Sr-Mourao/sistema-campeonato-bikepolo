@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { OVERLAY_CATALOG, MTNB_OVERLAY_CATALOG, STREAMING_OVERLAY_CATALOG, overlayUrl } from './overlayCatalog'
+import { OVERLAY_CATALOG, MTNB_OVERLAY_CATALOG, STREAMING_OVERLAY_CATALOG, catalogoDoFormato, overlayUrl } from './overlayCatalog'
 
 describe('central de overlays', () => {
   it('separa as nove Browser Sources e as seis telas de palco read-only', () => {
@@ -12,6 +12,13 @@ describe('central de overlays', () => {
     ])
     expect(OVERLAY_CATALOG.filter(item => item.grupo === 'Projeção / Palco')).toHaveLength(6)
     expect(OVERLAY_CATALOG.filter(item => item.destino === 'PROJETOR')).toHaveLength(6)
+  })
+
+  it('esconde só o overlay de Repescagem quando o formato não tem Repescagem', () => {
+    const semRep = catalogoDoFormato(OVERLAY_CATALOG, false).map(item => item.path)
+    expect(semRep).not.toContain('/torneio/overlay/repescagem')
+    expect(semRep).toHaveLength(OVERLAY_CATALOG.length - 1)
+    expect(catalogoDoFormato(OVERLAY_CATALOG, true)).toEqual(OVERLAY_CATALOG)
   })
 
   it('gera URL absoluta com o origin atual, sem domínio hardcoded', () => {

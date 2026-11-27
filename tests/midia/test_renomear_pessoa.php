@@ -18,7 +18,7 @@ function cenarioPessoaComEventos(): array {
     $db->prepare('INSERT INTO membros_time (time_id, inscricao_id) VALUES (?, ?)')->execute([$timeId, $inscricaoId]);
     $membroId = (int)$db->lastInsertId();
 
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste', 'Torneio de teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', 'Torneio de teste', 'misto_swiss_13');
     $db->prepare("INSERT INTO torneio_fases (torneio_id, tipo, rodada, rotulo, estado, conta_classificacao) VALUES (?, 'swiss', 1, 'Rodada 1', 'confirmada', 1)")->execute([$torneioId]);
     $faseId = (int)$db->lastInsertId();
     $db->prepare("INSERT INTO torneio_jogos (torneio_id, fase_id, codigo, ordem, time_a_id, time_b_id, status, placar_a, placar_b) VALUES (?, ?, '1.1', 1, ?, ?, 'encerrado', 1, 0)")->execute([$torneioId, $faseId, $timeId, $timeId]);

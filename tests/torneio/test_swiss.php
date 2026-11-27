@@ -4,7 +4,7 @@
 function test_swiss_13_times_4_rodadas(): void {
     $db = testDb();
     $timeIds = seedTimes($db, 13);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
 
     $byesVistos = [];
     for ($r = 1; $r <= 4; $r++) {
@@ -71,7 +71,7 @@ function test_swiss_13_times_4_rodadas(): void {
 function test_swiss_rodada1_seed(): void {
     $db = testDb();
     seedTimes($db, 13);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $sugestao = sugerirPareamentoSwiss($db, $torneioId, 1, ['modo' => 'seed']);
     assertEqualsT(6, count($sugestao['pares']), "Rodada 1 por seed deve gerar 6 pares");
     // 1x2, 3x4 ... (seed 13 fica de bye, último da lista)
@@ -82,7 +82,7 @@ function test_swiss_rodada1_seed(): void {
 function test_swiss_rematch_evitado_no_caso_normal(): void {
     $db = testDb();
     seedTimes($db, 13);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $paresJaVistos = [];
     for ($r = 1; $r <= 4; $r++) {
         $sugestao = sugerirPareamentoSwiss($db, $torneioId, $r);
@@ -119,7 +119,7 @@ function test_swiss_rematch_inevitavel_e_sinalizado(): void {
 function test_swiss_bye_forcado_manual_com_aviso(): void {
     $db = testDb();
     $timeIds = seedTimes($db, 13);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
 
     $sug1 = sugerirPareamentoSwiss($db, $torneioId, 1);
     confirmarRodadaSwiss($db, $torneioId, 1, $sug1['bye'], $sug1['pares'], 'teste');

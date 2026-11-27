@@ -20,6 +20,11 @@ const TABS = [
 ] as const
 type TabKey = typeof TABS[number]['key']
 
+// Esta versão (2° Pior) só tem o Misto. O MTNB continua no backend e nos testes;
+// reativar depois trocando para true.
+const MTNB_VISIVEL = false
+const categoriaVisivel = (t: Torneio) => t.categoria === 'misto' || (MTNB_VISIVEL && t.categoria === 'mtnb') // arquivados (ex.: demo_arquivado) nunca aparecem
+
 export default function TorneioAdmin() {
   const [torneios, setTorneios] = useState<Torneio[] | null>(null)
   const [torneioId, setTorneioId] = useState<number | null>(null)
@@ -30,8 +35,9 @@ export default function TorneioAdmin() {
   const carregarLista = useCallback(async () => {
     const r = await torneioApi.listar()
     if (!r) return
-    setTorneios(r.torneios)
-    if (r.torneios.length && torneioId === null) setTorneioId(r.torneios[0].id)
+    const visiveis = r.torneios.filter(categoriaVisivel)
+    setTorneios(visiveis)
+    if (visiveis.length && torneioId === null) setTorneioId(visiveis[0].id)
   }, [torneioId])
 
   useEffect(() => { carregarLista() }, [carregarLista])
@@ -60,7 +66,7 @@ export default function TorneioAdmin() {
         <p style={{ color: 'var(--adm-text-2)', fontSize: '.88rem', margin: '10px 0 16px' }}>
           Crie uma competição usando as equipes da categoria correspondente na base interna.
         </p>
-        <div style={{display:'flex',gap:8}}><button className="adm-btn-primary" disabled={criando} onClick={() => criarTorneioOficial('misto')}>CRIAR MISTO</button><button className="adm-btn-primary" disabled={criando} onClick={() => criarTorneioOficial('mtnb')}>CRIAR MTNB</button></div>
+        <div style={{display:'flex',gap:8}}><button className="adm-btn-primary" disabled={criando} onClick={() => criarTorneioOficial('misto')}>CRIAR MISTO</button>{MTNB_VISIVEL && <button className="adm-btn-primary" disabled={criando} onClick={() => criarTorneioOficial('mtnb')}>CRIAR MTNB</button>}</div>
       </div>
     )
   }
@@ -76,7 +82,7 @@ export default function TorneioAdmin() {
       )}
       <div className="trn-toolbar" style={{marginBottom:12}}>
         {!torneios.some(t => t.categoria === 'misto') && <button className="adm-btn-primary" disabled={criando} onClick={() => criarTorneioOficial('misto')}>CRIAR MISTO</button>}
-        {!torneios.some(t => t.categoria === 'mtnb') && <button className="adm-btn-primary" disabled={criando} onClick={() => criarTorneioOficial('mtnb')}>CRIAR MTNB</button>}
+        {MTNB_VISIVEL && !torneios.some(t => t.categoria === 'mtnb') && <button className="adm-btn-primary" disabled={criando} onClick={() => criarTorneioOficial('mtnb')}>CRIAR MTNB</button>}
       </div>
 
       <nav className="trn-nav">

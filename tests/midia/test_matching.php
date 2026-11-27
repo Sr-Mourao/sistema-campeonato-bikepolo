@@ -82,3 +82,40 @@ function test_aplicar_confirmacoes_manuais_preenche_pendencia_sem_sobrescrever_a
 
     echo "OK: test_aplicar_confirmacoes_manuais_preenche_pendencia_sem_sobrescrever_associado\n";
 }
+
+// Apelido: nome completo no Poloperator casa com o apelido do cadastro interno.
+function test_casar_por_apelido_quando_nome_difere(): void {
+    $externos = [['id' => 'ext-1', 'name' => 'Larissa Torres'], ['id' => 'ext-2', 'name' => 'Mourão '], ['id' => 'ext-3', 'name' => 'Sem Apelido']];
+    $internos = [
+        ['id' => 1, 'nome' => 'Lari', 'poloperator_id' => null],
+        ['id' => 2, 'nome' => 'Mourao', 'poloperator_id' => null],
+    ];
+    $m = casarComInternos($externos, $internos, ['Larissa Torres' => 'Lari']);
+    assertEqualsT(['associado', 1, 'apelido'], [$m[0]['status'], $m[0]['interno']['id'], $m[0]['via']], 'Apelido deve casar Larissa Torres → Lari');
+    assertEqualsT(['associado', 2, 'nome'], [$m[1]['status'], $m[1]['interno']['id'], $m[1]['via']], 'Acento/espaço ainda casam direto pelo nome');
+    assertEqualsT('pendente', $m[2]['status'], 'Sem nome nem apelido fica pendente, nunca adivinhado');
+    echo "OK: test_casar_por_apelido_quando_nome_difere\n";
+}
+
+// O nome direto tem prioridade: o apelido só é consultado quando não há candidato pelo nome.
+function test_apelido_nao_sobrepoe_nome_direto(): void {
+    $externos = [['id' => 'ext-1', 'name' => 'Ana']];
+    $internos = [['id' => 1, 'nome' => 'Ana', 'poloperator_id' => null], ['id' => 2, 'nome' => 'Outra', 'poloperator_id' => null]];
+    $m = casarComInternos($externos, $internos, ['Ana' => 'Outra']);
+    assertEqualsT([1, 'nome'], [$m[0]['interno']['id'], $m[0]['via']], 'Nome direto vence o apelido');
+    echo "OK: test_apelido_nao_sobrepoe_nome_direto\n";
+}
+
+// Os apelidos oficiais do 2° Pior cobrem exatamente os atletas do Poloperator cujo nome difere.
+function test_apelidos_pior_2026_casam_nomes_do_poloperator(): void {
+    $internos = [];
+    foreach (['Jpg', 'Emily Ethel', 'Marcos', 'Ana', 'Dox', 'Fábio', 'Carla', 'Mendonça', 'Lari', 'Buratto', 'Mat', 'Kwy', 'Jay', 'Mourao', 'Aguidota', 'Vitinho', 'Gusta', 'Jantas', 'Lusca', 'Emi'] as $i => $n) {
+        $internos[] = ['id' => $i + 1, 'nome' => $n, 'poloperator_id' => null];
+    }
+    $nomesPolo = ['João Pedro Gnoatto Lopes', 'Emily Ethel Chika', 'Marcos Normelio Antunes da Costa ', 'Ana Carolina Alencar de Barros', 'Dox Lucchin',
+        'Fábio Luiz Kuntze', 'Carla Thais Maiewski ', 'Lucas Mendonça', 'Larissa Torres', 'Rafael Buratto', 'Mati', 'Kwy', 'JAY', 'Mourão ', 'Aguidota', 'Vitinho', 'Gusta', 'Jantas', 'Luqueta', 'Emiliane Mayumi Ito'];
+    $externos = array_map(fn($n, $i) => ['id' => "p$i", 'name' => $n], $nomesPolo, array_keys($nomesPolo));
+    $m = casarComInternos($externos, $internos, POLOPERATOR_APELIDOS['brasileiro']);
+    foreach ($m as $i => $r) assertEqualsT($i + 1, $r['interno']['id'] ?? null, "'{$nomesPolo[$i]}' deve casar com '{$internos[$i]['nome']}'");
+    echo "OK: test_apelidos_pior_2026_casam_nomes_do_poloperator\n";
+}

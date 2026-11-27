@@ -26,6 +26,8 @@ if ($method === 'GET') {
         $torneio = torneioOu404($db, $id);
         $torneio['participantes'] = getParticipantes($db, (int)$id);
         $torneio['criterios'] = getCriterios($db, (int)$id);
+        $torneio['formato'] = formatoDoTorneio($torneio);
+        $torneio['formato_info'] = formatoInfo($torneio);
 
         // `completa`: fase confirmada E sem nenhum jogo real (não-bye) ainda aberto — é a
         // fonte canônica de "esta fase de fato terminou" (não confundir com `estado`, que só
@@ -94,7 +96,6 @@ if ($method === 'POST') {
 
         if ($action === 'gerar_repescagem') {
             $torneio = torneioOu404($db, $body['torneio_id'] ?? 0);
-            if (torneioEhMtnb($torneio)) throw new RuntimeException('O formato MTNB não possui Repescagem.');
             $r = gerarRepescagem($db, (int)$torneio['id'], $usuario);
             respond(['ok' => true] + $r);
         }

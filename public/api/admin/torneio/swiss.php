@@ -12,7 +12,7 @@ $usuario = $_SESSION['admin_user'] ?? 'admin';
 function validarFormatoSwissAdmin(PDO $db, int $torneioId): void {
     $t = getTorneio($db, $torneioId);
     if (!$t) respondError('Torneio não encontrado', 404);
-    if (torneioEhMtnb($t)) respondError('O MTNB usa todos contra todos; pareamento suíço não está disponível.', 400);
+    if (formatoPrimeiraFase($t) !== 'swiss') respondError('Este torneio usa todos contra todos; pareamento suíço não está disponível.', 400);
 }
 
 if ($method === 'GET') {

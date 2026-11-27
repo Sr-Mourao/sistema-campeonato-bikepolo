@@ -30,6 +30,8 @@
 .tc-standing-list li.is-direct::before,.tc-standing-list li.is-rep::before { content:''; position:absolute; left:0; width:6px; height:100%; background:var(--green); }
 .tc-standing-list li.is-rep::before { background:var(--orange); }
 .tc-standing-list li:nth-child(6) { border-bottom:4px solid var(--orange); }
+/* 2° Pior (8 times, sem Repescagem): todos são seeds da Double — sem corte após o 6º. */
+.tc-classificacao--seeds .tc-standing-list li:nth-child(6) { border-bottom:0; }
 .tc-pos { font-size:clamp(21px,1.7vw,31px); font-weight:900; font-variant-numeric:tabular-nums; }.tc-pos sup{font-size:.48em;color:var(--orange)}
 .tc-team { display:flex; align-items:center; min-width:0; gap:12px; font-size:clamp(19px,1.45vw,28px); text-transform:uppercase; }.tc-team .tg-crest{width:38px;height:38px}.tc-team b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tc-standing-list li>i { color:var(--pal-purple-l30); text-align:center; font-size:clamp(15px,1.05vw,20px); font-style:normal; font-variant-numeric:tabular-nums; }

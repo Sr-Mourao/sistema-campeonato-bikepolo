@@ -17,9 +17,11 @@
  *
  * @param array $externos lista de ['id' => string, 'name' => string, ...]
  * @param array $internos lista de ['id' => int, 'nome' => string, 'poloperator_id' => ?string, ...]
+ * @param array $apelidos [nome externo => nome interno] (ex.: POLOPERATOR_APELIDOS) — consultado
+ *                        só quando o nome externo não casa direto; via = 'apelido'.
  * @return array lista de ['externo' => ..., 'interno' => ?array, 'status' => 'associado'|'ambiguo'|'pendente', 'via' => ?string]
  */
-function casarComInternos(array $externos, array $internos): array {
+function casarComInternos(array $externos, array $internos, array $apelidos = []): array {
     $porPoloperatorId = [];
     foreach ($internos as $i) {
         if (!empty($i['poloperator_id'])) $porPoloperatorId[$i['poloperator_id']] = $i;
@@ -28,6 +30,8 @@ function casarComInternos(array $externos, array $internos): array {
     foreach ($internos as $i) {
         $porNome[normalizaNome($i['nome'])][] = $i;
     }
+    $apelidoPorNome = [];
+    foreach ($apelidos as $externo => $interno) $apelidoPorNome[normalizaNome($externo)] = normalizaNome($interno);
 
     $out = [];
     foreach ($externos as $ext) {
@@ -36,9 +40,15 @@ function casarComInternos(array $externos, array $internos): array {
             $out[] = ['externo' => $ext, 'interno' => $porId, 'status' => 'associado', 'via' => 'poloperator_id'];
             continue;
         }
-        $candidatos = $porNome[normalizaNome($ext['name'])] ?? [];
+        $nomeExt = normalizaNome($ext['name']);
+        $candidatos = $porNome[$nomeExt] ?? [];
+        $via = 'nome';
+        if (!$candidatos && isset($apelidoPorNome[$nomeExt])) {
+            $candidatos = $porNome[$apelidoPorNome[$nomeExt]] ?? [];
+            $via = 'apelido';
+        }
         if (count($candidatos) === 1) {
-            $out[] = ['externo' => $ext, 'interno' => $candidatos[0], 'status' => 'associado', 'via' => 'nome'];
+            $out[] = ['externo' => $ext, 'interno' => $candidatos[0], 'status' => 'associado', 'via' => $via];
         } elseif (count($candidatos) > 1) {
             $out[] = ['externo' => $ext, 'interno' => null, 'status' => 'ambiguo', 'via' => null];
         } else {

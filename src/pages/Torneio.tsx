@@ -10,6 +10,7 @@ import Estatisticas from './torneio/Estatisticas'
 import Regulamento from './torneio/Regulamento'
 import './Torneio.css'
 import { TOURNAMENT_PRESENTATION, useTournamentCategory } from '../contexts/TournamentContext'
+import { formatoDe } from '../services/formatoTorneio'
 
 const NAV_BASE = [
   { key: 'visao-geral', label: 'Visão Geral' },
@@ -34,9 +35,12 @@ function lerAba(nav: readonly { key: string }[]): AbaKey {
  */
 export default function Torneio() {
   const categoria = useTournamentCategory()
-  const NAV = false ? NAV_BASE.filter(n => n.key !== 'repescagem') : NAV_BASE
-  const [aba, setAbaState] = useState<AbaKey>(() => lerAba(NAV))
   const [resumo, setResumo] = useState<TorneioResumo | null>(null)
+  // Aba Repescagem só existe nos formatos que têm Repescagem (o 2° Pior de 8 não tem).
+  const semRepescagem = resumo ? !formatoDe(resumo.torneio).repescagem : false
+  const NAV = semRepescagem ? NAV_BASE.filter(n => n.key !== 'repescagem') : NAV_BASE
+  const [abaPedida, setAbaState] = useState<AbaKey>(() => lerAba(NAV_BASE))
+  const aba: AbaKey = NAV.some(n => n.key === abaPedida) ? abaPedida : 'visao-geral'
   const [erro, setErro] = useState('')
   const [timeAberto, setTimeAberto] = useState<number | null>(null)
 
@@ -45,10 +49,10 @@ export default function Torneio() {
   }, [categoria])
 
   useEffect(() => {
-    const onPop = () => setAbaState(lerAba(NAV))
+    const onPop = () => setAbaState(lerAba(NAV_BASE))
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
-  }, [categoria]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [categoria])
 
   function setAba(a: AbaKey) {
     setAbaState(a)
@@ -79,8 +83,8 @@ export default function Torneio() {
 
         {resumo && aba === 'visao-geral' && <VisaoGeral resumo={resumo} onIrPara={setAba} onAbrirTime={setTimeAberto} />}
         {resumo && aba === 'primeira-fase' && <PrimeiraFase resumo={resumo} onAbrirTime={setTimeAberto} />}
-        {resumo && categoria === 'misto' && aba === 'repescagem' && <Repescagem resumo={resumo} />}
-        {resumo && aba === 'double' && <DoubleElimination />}
+        {resumo && !semRepescagem && aba === 'repescagem' && <Repescagem resumo={resumo} />}
+        {resumo && aba === 'double' && <DoubleElimination comRepescagem={!semRepescagem} />}
         {resumo && aba === 'estatisticas' && <Estatisticas />}
         {resumo && aba === 'regulamento' && <Regulamento resumo={resumo} />}
 

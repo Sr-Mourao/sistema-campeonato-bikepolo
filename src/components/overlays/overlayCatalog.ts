@@ -8,6 +8,8 @@ export interface OverlayCatalogItem {
   resolucao: string
   observacao?: string
   destino?: 'OBS' | 'PROJETOR'
+  /** Só faz sentido em formatos com Repescagem (some no 2° Pior de 8). */
+  requerRepescagem?: boolean
 }
 
 export const OVERLAY_CATALOG: OverlayCatalogItem[] = [
@@ -16,7 +18,7 @@ export const OVERLAY_CATALOG: OverlayCatalogItem[] = [
   { nome: 'Emissora', descricao: 'Assinatura institucional da transmissão.', path: '/torneio/overlay/emissora', grupo: 'Ao vivo', resolucao: '1920×1080 / 1280×720' },
   { nome: 'Confronto', descricao: 'Apresentação da partida principal.', path: '/torneio/overlay/confronto', grupo: 'Ao vivo', resolucao: '1920×1080 / 1280×720', observacao: 'Use na apresentação ou antes do início.' },
   { nome: 'Classificação', descricao: 'Classificação oficial e etapa atual da Primeira Fase.', path: '/torneio/overlay/classificacao', grupo: 'Fases', resolucao: '1920×1080 / 1280×720' },
-  { nome: 'Repescagem', descricao: 'Chave completa e classificados para a Double.', path: '/torneio/overlay/repescagem', grupo: 'Fases', resolucao: '1920×1080 / 1280×720' },
+  { nome: 'Repescagem', descricao: 'Chave completa e classificados para a Double.', path: '/torneio/overlay/repescagem', grupo: 'Fases', resolucao: '1920×1080 / 1280×720', requerRepescagem: true },
   { nome: 'Double Elimination', descricao: 'Winners e Losers Bracket na mesma composição.', path: '/torneio/overlay/double', grupo: 'Fases', resolucao: '1920×1080 / 1280×720' },
   { nome: 'Grande Final', descricao: 'Final, GF2 e celebração do campeão oficial.', path: '/torneio/overlay/final', grupo: 'Fases', resolucao: '1920×1080 / 1280×720', observacao: 'A mesma fonte se transforma no estado de campeão.' },
   { nome: 'Intervalo', descricao: 'Peça de pausa com informações da transmissão.', path: '/torneio/overlay/intervalo', grupo: 'Pausas', resolucao: '1920×1080 / 1280×720' },
@@ -68,4 +70,9 @@ export const STREAMING_OVERLAY_CATALOG: OverlayCatalogItem[] = [
 
 export function overlayUrl(path: string, origin = window.location.origin): string {
   return new URL(path, origin).href
+}
+
+/** Catálogo filtrado pelo formato ativo — o overlay de Repescagem some quando o formato não tem. */
+export function catalogoDoFormato(itens: OverlayCatalogItem[], comRepescagem: boolean): OverlayCatalogItem[] {
+  return comRepescagem ? itens : itens.filter(item => !item.requerRepescagem)
 }

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { torneioApi, type TorneioDetalhe, type Jogo, type Fase } from './torneioApi'
 import Pareamento from './Pareamento'
 import Sumula from './Sumula'
+import { formatoDe, jogosPorRodada } from '../../services/formatoTorneio'
 
 interface Props {
   torneio: TorneioDetalhe
@@ -22,7 +23,10 @@ interface Slot {
 }
 
 export default function TorneioDashboard({ torneio, onChange }: Props) {
-  const mtnb = torneio.formato === 'mtnb_round_robin_5'
+  const formato = formatoDe(torneio)
+  // Todos contra todos (MTNB de 5 ou 2° Pior de 8): rodadas fixas, sem pareamento manual.
+  const roundRobin = formato.primeira_fase === 'round_robin'
+  const totalRodadasRR = formato.rodadas
   const [jogos, setJogos] = useState<Jogo[] | null>(null)
   const [jogoAberto, setJogoAberto] = useState<number | null>(null)
   const [mostrarPareamento, setMostrarPareamento] = useState(false)
@@ -33,8 +37,8 @@ export default function TorneioDashboard({ torneio, onChange }: Props) {
   // Todas as rodadas suíças (geradas ou não) + equalização — navegação nunca esconde o passado.
   const slots: Slot[] = useMemo(() => {
     const s: Slot[] = []
-    if (mtnb) {
-      for (let r = 1; r <= 5; r++) {
+    if (roundRobin) {
+      for (let r = 1; r <= totalRodadasRR; r++) {
         const fase = torneio.fases.find(f => f.tipo === 'round_robin' && f.rodada === r) ?? null
         s.push({ key: `round-robin-${r}`, label: `R${r}`, tipo: 'round_robin', rodada: r, fase })
       }
@@ -49,10 +53,10 @@ export default function TorneioDashboard({ torneio, onChange }: Props) {
       s.push({ key: 'equalizacao', label: 'Equalização', tipo: 'equalizacao', rodada: null, fase })
     }
     return s
-  }, [torneio.fases, torneio.rodadas_swiss, torneio.equalizacao_habilitada, mtnb])
+  }, [torneio.fases, torneio.rodadas_swiss, torneio.equalizacao_habilitada, roundRobin, totalRodadasRR])
 
   const slotsGerados = slots.filter(s => s.fase)
-  const ultimoGerado = (mtnb ? slotsGerados.find(s => !s.fase?.completa) : null) ?? slotsGerados[slotsGerados.length - 1] ?? null
+  const ultimoGerado = (roundRobin ? slotsGerados.find(s => !s.fase?.completa) : null) ?? slotsGerados[slotsGerados.length - 1] ?? null
 
   const [slotViewKey, setSlotViewKey] = useState<string | null>(null)
   const slotAtual = slots.find(s => s.key === slotViewKey) ?? ultimoGerado ?? slots[0]
@@ -73,7 +77,7 @@ export default function TorneioDashboard({ torneio, onChange }: Props) {
   const faseRepescagem = torneio.fases.find(f => f.tipo === 'repescagem')
   const faseDouble = torneio.fases.find(f => f.tipo === 'double')
   const roundRobinFases = torneio.fases.filter(f => f.tipo === 'round_robin')
-  const roundRobinCompleto = roundRobinFases.length === 5 && roundRobinFases.every(f => f.completa)
+  const roundRobinCompleto = roundRobinFases.length === totalRodadasRR && roundRobinFases.every(f => f.completa)
 
   const carregarJogos = useCallback(async () => {
     if (!slotAtual?.fase) { setJogos([]); return }
@@ -108,7 +112,7 @@ export default function TorneioDashboard({ torneio, onChange }: Props) {
     setAcaoEmCurso(false)
     if (r) {
       setSimulacaoLog(r.log)
-      if (mtnb && slotAtual?.rodada && slotAtual.rodada < 5) setSlotViewKey(`round-robin-${slotAtual.rodada + 1}`)
+      if (roundRobin && slotAtual?.rodada && slotAtual.rodada < totalRodadasRR) setSlotViewKey(`round-robin-${slotAtual.rodada + 1}`)
       onChange(); await carregarJogos()
     }
     else setErro('Não foi possível simular as partidas pendentes desta rodada.')
@@ -201,34 +205,34 @@ export default function TorneioDashboard({ torneio, onChange }: Props) {
       {/* Ações administrativas — sempre agem sobre a rodada VISTA (simular) ou sobre o estado real do torneio (gerar/fechar) */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {slotAtual?.fase && temPendentes && (
-          <button className="adm-btn-primary" disabled={acaoEmCurso} onClick={simularPendentes}>{mtnb ? 'SIMULAR PRÓXIMA RODADA · 2 JOGOS' : 'SIMULAR PARTIDAS PENDENTES'}</button>
+          <button className="adm-btn-primary" disabled={acaoEmCurso} onClick={simularPendentes}>{roundRobin ? `SIMULAR PRÓXIMA RODADA · ${jogosPorRodada(formato)} JOGOS` : 'SIMULAR PARTIDAS PENDENTES'}</button>
         )}
 
-        {mtnb && roundRobinFases.length === 0 && (
+        {roundRobin && roundRobinFases.length === 0 && (
           <button className="adm-btn-primary" disabled={acaoEmCurso} onClick={() => acao(() => torneioApi.gerarRoundRobin(torneio.id))}>GERAR PRIMEIRA FASE · TODOS CONTRA TODOS</button>
         )}
-        {mtnb && roundRobinCompleto && torneio.estado !== 'CLASSIFICACAO_FECHADA' && !faseDouble && (
+        {roundRobin && roundRobinCompleto && torneio.estado !== 'CLASSIFICACAO_FECHADA' && !faseDouble && (
           <button className="adm-btn-primary" disabled={acaoEmCurso} onClick={() => acao(() => torneioApi.fecharClassificacao(torneio.id))}>FECHAR CLASSIFICAÇÃO E CONGELAR SEEDS</button>
         )}
-        {mtnb && torneio.estado === 'CLASSIFICACAO_FECHADA' && !faseDouble && (
+        {!formato.repescagem && torneio.estado === 'CLASSIFICACAO_FECHADA' && !faseDouble && (
           <button className="adm-btn-primary" disabled={acaoEmCurso} onClick={() => acao(() => torneioApi.gerarDouble(torneio.id))}>GERAR DOUBLE ELIMINATION</button>
         )}
-        {!mtnb && !mostrarPareamento && !swissCompleto && swissConfirmadas.length === 0 && (
+        {!roundRobin && !mostrarPareamento && !swissCompleto && swissConfirmadas.length === 0 && (
           <button className="adm-btn-primary" onClick={() => setMostrarPareamento(true)}>GERAR RODADA 1</button>
         )}
-        {!mtnb && !mostrarPareamento && !swissCompleto && rodadaEncerrada && (
+        {!roundRobin && !mostrarPareamento && !swissCompleto && rodadaEncerrada && (
           <button className="adm-btn-primary" onClick={() => setMostrarPareamento(true)}>GERAR PRÓXIMA RODADA</button>
         )}
-        {!mtnb && !mostrarPareamento && swissCompleto && !faseEqualizacao && (
+        {!roundRobin && formato.equalizacao && !mostrarPareamento && swissCompleto && !faseEqualizacao && (
           <button className="adm-btn-primary" onClick={() => setMostrarPareamento(true)}>GERAR EQUALIZAÇÃO</button>
         )}
-        {!mtnb && !mostrarPareamento && !swissCompleto && ultimaRodadaPublicada && (
+        {!roundRobin && formato.equalizacao && !mostrarPareamento && !swissCompleto && ultimaRodadaPublicada && (
           <span className="trn-fp-hint">Finalize todas as partidas da Rodada {torneio.rodadas_swiss} para gerar a Equalização.</span>
         )}
-        {!mtnb && !mostrarPareamento && faseEqualizacao?.estado === 'confirmada' && faseVistaEhAUltima && faseEncerrada && torneio.estado !== 'CLASSIFICACAO_FECHADA' && !faseRepescagem && (
+        {!roundRobin && !mostrarPareamento && faseEqualizacao?.estado === 'confirmada' && faseVistaEhAUltima && faseEncerrada && torneio.estado !== 'CLASSIFICACAO_FECHADA' && !faseRepescagem && (
           <button className="adm-btn-primary" disabled={acaoEmCurso} onClick={() => acao(() => torneioApi.fecharClassificacao(torneio.id))}>FECHAR CLASSIFICAÇÃO E CONGELAR SEEDS</button>
         )}
-        {!mtnb && torneio.estado === 'CLASSIFICACAO_FECHADA' && !faseRepescagem && (
+        {formato.repescagem && torneio.estado === 'CLASSIFICACAO_FECHADA' && !faseRepescagem && (
           <button className="adm-btn-primary" disabled={acaoEmCurso} onClick={() => acao(() => torneioApi.gerarRepescagem(torneio.id))}>GERAR REPESCAGEM</button>
         )}
       </div>
@@ -240,7 +244,7 @@ export default function TorneioDashboard({ torneio, onChange }: Props) {
         <div className="trn-fp-hint" style={{ marginTop: 8 }}>Double Elimination em andamento — acompanhe na aba <b>Chaves</b>.</div>
       )}
 
-      {!mtnb && mostrarPareamento && (
+      {!roundRobin && mostrarPareamento && (
         <Pareamento
           torneio={torneio}
           tipo={swissCompleto ? 'equalizacao' : 'swiss'}

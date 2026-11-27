@@ -37,9 +37,10 @@ function montarRoundRobin(array $timeIds): array {
 
 function gerarPrimeiraFaseRoundRobin(PDO $db, int $torneioId, string $usuario): array {
     $torneio = getTorneio($db, $torneioId);
-    if (!$torneio || !torneioEhMtnb($torneio)) throw new RuntimeException('Este torneio não usa o formato Round Robin MTNB.');
+    if (!$torneio || !formatoEhRoundRobin($torneio)) throw new RuntimeException('Este torneio não usa o formato todos contra todos.');
+    $esperados = formatoParticipantes($torneio);
     $participantes = getParticipantes($db, $torneioId);
-    if (count($participantes) !== 5) throw new RuntimeException('O Round Robin MTNB requer exatamente 5 times ativos.');
+    if (count($participantes) !== $esperados) throw new RuntimeException("O todos contra todos deste formato requer exatamente $esperados times ativos (há " . count($participantes) . ').');
     $ids = array_map(fn($p) => (int)$p['time_id'], $participantes);
     $rodadas = montarRoundRobin($ids);
 
@@ -68,9 +69,13 @@ function gerarPrimeiraFaseRoundRobin(PDO $db, int $torneioId, string $usuario): 
 }
 
 function validarRoundRobinCompleto(PDO $db, int $torneioId): void {
+    $torneio = getTorneio($db, $torneioId);
+    if (!$torneio || !formatoEhRoundRobin($torneio)) throw new RuntimeException('Este torneio não usa o formato todos contra todos.');
+    $rodadas = formatoRodadas($torneio);
+    $jogosEsperados = formatoJogosRoundRobin($torneio);
     $stmt = $db->prepare("SELECT COUNT(DISTINCT f.id) fases, COUNT(j.id) jogos, SUM(CASE WHEN j.status NOT IN ('encerrado','wo','cancelado') THEN 1 ELSE 0 END) abertos FROM torneio_fases f LEFT JOIN torneio_jogos j ON j.fase_id=f.id WHERE f.torneio_id=? AND f.tipo='round_robin'");
     $stmt->execute([$torneioId]); $r = $stmt->fetch();
-    if ((int)$r['fases'] !== 5 || (int)$r['jogos'] !== 10 || (int)$r['abertos'] !== 0) {
-        throw new RuntimeException('Encerre as 10 partidas das 5 rodadas do Round Robin antes de fechar a classificação.');
+    if ((int)$r['fases'] !== $rodadas || (int)$r['jogos'] !== $jogosEsperados || (int)$r['abertos'] !== 0) {
+        throw new RuntimeException("Encerre as $jogosEsperados partidas das $rodadas rodadas do todos contra todos antes de fechar a classificação.");
     }
 }

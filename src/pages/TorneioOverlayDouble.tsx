@@ -7,6 +7,7 @@ import { useObsDocument } from '../hooks/useObsDocument'
 import { useTournamentBroadcast } from '../hooks/useTournamentBroadcast'
 import type { JogoPublico } from '../services/torneioPublico'
 import './TorneioTournamentOverlays.css'
+import { formatoDe } from '../services/formatoTorneio'
 
 const PH: Record<string, [string, string]> = {
   QA: ['4º', '5º'], QB: ['3º', '6º'], QC: ['2º', 'Melhor repescado'], QD: ['1º', 'Segundo repescado'],
@@ -14,6 +15,8 @@ const PH: Record<string, [string, string]> = {
   B1: ['Perdedor QA', 'Perdedor QB'], B2: ['Perdedor QC', 'Perdedor QD'], B3: ['Vencedor B1', 'Perdedor SF2'],
   B4: ['Vencedor B2', 'Perdedor SF1'], B5: ['Vencedor B3', 'Vencedor B4'], B6: ['Vencedor B5', 'Perdedor FA'],
 }
+/** Entrada direta (2° Pior de 8, sem Repescagem): 2º×7º e 1º×8º. */
+const PH_DIRETA: Record<string, [string, string]> = { ...PH, QC: ['2º', '7º'], QD: ['1º', '8º'] }
 
 function Connector({ type, tone }: { type: 'forks' | 'fork' | 'parallel' | 'line'; tone: 'win' | 'loss' }) {
   const paths = type === 'forks'
@@ -72,7 +75,7 @@ export default function TorneioOverlayDouble() {
       {foco !== 'losers' && <section className="td-band td-band--winners">
         <header className="td-band-title"><span>Chave A</span><strong>Winners Bracket</strong></header>
         <div className="td-band-grid td-winners-grid">
-          <Stage title="Quartas" codes={['QA', 'QD', 'QB', 'QC']} jogos={payload.double} className="td-stage--four" order={0} focoCodigo={focoCodigo} />
+          <Stage title="Quartas" codes={['QA', 'QD', 'QB', 'QC']} jogos={payload.double} className="td-stage--four" order={0} focoCodigo={focoCodigo} placeholders={formatoDe(payload.torneio).repescagem ? PH : PH_DIRETA} />
           <Connector type="forks" tone="win" />
           <Stage title="Semifinais" codes={['SF1', 'SF2']} jogos={payload.double} className="td-stage--two" order={1} focoCodigo={focoCodigo} />
           <Connector type="fork" tone="win" />

@@ -6,6 +6,7 @@
 // Não existe mais conceito de sandbox: um torneio só tem um estado real.
 
 import { adminGet, adminPost, AdminApiError } from '../adminApi'
+import type { FormatoChave, FormatoInfo } from '../../services/formatoTorneio'
 
 /**
  * Normalizador único de erro pra toda a área de torneio — nunca deixa
@@ -31,7 +32,8 @@ export interface Torneio {
   id: number
   nome: string
   categoria: string
-  formato: 'misto_swiss_13' | 'mtnb_round_robin_5'
+  formato: FormatoChave
+  formato_info?: FormatoInfo
   preset: string | null
   estado: string
   rodadas_swiss: number
@@ -170,13 +172,14 @@ const CRITERIOS_LABEL: Record<string, string> = {
   pontos: 'Pontos', vitorias: 'Vitórias', empates: 'Empates', saldo: 'Saldo de gols',
   gols_pro: 'Gols marcados', gols_contra_menos: 'Menos gols sofridos',
   fair_play: 'Fair Play (menos faltas)', confronto_direto: 'Confronto direto',
+  confronto_direto_grupo: 'Confronto direto (jogos entre os empatados)',
   buchholz: 'Força de tabela (Buchholz)', sorteio: 'Critério manual / sorteio',
 }
 const CRITERIOS_DIRECAO: Record<string, '↑ mais é melhor' | '↓ menos é melhor' | ''> = {
   pontos: '↑ mais é melhor', vitorias: '↑ mais é melhor', empates: '↑ mais é melhor',
   saldo: '↑ mais é melhor', gols_pro: '↑ mais é melhor', buchholz: '↑ mais é melhor',
   gols_contra_menos: '↓ menos é melhor', fair_play: '↓ menos é melhor',
-  confronto_direto: '', sorteio: '',
+  confronto_direto: '', confronto_direto_grupo: '', sorteio: '',
 }
 export function criterioLabel(c: string): string { return CRITERIOS_LABEL[c] ?? c }
 export function criterioDirecao(c: string): string { return CRITERIOS_DIRECAO[c] ?? '' }

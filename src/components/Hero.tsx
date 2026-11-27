@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import './Hero.css'
 import { usePatrocinadores } from '../hooks/usePatrocinadores'
 import SiteNavbar from './SiteNavbar'
+import { hrefOculto } from './siteNav'
 
 const HERO_IMGS = [
   '/imgs/hero/09.jpg',
@@ -130,7 +131,7 @@ export default function Hero() {
               )}
             </div>
 
-            <a href="/apoie" className="cta-btn">APOIE</a>
+            {!hrefOculto('/apoie') && <a href="/apoie" className="cta-btn">APOIE</a>}
             </div>
           </div>
         </div>

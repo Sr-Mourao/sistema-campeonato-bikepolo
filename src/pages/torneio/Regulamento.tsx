@@ -4,6 +4,7 @@ import ArbitrationQuickGuide from './regulamento/ArbitrationQuickGuide'
 import ConductTerms from './regulamento/ConductTerms'
 import OperationalRules from './regulamento/OperationalRules'
 import { useTournamentCategory } from '../../contexts/TournamentContext'
+import { formatoDe } from '../../services/formatoTorneio'
 
 interface Props { resumo: TorneioResumo }
 
@@ -43,6 +44,24 @@ export default function Regulamento({ resumo }: Props) {
 
   const t = resumo.torneio
   const ultimaVagaRepescagem = totalTimes
+  const formato = formatoDe(t)
+
+  // 2° Pior (8 times): todos contra todos + Double direta — sem suíço, bye, Equalização ou Repescagem.
+  if (formato.double === 'direta_8') return (
+    <section className="reg-page">
+      <header className="reg-hero"><span>Formato oficial</span><h3>{formato.nome}</h3><p>Todos contra todos seguido de Double Elimination.</p></header>
+      <section className="reg-section"><h4>Primeira Fase</h4><p>As {formato.participantes} equipes se enfrentam uma vez em {formato.rodadas} rodadas de {Math.floor(formato.participantes / 2)} jogos, totalizando {formato.jogos_primeira_fase} partidas. Não há folga nem bye.</p></section>
+      <section className="reg-section"><h4>Classificação</h4>
+        <p className="reg-pontuacao"><span>Vitória <strong>{t.pontos_vitoria}</strong></span><span>Empate <strong>{t.pontos_empate}</strong></span><span>Derrota <strong>{t.pontos_derrota}</strong></span></p>
+        <p>Só os jogos da Primeira Fase contam. Critérios de desempate, na ordem:</p>
+        <ol className="reg-criterios">{resumo.criterios.map(c => <li key={c.chave}>{c.label}</li>)}</ol>
+        <p>No confronto direto, contam apenas os jogos entre os times empatados (mini-tabela do grupo). Se ainda assim tudo empatar, vale o número do time (Time 1 à frente do Time 2, e assim por diante).</p>
+      </section>
+      <section className="reg-section"><h4>Entrada na Double</h4><p>Os {formato.participantes} times entram pela classificação final da Primeira Fase: 1º×8º, 2º×7º, 3º×6º e 4º×5º. A primeira derrota leva para a chave Losers; a segunda elimina.</p></section>
+      <section className="reg-section"><h4>Grande Final</h4><p>Se o finalista invicto vencer a GF, o título está decidido. Se o representante da Losers vencer, a GF2 decide a competição.</p></section>
+      <OperationalRules /><ArbitrationQuickGuide /><ConductTerms />
+    </section>
+  )
 
   if (false) return (
     <section className="reg-page">
