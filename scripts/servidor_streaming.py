@@ -2,6 +2,11 @@
 """
 Servidor de Streaming & Placar Bike Polo (LAN / Local Network / Mobile / OBS).
 
+ATENÇÃO: este servidor é só para o MODO LAN/OFFLINE (rede local sem o PHP).
+Em PRODUÇÃO a sincronização é feita por public/api/streaming.php, que grava no
+banco SQLite do sistema (tabelas streaming_kv e streaming_presenca). A mesa só
+usa este servidor quando /api/streaming.php não existe (erro de rede ou 404).
+
 Fornece sincronização de baixa latência em rede local para:
   - Celular 1 (Live streaming / Moblin / Streamlabs): /streaming/overlay/ajustado
   - Celular 2 (Mesa de arbitragem / Chrome / Termux): /streaming/mesa

@@ -35,6 +35,7 @@ if (!defined('SESSION_DURATION')) define('SESSION_DURATION', 30 * 24 * 3600);
 require_once __DIR__ . '/../public/api/carteira/lib.php';
 require_once __DIR__ . '/../public/api/carteira/auth_lib.php';
 require_once __DIR__ . '/../public/api/awards/lib.php';
+require_once __DIR__ . '/../public/api/streaming/lib.php';
 
 function testDb(): PDO {
     $pdo = new PDO('sqlite::memory:');

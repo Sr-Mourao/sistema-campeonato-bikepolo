@@ -25,20 +25,21 @@ import {
   type StreamingTournamentLink,
   type StreamingScene,
 } from '../services/streamingState'
+import { shouldApplyRemoteState, shouldFallbackToPython, syncErrorFromPush } from '../services/streamingSyncRules'
 
 const STORAGE_STATE_KEY = 'polo.streaming.state.v2'
 const STORAGE_TEAMS_KEY = 'polo.streaming.teams.v2'
 const CHANNEL_NAME = 'polo_streaming_sync'
 
-/** Comunica com o backend: tenta o endpoint PHP nativo (/api/streaming.php) e faz fallback para o servidor local Python */
+/**
+ * Comunica com o backend: o endpoint PHP (/api/streaming.php, produção) e, só se
+ * ele não existir (erro de rede ou 404), o servidor Python do modo LAN.
+ * Respostas de erro do PHP (ex.: 500 porque o banco não grava) são devolvidas
+ * como vieram, para aparecerem na mesa.
+ */
 async function callStreamingApi(endpoint: 'state' | 'teams' | 'hello' | 'ping', init?: RequestInit): Promise<Response> {
-  try {
-    const res = await fetch(`/api/streaming.php?action=${endpoint}`, init)
-    if (res.ok || res.status === 409) return res
-  } catch {
-    // fallback
-  }
-
+  const res = await fetch(`/api/streaming.php?action=${endpoint}`, init).catch(() => null)
+  if (!shouldFallbackToPython(res)) return res as Response
   return fetch(`/api/streaming/${endpoint}`, init)
 }
 
@@ -49,8 +50,20 @@ export interface PeerDevice {
   seen: number
 }
 
-export function useStreamingSync() {
+export interface StreamingSyncOptions {
+  /**
+   * Página que só exibe (overlay do OBS/Streamlabs, Intervalo): espelha o
+   * servidor sempre, mesmo que o rev dele seja menor que o do localStorage, e
+   * não escreve no localStorage/BroadcastChannel (não pode atropelar a mesa
+   * aberta no mesmo navegador, nem pela prévia em iframe).
+   */
+  mirror?: boolean
+}
+
+export function useStreamingSync(options: StreamingSyncOptions = {}) {
   const [device, setDevice] = useState<StreamingDevice>(() => getStreamingDevice())
+  // O perfil 'overlays' também espelha: é um aparelho que só acompanha a transmissão
+  const mirror = !!options.mirror || device.role === 'overlays'
   const [state, setState] = useState<StreamingState>(() => {
     if (typeof window === 'undefined') return DEFAULT_STREAMING_STATE
     try {
@@ -77,6 +90,8 @@ export function useStreamingSync() {
   })
 
   const [serverOnline, setServerOnline] = useState(false)
+  // Última falha ao gravar o estado no servidor (= o overlay da transmissão não recebe)
+  const [syncError, setSyncError] = useState<string | null>(null)
   const [peers, setPeers] = useState<PeerDevice[]>([])
   const [clockOffset, setClockOffset] = useState(0)
 
@@ -147,6 +162,9 @@ export function useStreamingSync() {
         }
       }
 
+      const pushError = await syncErrorFromPush(res)
+      if (pushError !== undefined) setSyncError(pushError)
+
       if (res.ok) {
         serverRevRef.current = st.rev
         setServerOnline(true)
@@ -163,7 +181,8 @@ export function useStreamingSync() {
       } else {
         setServerOnline(false)
       }
-    } catch {
+    } catch (err) {
+      setSyncError((await syncErrorFromPush(null, err)) ?? null)
       setServerOnline(false)
     } finally {
       sendingRef.current = false
@@ -266,14 +285,21 @@ export function useStreamingSync() {
             if (Array.isArray(peerList)) setPeers(peerList)
           }
 
-          // pull state if higher rev
+          // Puxa o estado do servidor (regras em shouldApplyRemoteState)
           const stRes = await callStreamingApi('state').catch(() => null)
           if (stRes && stRes.ok) {
             const remote = await stRes.json()
-            if (remote && remote.rev && (!serverRevRef.current || remote.rev > serverRevRef.current)) {
-              serverRevRef.current = remote.rev
+            const remoteRev: number | undefined = remote?.rev
+            if (mirror) {
+              if (shouldApplyRemoteState(remoteRev, { mirror: true, lastServerRev: serverRevRef.current, currentRev: 0 })) {
+                serverRevRef.current = remoteRev ?? null
+                // Espelho: aplica só aqui, sem gravar no localStorage nem avisar outras abas
+                setState(hydrateStreamingState(remote))
+              }
+            } else if (remoteRev && (!serverRevRef.current || remoteRev > serverRevRef.current)) {
+              serverRevRef.current = remoteRev
               setState(current => {
-                if (remote.rev > current.rev) {
+                if (shouldApplyRemoteState(remoteRev, { mirror: false, lastServerRev: null, currentRev: current.rev })) {
                   const hyd = hydrateStreamingState(remote)
                   broadcastAndSave(hyd)
                   return hyd
@@ -297,7 +323,7 @@ export function useStreamingSync() {
       window.removeEventListener('storage', onStorage)
       clearInterval(interval)
     }
-  }, [broadcastAndSave, device.id, device.name, device.role])
+  }, [broadcastAndSave, device.id, device.name, device.role, mirror])
 
   // Desfazer (Undo)
   const undo = useCallback(() => {
@@ -859,6 +885,8 @@ export function useStreamingSync() {
     device,
     updateDevice,
     serverOnline,
+    syncError,
+    mirror,
     peers,
     clockOffset,
     // Actions

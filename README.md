@@ -367,7 +367,9 @@ Abra **http://localhost:5173**.
 | **Overlay OBS (1080p transparente)** | `http://localhost:5173/streaming/overlay` | Livre (Browser Source no OBS) |
 | **Central de overlays clássicos** | `http://localhost:5173/overlays` | Livre (catálogo de links) |
 
-> **Nota sobre o Streaming:** Toda a sincronização em tempo real entre a mesa de arbitragem e os overlays do OBS é atendida nativamente pelo endpoint PHP (`public/api/streaming.php`). Não é necessário rodar processos em segundo plano (como Python) nem configurar portas extras.
+> **Nota sobre o Streaming:** Toda a sincronização em tempo real entre a mesa de arbitragem e os overlays do OBS é atendida nativamente pelo endpoint PHP (`public/api/streaming.php`), que grava no **mesmo banco SQLite** do sistema (tabelas `streaming_kv` e `streaming_presenca`). **Em produção o caminho é sempre PHP + SQLite.** Não é necessário rodar processos em segundo plano (como Python) nem configurar portas extras. Se a gravação falhar, a mesa mostra uma faixa vermelha "NÃO SINCRONIZADO"; o diagnóstico fica em `/api/streaming.php?action=diag` e no botão "Testar sincronização" de `/admin/streaming`.
+>
+> `scripts/servidor_streaming.py` é só para o **modo LAN/offline** (rede local sem o PHP). A mesa só cai nele quando o `/api/streaming.php` não existe (erro de rede ou 404).
 >
 > O Vite faz proxy de `/api` para `http://localhost:8000`. Se você usar outra
 > porta no PHP, ajuste `PHP_SERVER` em [`vite.config.ts`](vite.config.ts).
