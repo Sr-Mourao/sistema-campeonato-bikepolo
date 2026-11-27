@@ -3,23 +3,9 @@
  * (useStreamingSync) para poderem ser testadas sem navegador.
  */
 
-/**
- * Deve aplicar o estado que veio do servidor no polling?
- *
- * - Espelho (overlays, que só exibem): aplica sempre que o rev do servidor for
- *   DIFERENTE do último aplicado — inclusive menor. Um localStorage antigo com
- *   rev alto (OBS/Streamlabs que ficou aberto num jogo anterior) nunca trava o
- *   overlay. No primeiro polling (nada aplicado ainda) o servidor sempre vence.
- * - Mesa (quem edita): só aplica rev maior que o último visto do servidor E
- *   maior que o rev local, para não desfazer uma jogada ainda não enviada.
- */
-export function shouldApplyRemoteState(
-  remoteRev: number | null | undefined,
-  opts: { mirror: boolean; lastServerRev: number | null; currentRev: number },
-): boolean {
-  if (!remoteRev) return false
-  if (opts.mirror) return remoteRev !== opts.lastServerRev
-  return (opts.lastServerRev === null || remoteRev > opts.lastServerRev) && remoteRev > opts.currentRev
+/** A mesa mantém jogadas locais que ainda não chegaram ao servidor. */
+export function shouldApplyRemoteState(remoteRev: number, currentRev: number): boolean {
+  return remoteRev > currentRev
 }
 
 /**

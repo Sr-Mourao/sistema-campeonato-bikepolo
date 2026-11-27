@@ -42,6 +42,9 @@ if (!$action && !empty($_SERVER['PATH_INFO'])) {
 if (!$action) {
     $action = 'state';
 }
+if (!is_string($action)) {
+    respondError('Ação desconhecida', 404);
+}
 $method = $_SERVER['REQUEST_METHOD'];
 
 /** Responde um JSON já serializado, sem decodificar/recodificar. */
@@ -56,7 +59,11 @@ if ($action === 'ping') {
 }
 
 try {
-    $db = getDb(); // falhas de abertura já respondem 500 com a mensagem
+    $db = getDb(static function (string $publicMsg, string $debugMsg): never {
+        error_log('[streaming] ' . $debugMsg);
+        respondError($publicMsg, 500);
+        exit;
+    });
     // Vários aparelhos fazem polling a cada 1 s: quem encontrar o banco travado
     // espera até 3 s pela vez em vez de falhar com "database is locked".
     $db->exec('PRAGMA busy_timeout = 3000');
@@ -93,7 +100,7 @@ try {
     }
 } catch (\Throwable $e) {
     error_log('[streaming] ' . $action . ': ' . $e->getMessage());
-    respondError('Falha no servidor de streaming (' . $action . '): ' . $e->getMessage(), 500);
+    respondError('Falha no servidor de streaming', 500);
 }
 
 respondError('Ação desconhecida', 404);

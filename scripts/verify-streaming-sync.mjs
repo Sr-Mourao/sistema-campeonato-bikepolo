@@ -183,6 +183,23 @@ async function runScenario(browser, name, creds) {
 
   const before = await score()
 
+  if (name === 'localstorage-antigo') {
+    const fake = { rev: 999999, events: [
+      { id: 'nao-publicado', type: 'goal', side: 'b', team: 'Local', clock: '00:00', at: 0 },
+    ] }
+    const tab = await ovCtx.newPage()
+    await tab.goto(`${BASE}/favicon.svg`)
+    await tab.evaluate(state => {
+      const channel = new BroadcastChannel('polo_streaming_sync')
+      channel.postMessage({ type: 'SYNC_STATE', state, sender: 'outra-aba' })
+      channel.close()
+      localStorage.setItem('polo.streaming.state.v2', JSON.stringify(state))
+    }, fake)
+    await overlay.waitForTimeout(1500)
+    check((await score()).join('x') === before.join('x'), 'overlay ignora placar não publicado de outra aba')
+    await tab.close()
+  }
+
   if (name === 'banco-somente-leitura') {
     setDbReadonly(true)
     try {
@@ -206,6 +223,12 @@ async function runScenario(browser, name, creds) {
     check(r.ok, `overlay recebeu o gol: ${before.join('x')} → ${r.now.join('x')} em ${r.secs} s (mesa ${(await mesaScore()).join('x')})`)
     check(posts.length > 0 && posts.every(s => s === 200 || s === 409), `POSTs do estado: ${posts.join(', ') || '(nenhum)'}`)
     check(!(await banner().count()), 'sem faixa de erro na mesa')
+  }
+
+  if (name === 'localstorage-antigo') {
+    await overlay.route('**/api/streaming.php?action=state', route => route.fulfill({ json: null }))
+    const r = await waitScore([0, 0])
+    check(r.ok, 'overlay limpa o placar quando o servidor devolve null')
   }
 
   const srv = await serverState()

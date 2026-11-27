@@ -46,27 +46,28 @@ function _dbRespondError(string $publicMsg, ?string $debugMsg = null, int $statu
     respondError($debugMsg ?? $publicMsg, $status);
 }
 
-function getDb(): PDO {
+function getDb(?callable $onError = null): PDO {
+    $onError ??= '_dbRespondError';
     $dir = dirname(DB_PATH);
     if (!is_dir($dir)) {
         if (!@mkdir($dir, 0755, true)) {
             $msg = 'Sem permissão para criar a pasta de dados em ' . $dir .
                    ' (verifique dono/grupo e chmod 0755/0775 da pasta api/)';
-            _dbRespondError('Sem permissão para criar a pasta de dados', $msg, 500);
+            $onError('Sem permissão para criar a pasta de dados', $msg, 500);
         }
     }
     if (!is_writable($dir)) {
         $msg = 'Pasta de dados sem permissão de escrita: ' . $dir .
                ' (no servidor, dê permissão de escrita para o usuário do Apache/PHP-FPM)';
-        _dbRespondError('Pasta de dados sem permissão de escrita', $msg, 500);
+        $onError('Pasta de dados sem permissão de escrita', $msg, 500);
     }
     if (file_exists(DB_PATH) && !is_writable(DB_PATH)) {
         $msg = 'Arquivo do BD existe mas não pode ser escrito: ' . DB_PATH;
-        _dbRespondError('Arquivo do banco sem permissão de escrita', $msg, 500);
+        $onError('Arquivo do banco sem permissão de escrita', $msg, 500);
     }
     if (!in_array('sqlite', PDO::getAvailableDrivers(), true)) {
         $msg = 'SQLite (pdo_sqlite) não está habilitado no servidor. Habilite a extensão php_pdo_sqlite no php.ini.';
-        _dbRespondError('SQLite não habilitado', $msg, 500);
+        $onError('SQLite não habilitado', $msg, 500);
     }
 
     try {
@@ -77,7 +78,7 @@ function getDb(): PDO {
         try { $pdo->exec('PRAGMA journal_mode=WAL'); } catch (\PDOException $e) {}
     } catch (\PDOException $e) {
         $dbg = 'DB error: ' . $e->getMessage() . ' (path: ' . DB_PATH . ')';
-        _dbRespondError('Erro ao abrir o banco de dados', $dbg, 500);
+        $onError('Erro ao abrir o banco de dados', $dbg, 500);
     }
 
     initSchema($pdo);

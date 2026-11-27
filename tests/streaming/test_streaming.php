@@ -52,6 +52,13 @@ function test_streaming_state_conflito_de_rev_devolve_409_com_estado_atual(): vo
     assertEqualsT(3000, (int) $linha['atualizado_ms'], 'atualizado_ms gravado');
 }
 
+function test_streaming_state_distingue_revisao_ausente_de_zero(): void {
+    $db = testDb();
+    assertEqualsT(200, streamingSalvarState($db, '{}')['status'], 'estado legado sem revisão');
+    assertEqualsT(200, streamingSalvarState($db, '{"rev":0}')['status'], 'primeira revisão explícita');
+    assertEqualsT(409, streamingSalvarState($db, '{"rev":0}')['status'], 'revisão zero repetida');
+}
+
 function test_streaming_state_json_invalido_e_400_sem_gravar(): void {
     $db = testDb();
     foreach (['', 'nao-json', '[1,2]', '"texto"', 'null'] as $ruim) {
@@ -155,6 +162,25 @@ function test_streaming_importa_legado_uma_unica_vez_so_lendo(): void {
     // Só leitura: arquivos continuam lá (teams intacto)
     assertTrue(is_file("$dir/state.json") && is_file("$dir/teams.json"), 'arquivos legados não são apagados');
     assertEqualsT($antes[1], md5_file("$dir/teams.json"), 'arquivo legado não é reescrito');
+}
+
+function test_streaming_importacao_reverte_estado_quando_catalogo_falha(): void {
+    $db = testDb();
+    $dir = _streamingTmpDir();
+    file_put_contents("$dir/state.json", '{"rev":2}');
+    file_put_contents("$dir/teams.json", '[]');
+    $db->exec("CREATE TRIGGER impedir_catalogo BEFORE INSERT ON streaming_kv
+        WHEN NEW.chave = 'teams' BEGIN SELECT RAISE(ABORT, 'falha de teste'); END");
+
+    try {
+        streamingImportarLegado($db, $dir);
+        throw new RuntimeException('A importação deveria falhar');
+    } catch (PDOException $e) {
+        assertTrue(str_contains($e->getMessage(), 'falha de teste'), 'falha ao gravar o catálogo');
+    }
+    assertNullT(streamingLer($db, 'state'), 'estado revertido junto com o catálogo');
+    $db->exec('DROP TRIGGER impedir_catalogo');
+    assertEqualsT(2, streamingImportarLegado($db, $dir), 'nova tentativa importa os dois arquivos');
 }
 
 function test_streaming_importa_legado_ignora_ausente_invalido_e_pasta_que_e_arquivo(): void {

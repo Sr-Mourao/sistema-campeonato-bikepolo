@@ -65,7 +65,7 @@ export function useStreamingSync(options: StreamingSyncOptions = {}) {
   // O perfil 'overlays' também espelha: é um aparelho que só acompanha a transmissão
   const mirror = !!options.mirror || device.role === 'overlays'
   const [state, setState] = useState<StreamingState>(() => {
-    if (typeof window === 'undefined') return DEFAULT_STREAMING_STATE
+    if (mirror || typeof window === 'undefined') return DEFAULT_STREAMING_STATE
     try {
       const raw = localStorage.getItem(STORAGE_STATE_KEY)
       if (raw) return hydrateStreamingState(JSON.parse(raw))
@@ -237,14 +237,14 @@ export function useStreamingSync(options: StreamingSyncOptions = {}) {
         const data = event.data
         if (!data || data.sender === device.id) return
         if (data.type === 'SYNC_STATE' && data.state) {
-          setState(hydrateStreamingState(data.state))
+          if (!mirror) setState(hydrateStreamingState(data.state))
           if (data.teams) setTeams(normTeams(data.teams))
         }
       }
     }
 
     const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_STATE_KEY && e.newValue) {
+      if (!mirror && e.key === STORAGE_STATE_KEY && e.newValue) {
         try {
           setState(hydrateStreamingState(JSON.parse(e.newValue)))
         } catch {
@@ -265,6 +265,8 @@ export function useStreamingSync(options: StreamingSyncOptions = {}) {
     // Polling no servidor de streaming: é o que leva o estado da mesa até
     // navegadores separados (OBS, celulares). 1 s para gols e relógio
     // aparecerem rápido na transmissão.
+    let lastMirrorPayload: string | undefined
+    let active = true
     let polling = false
     const interval = setInterval(async () => {
       if (polling) return
@@ -288,24 +290,27 @@ export function useStreamingSync(options: StreamingSyncOptions = {}) {
           // Puxa o estado do servidor (regras em shouldApplyRemoteState)
           const stRes = await callStreamingApi('state').catch(() => null)
           if (stRes && stRes.ok) {
-            const remote = await stRes.json()
-            const remoteRev: number | undefined = remote?.rev
             if (mirror) {
-              if (shouldApplyRemoteState(remoteRev, { mirror: true, lastServerRev: serverRevRef.current, currentRev: 0 })) {
-                serverRevRef.current = remoteRev ?? null
-                // Espelho: aplica só aqui, sem gravar no localStorage nem avisar outras abas
-                setState(hydrateStreamingState(remote))
+              const raw = await stRes.text()
+              if (active && raw !== lastMirrorPayload) {
+                const remote = JSON.parse(raw)
+                setState(remote === null ? DEFAULT_STREAMING_STATE : hydrateStreamingState(remote))
+                lastMirrorPayload = raw
               }
-            } else if (remoteRev && (!serverRevRef.current || remoteRev > serverRevRef.current)) {
-              serverRevRef.current = remoteRev
-              setState(current => {
-                if (shouldApplyRemoteState(remoteRev, { mirror: false, lastServerRev: null, currentRev: current.rev })) {
-                  const hyd = hydrateStreamingState(remote)
-                  broadcastAndSave(hyd)
-                  return hyd
-                }
-                return current
-              })
+            } else {
+              const remote = await stRes.json()
+              const remoteRev: number | undefined = remote?.rev
+              if (active && remoteRev && (!serverRevRef.current || remoteRev > serverRevRef.current)) {
+                serverRevRef.current = remoteRev
+                setState(current => {
+                  if (shouldApplyRemoteState(remoteRev, current.rev)) {
+                    const hyd = hydrateStreamingState(remote)
+                    broadcastAndSave(hyd)
+                    return hyd
+                  }
+                  return current
+                })
+              }
             }
           }
         } else {
@@ -319,7 +324,9 @@ export function useStreamingSync(options: StreamingSyncOptions = {}) {
     }, 1000)
 
     return () => {
-      if (channelRef.current) channelRef.current.close()
+      active = false
+      channelRef.current?.close()
+      channelRef.current = null
       window.removeEventListener('storage', onStorage)
       clearInterval(interval)
     }

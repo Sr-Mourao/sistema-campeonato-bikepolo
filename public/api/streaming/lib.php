@@ -69,9 +69,9 @@ function streamingSalvarState(PDO $db, string $raw, ?int $agoraMs = null): array
         $atual = $stmt->fetch();
 
         // Mesma regra de conflito da versão em arquivo: só aceita rev maior que o atual
-        if ($atual && $reqRev !== null) {
+        if ($atual && $reqRev !== null && isset(json_decode($atual['dados'])->rev)) {
             $curRev = (int) $atual['rev'];
-            if ($reqRev !== $curRev + 1 && $reqRev <= $curRev) {
+            if ($reqRev <= $curRev) {
                 return ['status' => 409, 'raw' => (string) $atual['dados']];
             }
         }
@@ -133,7 +133,7 @@ function streamingImportarLegado(PDO $db, string $dirLegado, ?int $agoraMs = nul
     if (!$vazia) return 0;
     $agoraMs ??= streamingNowMs();
 
-    $importados = 0;
+    $registros = [];
     foreach (['state' => 'state.json', 'teams' => 'teams.json'] as $chave => $arquivo) {
         $caminho = rtrim($dirLegado, '/\\') . '/' . $arquivo;
         if (!is_file($caminho) || !is_readable($caminho)) continue;
@@ -142,14 +142,17 @@ function streamingImportarLegado(PDO $db, string $dirLegado, ?int $agoraMs = nul
         $obj = json_decode($raw);
         if ($chave === 'state' ? !is_object($obj) : !is_array($obj)) continue;
         $rev = ($chave === 'state' && isset($obj->rev)) ? (int) $obj->rev : 0;
-        streamingTransacao($db, function () use ($db, $chave, $rev, $raw, $agoraMs) {
-            // INSERT simples: se outra requisição importou antes, não sobrescreve
-            $db->prepare('INSERT OR IGNORE INTO streaming_kv (chave, rev, dados, atualizado_ms) VALUES (?, ?, ?, ?)')
-               ->execute([$chave, $rev, $raw, $agoraMs]);
-        });
-        $importados++;
+        $registros[$chave] = [$rev, $raw];
     }
-    return $importados;
+    if (!$registros) return 0;
+
+    return streamingTransacao($db, function () use ($db, $registros, $agoraMs) {
+        if ($db->query('SELECT 1 FROM streaming_kv LIMIT 1')->fetchColumn() !== false) return 0;
+        foreach ($registros as $chave => [$rev, $raw]) {
+            streamingGravar($db, $chave, $rev, $raw, $agoraMs);
+        }
+        return count($registros);
+    });
 }
 
 /** Diagnóstico para o admin. Sem caminhos nem segredos. */
@@ -186,7 +189,8 @@ function streamingDiag(PDO $db, ?int $agoraMs = null): array {
         }
     } catch (\Throwable $e) {
         $out['ok'] = false;
-        $out['banco']['erro'] = $e->getMessage();
+        error_log('[streaming] diag: ' . $e->getMessage());
+        $out['banco']['erro'] = 'Falha ao verificar o banco de streaming';
     }
     return $out;
 }

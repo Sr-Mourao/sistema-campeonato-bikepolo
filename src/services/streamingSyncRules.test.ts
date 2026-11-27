@@ -4,30 +4,14 @@ import { shouldApplyRemoteState, shouldFallbackToPython, syncErrorFromPush } fro
 const json = (body: unknown, status: number) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 
-describe('shouldApplyRemoteState — overlay (espelho) x mesa', () => {
-  it('overlay aplica rev MENOR vindo do servidor (localStorage antigo do Streamlabs)', () => {
-    // OBS abriu com localStorage de outro jogo (rev 5000); o servidor está no rev 200
-    expect(shouldApplyRemoteState(200, { mirror: true, lastServerRev: null, currentRev: 5000 })).toBe(true)
-    // servidor foi zerado/recriado e voltou para um rev menor que o último aplicado
-    expect(shouldApplyRemoteState(3, { mirror: true, lastServerRev: 200, currentRev: 200 })).toBe(true)
+describe('shouldApplyRemoteState — mesa', () => {
+  it('preserva a revisão local quando o servidor tem revisão igual ou menor', () => {
+    expect(shouldApplyRemoteState(200, 5000)).toBe(false)
+    expect(shouldApplyRemoteState(5000, 5000)).toBe(false)
   })
 
-  it('mesa NÃO aplica rev menor (não desfaz jogada local ainda não enviada)', () => {
-    expect(shouldApplyRemoteState(200, { mirror: false, lastServerRev: null, currentRev: 5000 })).toBe(false)
-    expect(shouldApplyRemoteState(3, { mirror: false, lastServerRev: 200, currentRev: 0 })).toBe(false)
-  })
-
-  it('mesa aplica rev maior que o local e que o último visto', () => {
-    expect(shouldApplyRemoteState(201, { mirror: false, lastServerRev: 200, currentRev: 200 })).toBe(true)
-    expect(shouldApplyRemoteState(10, { mirror: false, lastServerRev: null, currentRev: 0 })).toBe(true)
-  })
-
-  it('overlay não reaplica o mesmo rev; ninguém aplica estado sem rev', () => {
-    expect(shouldApplyRemoteState(200, { mirror: true, lastServerRev: 200, currentRev: 0 })).toBe(false)
-    for (const mirror of [true, false]) {
-      expect(shouldApplyRemoteState(undefined, { mirror, lastServerRev: null, currentRev: 0 })).toBe(false)
-      expect(shouldApplyRemoteState(0, { mirror, lastServerRev: null, currentRev: 0 })).toBe(false)
-    }
+  it('aplica uma revisão mais nova do servidor', () => {
+    expect(shouldApplyRemoteState(201, 200)).toBe(true)
   })
 })
 

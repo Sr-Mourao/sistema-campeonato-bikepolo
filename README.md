@@ -617,6 +617,10 @@ O Vite gera `dist/` já com o conteúdo de `public/` dentro — **incluindo
 
 ### Atualizando
 
+Para `pior.bikepolo.com.br`, publique em `/var/www/pior-dev/current` na VM
+`pior@98.95.3.217`, usando a chave SSH local `dev-system-pior.pem`.
+O deploy é manual e exige autorização explícita do responsável a cada publicação.
+
 `npm run build` de novo e recopiar `dist/` — **sem sobrescrever `api/env.php`,
 `api/data/` e `imgs/{times,atletas,lojinha}/`**. Faça backup antes.
 
