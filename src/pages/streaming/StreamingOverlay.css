@@ -1163,3 +1163,13 @@
 .str-vertical .str-gfx-trave { left: auto; margin-left: 0; right: 4%; top: 15%; height: 300px; }
 .str-vertical .str-gfx-braco { left: -2%; bottom: 0; height: 620px; }
 .str-vertical .str-gfx-lobo { right: 0; bottom: 20px; height: 400px; }
+
+/* ── Últimos 2 minutos: o relógio troca de cor e dá um "pulso" leve por segundo,
+   no compasso da contagem. Sem piscar (o pisca fica para o tempo esgotado). ── */
+.str-clock.final { color: var(--str-brand); }
+.str-clock.final:not(.paused) { animation: strFinalBeat 1s ease-out infinite; }
+.str-idv .str-clock.final { color: var(--pal-magenta); }
+@keyframes strFinalBeat {
+  0% { transform: scale(1.09); text-shadow: 0 0 14px color-mix(in srgb, currentColor 55%, transparent); }
+  35%, 100% { transform: scale(1); text-shadow: none; }
+}

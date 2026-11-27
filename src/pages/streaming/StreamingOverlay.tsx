@@ -18,6 +18,9 @@ import './StreamingOverlay.css'
  * Endereço da cena da Central. A Emissora é um selo de canto: vai para o canto
  * oposto ao do placar, para não ficar escondida atrás dele.
  */
+/** A partir de quanto falta o relógio ganha o destaque de "últimos minutos" */
+const FINAL_MINUTES_MS = 2 * 60 * 1000
+
 function sceneSrc(path: string, boardPos?: string): string {
   if (!path.includes('/overlay/emissora')) return path
   const canto = boardPos === 'tr' ? 'tl' : 'tr'
@@ -52,6 +55,8 @@ export default function StreamingOverlay() {
   const durMs = (state.settings.durMin || 18) * 60000
   const elapsed = calculateElapsed(state.clock, clockOffset)
   const isClockEnded = state.settings.mode !== 'up' && elapsed >= durMs
+  // Últimos 2 minutos de jogo (vale para regressivo e progressivo): destaque discreto no relógio
+  const isFinalMinutes = !isClockEnded && elapsed > 0 && durMs - elapsed <= FINAL_MINUTES_MS
 
   // Letreiro: quantas cópias do texto cabem na faixa. Cada metade da fita precisa
   // ser pelo menos tão larga quanto a faixa; senão sobra um buraco e o texto
@@ -280,7 +285,7 @@ export default function StreamingOverlay() {
           </div>
 
           {/* Relógio */}
-          <div className={`str-clock ${isClockEnded ? 'ended' : state.clock.running ? '' : 'paused'}`}>
+          <div className={`str-clock ${isClockEnded ? 'ended' : state.clock.running ? '' : 'paused'} ${isFinalMinutes ? 'final' : ''}`}>
             {clockText}
           </div>
 
