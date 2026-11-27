@@ -290,3 +290,35 @@
 .iv-state-arte { height: 96px; width: auto; }
 /* Faixa pêssego (como na referência): o laranja do logo some numa faixa laranja */
 .iv-titlebar { background: color-mix(in srgb, var(--pal-orange) 30%, var(--pal-beige)); }
+
+/* ── Troca de patrocinador por cortina (IntervalSponsor.tsx) ──
+   A cortina cobre a placa inteira; coberta, troca logo e cor da placa juntas;
+   depois sai pelo outro lado. Nada desliza de lado por cima da arte. */
+.iv-sponsor-plate .iv-brand { animation: iv-marca-pop 520ms cubic-bezier(.2,.9,.3,1.1) both; }
+.iv-cortina {
+  position: absolute; top: -10px; bottom: -10px; left: -14%; width: 128%; z-index: 3;
+  background: var(--pal-orange); box-shadow: inset 6px 0 0 var(--pal-black), inset -6px 0 0 var(--pal-black);
+  transform: translateX(-112%) skewX(-10deg);
+}
+.iv-cortina--cobrindo { transform: translateX(0) skewX(-10deg); transition: transform 420ms cubic-bezier(.6,0,.35,1); }
+.iv-cortina--revelando { transform: translateX(112%) skewX(-10deg); transition: transform 420ms cubic-bezier(.6,0,.35,1); }
+.iv-sponsor-tempo { z-index: 4; }
+@keyframes iv-marca-pop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+
+/* Logos quadradas com fundo próprio: ficavam limitadas pela altura da caixa (268 px).
+   Ganham uma caixa mais alta para aparecerem maiores. */
+.iv-brand[data-sponsor='chandan'],
+.iv-brand[data-sponsor='cuida'],
+.iv-brand[data-sponsor='toniracks'] { top: 20px; height: 326px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .iv-cortina--cobrindo, .iv-cortina--revelando { transition-duration: 1ms; }
+}
+
+/* Cabeça do lobo-guará viajando com a cortina. A cortina é inclinada (skewX(-10deg)),
+   então a cabeça desfaz a inclinação; scaleX(-1) espelha para olhar para a direita. */
+.iv-cortina-lobo {
+  position: absolute; top: 50%; left: 50%; height: 330px; width: auto;
+  transform: translate(-50%, -50%) skewX(10deg) scaleX(-1);
+  filter: drop-shadow(-6px 6px 0 var(--pal-purple));
+}

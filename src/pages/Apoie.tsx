@@ -454,7 +454,7 @@ export default function Apoie() {
               rel="noopener noreferrer"
               className="ap-footer-club-link"
             >
-              <img src="/imgs/logos/bikeplofloripa.png" alt="Bike Polo"
+              <img src="/identidade/logo-sem-fundo.svg" alt="PIOR Bici Polo"
                 className="ap-footer-logo" onError={imgFallback} />
             </a>
             <p className="ap-footer-copy">

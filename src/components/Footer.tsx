@@ -89,8 +89,8 @@ export default function Footer() {
             className="footer-club-link"
           >
             <img
-              src="/imgs/logos/bikeplofloripa.png"
-              alt="Bike Polo"
+              src="/identidade/logo-sem-fundo.svg"
+              alt="PIOR Bici Polo"
               className="footer-logo"
               onError={imgFallback}
             />

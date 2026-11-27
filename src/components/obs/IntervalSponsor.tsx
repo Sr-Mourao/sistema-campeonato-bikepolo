@@ -1,33 +1,39 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Patrocinador } from '../../hooks/usePatrocinadores'
-import { localSponsorAssets, SPONSOR_DURATION_MS, type SponsorAsset } from './intervalSponsorAssets'
+import { localSponsorAssets, SPONSOR_DURATION_MS } from './intervalSponsorAssets'
 import { medirMarca, placaDaMarca, type Polaridade } from './sponsorPolarity'
 
-/** Duração da vinheta que troca uma marca pela outra. */
-const VINHETA_MS = 900
+/** Tempo da cortina cobrindo a placa — e o mesmo tempo para revelar a próxima marca. */
+const CORTINA_MS = 420
+
+/**
+ * Troca de marca por cortina: a cortina cobre a placa inteira, e só com tudo coberto
+ * a logo E a cor da placa trocam juntas; depois a cortina sai revelando a próxima.
+ *
+ * Antes a placa mudava de cor no instante da troca, com a logo antiga ainda saindo de
+ * lado: em artes com fundo próprio (JPEG branco) a "camada branca" sumia antes da logo.
+ */
+type Fase = 'parado' | 'cobrindo' | 'revelando'
 
 export default function IntervalSponsor({ patrocinadores }: { patrocinadores: Patrocinador[] }) {
   const marcas = useMemo(() => localSponsorAssets(patrocinadores), [patrocinadores])
   const [indice, setIndice] = useState(0)
-  const [saindo, setSaindo] = useState<SponsorAsset | null>(null)
+  const [fase, setFase] = useState<Fase>('parado')
   const [placas, setPlacas] = useState<Record<string, Polaridade>>({})
 
   useEffect(() => {
     if (marcas.length < 2) return
+    const timers: ReturnType<typeof setTimeout>[] = []
     const relogio = setInterval(() => {
-      setIndice(atual => {
-        setSaindo(marcas[atual % marcas.length])
-        return (atual + 1) % marcas.length
-      })
+      setFase('cobrindo')
+      timers.push(setTimeout(() => {
+        setIndice(atual => (atual + 1) % marcas.length) // placa coberta: troca logo e cor juntas
+        setFase('revelando')
+      }, CORTINA_MS))
+      timers.push(setTimeout(() => setFase('parado'), CORTINA_MS * 2))
     }, SPONSOR_DURATION_MS)
-    return () => clearInterval(relogio)
+    return () => { clearInterval(relogio); timers.forEach(clearTimeout) }
   }, [marcas])
-
-  useEffect(() => {
-    if (!saindo) return
-    const fim = setTimeout(() => setSaindo(null), VINHETA_MS)
-    return () => clearTimeout(fim)
-  }, [saindo])
 
   /* Mede a polaridade de cada arte uma única vez — a placa se adapta à marca, não o contrário. */
   useEffect(() => {
@@ -61,11 +67,11 @@ export default function IntervalSponsor({ patrocinadores }: { patrocinadores: Pa
       </div>
 
       <div className="iv-sponsor-plate" data-placa={placas[atual.slug] ?? 'clara'}>
-        {saindo && saindo.slug !== atual.slug && (
-          <img key={`sai-${saindo.slug}`} src={saindo.src} alt="" aria-hidden="true" className="iv-brand iv-brand--sai" />
-        )}
-        <img key={`entra-${atual.slug}`} src={atual.src} alt={atual.nome} data-sponsor={atual.slug} className="iv-brand iv-brand--entra" />
-        <span key={`lamina-${atual.slug}`} className="iv-lamina" aria-hidden="true" />
+        <img key={atual.slug} src={atual.src} alt={atual.nome} data-sponsor={atual.slug} className="iv-brand" />
+        {/* Cortina com a cabeça do lobo-guará (ARTE_2PCBP_LOBO_GOL), virada para a direita: o sentido do movimento */}
+        <span className={`iv-cortina iv-cortina--${fase}`} aria-hidden="true">
+          <img src="/identidade/overlay/lobo-gol.webp" alt="" className="iv-cortina-lobo" />
+        </span>
         <span key={`tempo-${atual.slug}`} className="iv-sponsor-tempo" aria-hidden="true" />
       </div>
     </div>
