@@ -76,14 +76,11 @@ define('SESSION_DURATION', 30 * 24 * 3600);
 // ─────────────────────────────────────────────────────────────────────────────
 // E-mail transacional (Resend — https://resend.com)
 // ─────────────────────────────────────────────────────────────────────────────
-// Usado para: código de login, magic link da carteira, confirmação de inscrição,
+// Usado para: magic link da carteira, confirmação de inscrição,
 // convite de time, pagamento aprovado/recusado, cancelamento, pedido da lojinha.
 //
-// MODO DEV SEM E-MAIL: mantenha o valor literal 're_COLOQUE_SUA_CHAVE_AQUI'.
-// Nesse modo, /api/auth.php devolve o código de login no próprio JSON (campo
-// `code_dev`) e /api/carteira-auth.php devolve o token do magic link
-// (`token_dev`), permitindo testar login sem servidor de e-mail.
-// NUNCA deixe esse valor sentinela em produção.
+// A área do atleta usa código gerado pelo admin. A carteira continua dependendo
+// do envio de magic link por e-mail.
 define('RESEND_API_KEY', 're_COLOQUE_SUA_CHAVE_AQUI');
 
 // Remetente. O domínio precisa estar verificado no Resend.

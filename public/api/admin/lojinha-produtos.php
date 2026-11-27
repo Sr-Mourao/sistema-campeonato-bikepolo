@@ -14,7 +14,7 @@ function lojCarregaProduto(PDO $db, int $id): ?array {
     $s->execute([$id]);
     $produto['imagens'] = $s->fetchAll();
 
-    $s = $db->prepare("SELECT id, tamanho, ordem FROM loj_produto_tamanhos WHERE produto_id = ? ORDER BY ordem, id");
+    $s = $db->prepare("SELECT id, tamanho, ordem, estoque FROM loj_produto_tamanhos WHERE produto_id = ? ORDER BY ordem, id");
     $s->execute([$id]);
     $produto['tamanhos'] = $s->fetchAll();
 
@@ -147,13 +147,22 @@ if ($acao === 'criar') {
     ")->execute([$nome, $descricao ?: null, $preco, $ativo, $ordem, $produtoId]);
 }
 
-// Tamanhos: substitui a lista inteira (mais simples e sem ambiguidade de diff)
+// Preserva estoque existente para clientes antigos que ainda enviem tamanhos como texto.
+$estoquesAnteriores = [];
+$stmtAnt = $db->prepare("SELECT tamanho, estoque FROM loj_produto_tamanhos WHERE produto_id = ?");
+$stmtAnt->execute([$produtoId]);
+foreach ($stmtAnt->fetchAll() as $row) $estoquesAnteriores[$row['tamanho']] = $row['estoque'];
+
+// Tamanhos: substitui a lista, preservando o estoque quando não veio no payload.
 $db->prepare("DELETE FROM loj_produto_tamanhos WHERE produto_id = ?")->execute([$produtoId]);
-$stmtTam = $db->prepare("INSERT INTO loj_produto_tamanhos (produto_id, tamanho, ordem) VALUES (?, ?, ?)");
+$stmtTam = $db->prepare("INSERT INTO loj_produto_tamanhos (produto_id, tamanho, ordem, estoque) VALUES (?, ?, ?, ?)");
 foreach (array_values($tamanhos) as $i => $tam) {
-    $tam = trim((string)$tam);
-    if ($tam === '') continue;
-    $stmtTam->execute([$produtoId, $tam, $i]);
+    $nomeTam = is_array($tam) ? trim((string)($tam['tamanho'] ?? '')) : trim((string)$tam);
+    if ($nomeTam === '') continue;
+    $estoque = is_array($tam) && array_key_exists('estoque', $tam)
+        ? ($tam['estoque'] === '' || $tam['estoque'] === null ? null : max(0, (int)$tam['estoque']))
+        : ($estoquesAnteriores[$nomeTam] ?? null);
+    $stmtTam->execute([$produtoId, $nomeTam, $i, $estoque]);
 }
 
 // Imagens novas (acrescenta às existentes)

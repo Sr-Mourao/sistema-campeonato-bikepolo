@@ -3,11 +3,11 @@ require_once __DIR__ . '/middleware.php';
 require_once __DIR__ . '/../email.php';
 adminGuard();
 
-$db     = getDb();
 $method = $_SERVER['REQUEST_METHOD'];
 
 // ── GET: lista ou detalhe ──────────────────────────────────────────────────
 if ($method === 'GET') {
+    $db = getDb();
     $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
     if ($id) {
@@ -126,7 +126,86 @@ if ($method === 'POST') {
     $body   = getBody();
     $action = $body['action'] ?? '';
     $id     = (int)($body['id'] ?? 0);
-    if (!$id) respondError('ID obrigatório');
+    if (!$id && $action !== 'criar_atleta') respondError('ID obrigatório');
+
+    if ($action === 'criar_atleta') {
+        $nome = trim((string)($body['nome'] ?? ''));
+        $email = strtolower(trim((string)($body['email'] ?? '')));
+        $categoria = (string)($body['categoria'] ?? '');
+        $db = null;
+        try {
+            if ($nome === '' || mb_strlen($nome) > 120) respondError('Informe um nome de até 120 caracteres.');
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) respondError('E-mail inválido.');
+            if (!in_array($categoria, ['misto', 'mtnb'], true)) respondError('Categoria inválida.');
+
+            $db = getDb();
+            $stmt = $db->prepare('SELECT id FROM pessoas WHERE email=? COLLATE NOCASE');
+            $stmt->execute([$email]);
+            $pessoaId = $stmt->fetchColumn();
+            if ($pessoaId) {
+                $stmt = $db->prepare("SELECT id FROM inscricoes WHERE pessoa_id=? AND status!='cancelado' LIMIT 1");
+                $stmt->execute([$pessoaId]);
+                if ($stmt->fetchColumn()) respondError('Este e-mail já possui uma inscrição ativa.', 409);
+            }
+
+            $precos = getPrecos($db);
+            $valor = (float)$precos[$categoria === 'misto' ? 'valor_misto' : 'valor_mtnb'];
+            $db->beginTransaction();
+            if (!$pessoaId) {
+                $db->prepare('INSERT INTO pessoas (nome,email) VALUES (?,?)')->execute([$nome, $email]);
+                $pessoaId = (int)$db->lastInsertId();
+            } else {
+                $db->prepare('UPDATE pessoas SET nome=? WHERE id=?')->execute([$nome, $pessoaId]);
+            }
+
+            $db->prepare("INSERT INTO inscricoes (pessoa_id,status,valor_total,tipo_participacao) VALUES (?,'aguardando_pagamento',?,'atleta')")
+                ->execute([$pessoaId, $valor]);
+            $inscricaoId = (int)$db->lastInsertId();
+            $db->prepare('INSERT INTO inscricao_categorias (inscricao_id,categoria,valor) VALUES (?,?,?)')
+                ->execute([$inscricaoId, $categoria, $valor]);
+
+            $descricao = $categoria === 'misto' ? 'Brasileiro Misto' : 'Brasileiro MTNB';
+            $itens = json_encode([['descricao' => $descricao, 'valor' => $valor]], JSON_UNESCAPED_UNICODE);
+            $checkoutToken = bin2hex(random_bytes(24));
+            $db->prepare("INSERT INTO pagamentos (inscricao_id,tipo,status,valor,itens_json,checkout_token) VALUES (?,'inscricao','pendente',?,?,?)")
+                ->execute([$inscricaoId, $valor, $itens, $checkoutToken]);
+            $db->commit();
+        } catch (Throwable $e) {
+            if ($db instanceof PDO && $db->inTransaction()) $db->rollBack();
+            error_log('[admin criar_atleta] ' . $e->getMessage());
+            respondError('Erro interno do servidor', 500);
+        }
+
+        respond(['ok' => true, 'inscricao_id' => $inscricaoId], 201);
+    }
+
+    $db = getDb();
+
+    if ($action === 'gerar_codigo_atleta') {
+        $stmt = $db->prepare('SELECT p.id, p.email FROM inscricoes i JOIN pessoas p ON p.id=i.pessoa_id WHERE i.id=?');
+        $stmt->execute([$id]);
+        $pessoa = $stmt->fetch();
+        if (!$pessoa) respondError('Inscrição não encontrada', 404);
+
+        $codigo = str_pad((string)random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
+        $hash = password_hash($codigo, PASSWORD_DEFAULT);
+        $db->beginTransaction();
+        try {
+            $db->prepare("INSERT INTO athlete_access_codes (pessoa_id, code_hash, failed_attempts, locked_until, atualizado_em)
+                VALUES (?, ?, 0, NULL, datetime('now'))
+                ON CONFLICT(pessoa_id) DO UPDATE SET code_hash=excluded.code_hash, failed_attempts=0, locked_until=NULL, atualizado_em=datetime('now')")
+                ->execute([$pessoa['id'], $hash]);
+            // Redefinir o código revoga sessões e códigos antigos de e-mail dessa pessoa.
+            $db->prepare('DELETE FROM sessions WHERE email=? COLLATE NOCASE')->execute([$pessoa['email']]);
+            $db->prepare('UPDATE login_codes SET used=1 WHERE email=? COLLATE NOCASE')->execute([$pessoa['email']]);
+            $db->commit();
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            throw $e;
+        }
+
+        respond(['ok' => true, 'code' => $codigo]);
+    }
 
     if ($action === 'marcar_pago_manual') {
         $pagamento_id = (int)($body['pagamento_id'] ?? 0);

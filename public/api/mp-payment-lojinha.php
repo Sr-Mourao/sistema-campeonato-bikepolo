@@ -2,6 +2,7 @@
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/env.php';
 require_once __DIR__ . '/email.php';
+require_once __DIR__ . '/lojinha-estoque.php';
 
 corsHeaders();
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -37,9 +38,13 @@ $mpPayload = array_merge($formData, [
     'transaction_amount'  => $valorMP,
     'description'         => "2° Pior Campeonato de Bici Polo de Bike Polo — Lojinha (Pedido #{$pedidoId})",
     'external_reference'  => (string)$pedidoId,
-    'notification_url'    => APP_URL . '/api/webhook-mp-lojinha.php',
     'statement_descriptor'=> 'BIKEPOLO',
 ]);
+
+// O MP rejeita notification_url que não seja https público (ex.: localhost).
+if (preg_match('#^https://(?!localhost|127\.|\[::1\])#i', APP_URL)) {
+    $mpPayload['notification_url'] = APP_URL . '/api/webhook-mp-lojinha.php';
+}
 
 // ── Chama MP Payments API ────────────────────────────────
 $ch = curl_init('https://api.mercadopago.com/v1/payments');
@@ -79,13 +84,12 @@ $db->prepare("
 if ($mpStatus === 'approved') {
     $metodo = $mp['payment_method_id'] ?? 'card';
 
-    $db->prepare("UPDATE loj_pedidos SET status='pago', metodo=?, atualizado_em=datetime('now') WHERE id=?")
-       ->execute([$metodo, $pedidoId]);
-
-    $stmt = $db->prepare("SELECT produto_nome, tamanho, quantidade, preco_unitario FROM loj_pedido_itens WHERE pedido_id = ?");
-    $stmt->execute([$pedidoId]);
-    $itensEmail = $stmt->fetchAll();
-    sendLojaOrderConfirmedEmail($pedido['email'], $pedido['nome'], $pedido['codigo_retirada'], $itensEmail, $valorMP);
+    if (lojinhaMarcarPedidoPago($db, $pedidoId, $metodo)) {
+        $stmt = $db->prepare("SELECT produto_nome, tamanho, quantidade, preco_unitario FROM loj_pedido_itens WHERE pedido_id = ?");
+        $stmt->execute([$pedidoId]);
+        $itensEmail = $stmt->fetchAll();
+        sendLojaOrderConfirmedEmail($pedido['email'], $pedido['nome'], $pedido['codigo_retirada'], $itensEmail, $valorMP);
+    }
 }
 
 // ── Resposta para o frontend ─────────────────────────────

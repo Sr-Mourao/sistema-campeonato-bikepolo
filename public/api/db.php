@@ -8,6 +8,11 @@ require_once __DIR__ . '/torneio/formato.php';
 // arquivo. `file_exists` porque a suíte de testes roda sem env.php.
 if (file_exists(__DIR__ . '/env.php')) require_once __DIR__ . '/env.php';
 
+// Alguns servidores restringem a alocação de memória executável usada pelo
+// PCRE JIT. Sem isso, filter_var() pode emitir warning e o handler estrito o
+// transforma em exceção. O JIT é opcional; regex continua funcionando sem ele.
+ini_set('pcre.jit', '0');
+
 /**
  * Onde fica o arquivo SQLite.
  *
@@ -180,6 +185,14 @@ function initSchema(PDO $pdo): void {
             criado_em TEXT DEFAULT (datetime('now'))
         );
 
+        CREATE TABLE IF NOT EXISTS athlete_access_codes (
+            pessoa_id INTEGER PRIMARY KEY REFERENCES pessoas(id) ON DELETE CASCADE,
+            code_hash TEXT NOT NULL,
+            failed_attempts INTEGER NOT NULL DEFAULT 0,
+            locked_until TEXT,
+            atualizado_em TEXT DEFAULT (datetime('now'))
+        );
+
         CREATE TABLE IF NOT EXISTS sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             token TEXT NOT NULL UNIQUE,
@@ -225,7 +238,7 @@ function initSchema(PDO $pdo): void {
 
         CREATE TABLE IF NOT EXISTS loj_produto_imagens (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            produto_id INTEGER NOT NULL REFERENCES loj_produtos(id),
+            produto_id INTEGER NOT NULL REFERENCES loj_produtos(id) ON DELETE CASCADE,
             caminho TEXT NOT NULL,
             ordem INTEGER DEFAULT 0
         );
@@ -234,7 +247,8 @@ function initSchema(PDO $pdo): void {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             produto_id INTEGER NOT NULL REFERENCES loj_produtos(id),
             tamanho TEXT NOT NULL,
-            ordem INTEGER DEFAULT 0
+            ordem INTEGER DEFAULT 0,
+            estoque INTEGER DEFAULT NULL
         );
 
         CREATE TABLE IF NOT EXISTS loj_pedidos (
@@ -262,6 +276,16 @@ function initSchema(PDO $pdo): void {
             tamanho TEXT,
             quantidade INTEGER NOT NULL,
             preco_unitario REAL NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS loj_estoque_movimentos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            produto_id INTEGER NOT NULL REFERENCES loj_produtos(id) ON DELETE CASCADE,
+            tamanho TEXT,
+            quantidade INTEGER NOT NULL,
+            tipo TEXT NOT NULL,
+            pedido_item_id INTEGER REFERENCES loj_pedido_itens(id) ON DELETE CASCADE,
+            criado_em TEXT DEFAULT (datetime('now'))
         );
     ");
 
@@ -610,6 +634,7 @@ function initSchema(PDO $pdo): void {
         "ALTER TABLE pessoas ADD COLUMN foto_origem TEXT",
         "ALTER TABLE pessoas ADD COLUMN foto_atualizado_em TEXT",
         "ALTER TABLE pessoas ADD COLUMN poloperator_id TEXT",
+        "ALTER TABLE loj_produto_tamanhos ADD COLUMN estoque INTEGER DEFAULT NULL",
     ] as $migration) {
         try { $pdo->exec($migration); } catch (\PDOException $e) {}
     }

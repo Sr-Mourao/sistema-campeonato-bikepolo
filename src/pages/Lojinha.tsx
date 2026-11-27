@@ -22,7 +22,7 @@ interface Produto {
   descricao: string | null
   preco: number
   imagens: string[]
-  tamanhos: string[]
+  tamanhos: { tamanho: string; estoque: number | null }[]
 }
 
 interface Catalogo {
@@ -97,11 +97,17 @@ function ProdutoCard({
   selecoesPorTamanho: Record<string, number>
   onQuantidade: (tamanho: string, delta: number) => void
 }) {
-  const [tamanhoAtivo, setTamanhoAtivo] = useState<string | null>(produto.tamanhos[0] ?? null)
+  const [tamanhoAtivo, setTamanhoAtivo] = useState<string | null>(
+    (produto.tamanhos.find(t => t.estoque === null || t.estoque > 0) ?? produto.tamanhos[0])?.tamanho ?? null
+  )
 
   const unidadesProduto = Object.values(selecoesPorTamanho).reduce((a, b) => a + b, 0)
   const subtotal = unidadesProduto * produto.preco
   const qtdAtiva = tamanhoAtivo ? selecoesPorTamanho[tamanhoAtivo] ?? 0 : 0
+  const opcaoAtiva = produto.tamanhos.find(t => t.tamanho === tamanhoAtivo)
+  const estoqueAtivo = opcaoAtiva?.estoque
+  const estoqueControlado = opcaoAtiva !== undefined && opcaoAtiva.estoque !== null
+  const limiteAtivoAtingido = estoqueControlado && qtdAtiva >= (estoqueAtivo ?? 0)
 
   return (
     <div className="loj-card">
@@ -126,9 +132,11 @@ function ProdutoCard({
             </div>
 
             <div className="loj-tamanho-chips">
-              {produto.tamanhos.map(t => {
+              {produto.tamanhos.map(opcao => {
+                const t = opcao.tamanho
                 const qtd = selecoesPorTamanho[t] ?? 0
                 const selecionado = tamanhoAtivo === t
+                const esgotado = opcao.estoque !== null && opcao.estoque <= 0
                 const badge = qtd > 0
                 return (
                   <button
@@ -137,8 +145,10 @@ function ProdutoCard({
                     className={`loj-tamanho-chip${selecionado ? ' loj-tamanho-chip--active' : ''}${badge ? ' loj-tamanho-chip--hasqtd' : ''}`}
                     onClick={() => setTamanhoAtivo(t)}
                     aria-pressed={selecionado}
+                    disabled={esgotado}
+                    title={esgotado ? 'Esgotado' : opcao.estoque === null ? 'Estoque disponível' : `${Math.max(0, opcao.estoque - qtd)} disponível(is)`}
                   >
-                    {t}
+                    {t}{esgotado && ' · esgotado'}
                     {badge && <span className="loj-tamanho-chip-badge">{qtd}</span>}
                   </button>
                 )
@@ -149,6 +159,9 @@ function ProdutoCard({
               <div className="loj-tamanho-stepper">
                 <span className="loj-tamanho-ativo-label">
                   Selecionado: <strong>{tamanhoAtivo}</strong>
+                  {estoqueControlado && (
+                    <> · {Math.max(0, (estoqueAtivo ?? 0) - qtdAtiva)} disponível(is)</>
+                  )}
                 </span>
                 <div className="loj-stepper">
                   <button
@@ -163,6 +176,7 @@ function ProdutoCard({
                     type="button"
                     onClick={() => onQuantidade(tamanhoAtivo, 1)}
                     aria-label={`Aumentar quantidade — tamanho ${tamanhoAtivo}`}
+                    disabled={limiteAtivoAtingido}
                   >
                     <Plus size={14} />
                   </button>
@@ -228,7 +242,7 @@ export default function Lojinha() {
 
   const itensSelecionados = (catalogo?.produtos ?? []).flatMap(produto => {
     const porTamanho = selecoes[produto.id] ?? {}
-    const chaves = produto.tamanhos.length > 0 ? produto.tamanhos : ['']
+    const chaves = produto.tamanhos.length > 0 ? produto.tamanhos.map(t => t.tamanho) : ['']
     return chaves
       .map(tamanho => ({ produto, tamanho, quantidade: porTamanho[tamanho] ?? 0 }))
       .filter(x => x.quantidade > 0)

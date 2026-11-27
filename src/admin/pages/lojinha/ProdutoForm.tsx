@@ -16,7 +16,7 @@ export default function ProdutoForm({ produto, onClose, onSaved }: Props) {
   const [preco, setPreco] = useState(produto ? String(produto.preco) : '')
   const [ordem, setOrdem] = useState(produto ? String(produto.ordem) : '0')
   const [ativo, setAtivo] = useState(produto ? !!produto.ativo : true)
-  const [tamanhos, setTamanhos] = useState<string[]>(produto?.tamanhos.map(t => t.tamanho) ?? [])
+  const [tamanhos, setTamanhos] = useState<{ tamanho: string; estoque: number | null }[]>(produto?.tamanhos.map(t => ({ tamanho: t.tamanho, estoque: t.estoque })) ?? [])
   const [novoTamanho, setNovoTamanho] = useState('')
   const [imagensExistentes, setImagensExistentes] = useState(produto?.imagens ?? [])
   const [novasImagens, setNovasImagens] = useState<File[]>([])
@@ -25,13 +25,13 @@ export default function ProdutoForm({ produto, onClose, onSaved }: Props) {
 
   function addTamanho() {
     const t = novoTamanho.trim()
-    if (!t || tamanhos.includes(t)) return
-    setTamanhos(prev => [...prev, t])
+    if (!t || tamanhos.some(x => x.tamanho === t)) return
+    setTamanhos(prev => [...prev, { tamanho: t, estoque: 0 }])
     setNovoTamanho('')
   }
 
   function removerTamanho(t: string) {
-    setTamanhos(prev => prev.filter(x => x !== t))
+    setTamanhos(prev => prev.filter(x => x.tamanho !== t))
   }
 
   async function removerImagemExistente(imagemId: number) {
@@ -132,14 +132,25 @@ export default function ProdutoForm({ produto, onClose, onSaved }: Props) {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
               {tamanhos.length === 0 && <span style={{ color: 'var(--adm-text-3)', fontSize: '.84rem' }}>Nenhum tamanho — produto sem variação (ex: boné único)</span>}
               {tamanhos.map(t => (
-                <span key={t} className="adm-badge adm-badge--tag" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  {t}
-                  <button type="button" onClick={() => removerTamanho(t)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, display: 'flex' }} aria-label={`Remover ${t}`}>
+                <span key={t.tamanho} className="adm-badge adm-badge--tag" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 8px' }}>
+                  <strong>{t.tamanho}</strong>
+                  <input
+                    aria-label={`Estoque do tamanho ${t.tamanho}`}
+                    title="Quantidade em estoque; deixe vazio para não controlar estoque"
+                    type="number" min="0" step="1" value={t.estoque ?? ''}
+                    onChange={e => {
+                      const v = e.target.value
+                      setTamanhos(prev => prev.map(x => x.tamanho === t.tamanho ? { ...x, estoque: v === '' ? null : Math.max(0, parseInt(v, 10) || 0) } : x))
+                    }}
+                    style={{ width: 72, padding: '3px 5px' }}
+                  />
+                  <button type="button" onClick={() => removerTamanho(t.tamanho)} style={{ background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 0, display: 'flex' }} aria-label={`Remover ${t.tamanho}`}>
                     <X size={12} />
                   </button>
                 </span>
               ))}
             </div>
+            <span style={{ display: 'block', marginBottom: 8, color: 'var(--adm-text-3)', fontSize: '.78rem' }}>Estoque vazio = sem controle de quantidade. Novos tamanhos começam com estoque 0.</span>
             <div style={{ display: 'flex', gap: 8 }}>
               <input
                 value={novoTamanho}

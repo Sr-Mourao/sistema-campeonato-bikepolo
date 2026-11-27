@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Send } from 'lucide-react'
+import { X, Send, KeyRound, Copy } from 'lucide-react'
 import { adminGet, adminPost, fmtBRL, fmtDate } from '../adminApi'
 
 interface Inscricao {
@@ -55,6 +55,8 @@ export default function InscricaoDrawer({ inscricaoId, onClose, onRefresh }: Pro
   const [novaObs, setNovaObs] = useState('')
   const [salvando, setSalvando] = useState(false)
   const [msg, setMsg] = useState('')
+  const [codigoAtleta, setCodigoAtleta] = useState<string | null>(null)
+  const [copiado, setCopiado] = useState(false)
 
   useEffect(() => {
     adminGet<Inscricao>(`/api/admin/inscricoes.php?id=${inscricaoId}`)
@@ -80,6 +82,24 @@ export default function InscricaoDrawer({ inscricaoId, onClose, onRefresh }: Pro
     if (!novaObs.trim()) return
     await acao('add_observacao', { texto: novaObs })
     setNovaObs('')
+  }
+
+  async function gerarCodigoAtleta() {
+    setSalvando(true)
+    setCodigoAtleta(null)
+    setCopiado(false)
+    const res = await adminPost<{ ok: true; code: string }>('/api/admin/inscricoes.php', {
+      action: 'gerar_codigo_atleta', id: inscricaoId,
+    })
+    if (res?.code) setCodigoAtleta(res.code)
+    setSalvando(false)
+  }
+
+  async function copiarCodigoAtleta() {
+    if (!codigoAtleta) return
+    await navigator.clipboard.writeText(codigoAtleta)
+    setCopiado(true)
+    setTimeout(() => setCopiado(false), 2000)
   }
 
   if (loading) return (
@@ -130,6 +150,27 @@ export default function InscricaoDrawer({ inscricaoId, onClose, onRefresh }: Pro
               {ins.checkin?.presente === 1 && <span className="adm-badge adm-badge--ok">Presente</span>}
               {ins.checkin?.credenciado === 1 && <span className="adm-badge adm-badge--ok">Credenciado</span>}
             </div>
+          </div>
+
+          {/* Código de acesso da pessoa atleta */}
+          <div className="adm-section">
+            <div className="adm-section-title">Acesso à área do atleta</div>
+            <p style={{ color: 'var(--adm-text-2)', fontSize: '.84rem', margin: '0 0 10px' }}>
+              Gere um código para a pessoa entrar com este e-mail. Gerar outro código substitui o anterior e encerra as sessões abertas.
+            </p>
+            <button className="adm-btn adm-btn--sm" onClick={gerarCodigoAtleta} disabled={salvando}>
+              <KeyRound size={14} />
+              {salvando ? 'Gerando…' : 'Gerar / redefinir código'}
+            </button>
+            {codigoAtleta && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10, padding: '10px 12px', border: '1px solid var(--adm-border)', borderRadius: 6 }}>
+                <code style={{ fontSize: '1.15rem', letterSpacing: '.16em', fontWeight: 700 }}>{codigoAtleta}</code>
+                <button className="adm-btn adm-btn--sm" onClick={copiarCodigoAtleta}>
+                  <Copy size={13} /> {copiado ? 'Copiado' : 'Copiar'}
+                </button>
+              </div>
+            )}
+            {codigoAtleta && <p style={{ color: 'var(--adm-text-3)', fontSize: '.76rem', margin: '8px 0 0' }}>Copie e entregue o código ao atleta. Ele não poderá ser consultado novamente; gere outro se necessário.</p>}
           </div>
 
           {/* Contato de emergência */}

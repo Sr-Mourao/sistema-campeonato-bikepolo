@@ -61,9 +61,13 @@ Se você for usá-lo, leia esta página inteira antes de expor qualquer coisa.
 
 ### Pessoas atletas
 
-- Login por **código de 6 dígitos** enviado por e-mail (`/api/auth.php`).
-  Código com hash bcrypt no banco, validade de 10 minutos, uso único.
-- Rate limit: no máximo 5 códigos por e-mail a cada 15 minutos.
+- Login por e-mail + **código numérico de 8 dígitos** gerado pelo admin
+  (`/api/auth.php`). O hash bcrypt fica vinculado à pessoa e o código não expira;
+  redefini-lo invalida sessões existentes.
+- Após 5 tentativas inválidas, o acesso daquela pessoa bloqueia por 15 minutos.
+- O admin exibe o código em texto puro apenas na resposta da geração; entregue-o
+  diretamente ao atleta. A área administrativa não permite consultar o hash nem
+  recuperar um código já gerado.
 - Sessão = token aleatório de 32 bytes na tabela `sessions`, validade
   `SESSION_DURATION` (padrão 30 dias).
 - O token viaja no header `X-Session-Token` (fluxo legado) **e** no cookie

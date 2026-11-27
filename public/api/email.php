@@ -204,7 +204,7 @@ function confirmationTemplate(string $nome, string $codigo, float $valorPendente
   <p style="margin:0 0 6px;font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7;">
     <strong style="color:rgba(255,255,255,0.80);">Como pagar:</strong><br>
     1. Acesse <a href="{$url}" style="color:{$GLOBALS['EMAIL_COR']['orange']};">sua área da pessoa atleta</a><br>
-    2. Faça login com o seu email (você receberá um código de acesso)<br>
+    2. Faça login com seu e-mail e o código de acesso fornecido pela organização<br>
     3. Clique em <strong style="color:#fff;">Pagar</strong> na seção da sua inscrição<br>
     4. Escolha PIX ou cartão de crédito
   </p>

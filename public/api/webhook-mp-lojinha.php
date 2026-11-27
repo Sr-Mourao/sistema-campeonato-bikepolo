@@ -2,6 +2,7 @@
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/env.php';
 require_once __DIR__ . '/email.php';
+require_once __DIR__ . '/lojinha-estoque.php';
 
 // Webhook do Mercado Pago — não usa corsHeaders() (não é chamado por browser)
 header('Content-Type: application/json');
@@ -90,11 +91,7 @@ $db->prepare("UPDATE loj_pedidos SET referencia_externa = ?, dados_externos = ?,
    ->execute([$mpId, json_encode($mp, JSON_UNESCAPED_UNICODE), $pedidoId]);
 
 if ($mpStatus === 'approved') {
-    $jaEstavaPago = ($pedido['status'] === 'pago');
-
-    if (!$jaEstavaPago) {
-        $db->prepare("UPDATE loj_pedidos SET status='pago', metodo=?, atualizado_em=datetime('now') WHERE id=?")
-           ->execute([$metodo, $pedidoId]);
+    if (lojinhaMarcarPedidoPago($db, $pedidoId, $metodo ?? 'mercadopago')) {
 
         // Notifica apenas na primeira aprovação (evita email duplo em retentativas)
         $stmt = $db->prepare("SELECT produto_nome, tamanho, quantidade, preco_unitario FROM loj_pedido_itens WHERE pedido_id = ?");
@@ -107,8 +104,7 @@ if ($mpStatus === 'approved') {
 }
 
 if (in_array($mpStatus, ['rejected', 'cancelled']) && $pedido['status'] === 'pendente') {
-    $db->prepare("UPDATE loj_pedidos SET status='cancelado', metodo=?, atualizado_em=datetime('now') WHERE id=?")
-       ->execute([$metodo, $pedidoId]);
+    lojinhaCancelarPedido($db, $pedidoId);
 
     error_log("Webhook MP Lojinha: pedido {$pedidoId} rejeitado (MP #{$mpId}) — {$mpStatus}");
 }

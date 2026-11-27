@@ -4,7 +4,7 @@ import { adminGet, adminPostStrict, type AdminApiStrictError as ApiError, fmtBRL
 import ProdutoForm from './ProdutoForm'
 
 export interface ProdutoImagem { id: number; caminho: string; ordem: number }
-export interface ProdutoTamanho { id: number; tamanho: string; ordem: number }
+export interface ProdutoTamanho { id: number; tamanho: string; ordem: number; estoque: number | null }
 export interface Produto {
   id: number
   nome: string
@@ -43,7 +43,7 @@ export default function Produtos() {
     fd.append('descricao', produto.descricao ?? '')
     fd.append('preco', String(produto.preco))
     fd.append('ativo', produto.ativo ? '0' : '1')
-    fd.append('tamanhos', JSON.stringify(produto.tamanhos.map(t => t.tamanho)))
+    fd.append('tamanhos', JSON.stringify(produto.tamanhos.map(t => ({ tamanho: t.tamanho, estoque: t.estoque }))))
     const res = await fetch('/api/admin/lojinha-produtos.php', { method: 'POST', credentials: 'include', body: fd })
     if (res.ok) load()
   }
@@ -123,7 +123,7 @@ export default function Produtos() {
                 <td style={{ fontWeight: 600 }}>{p.nome}</td>
                 <td>{fmtBRL(p.preco)}</td>
                 <td style={{ color: 'var(--adm-text-2)', fontSize: '.84rem' }}>
-                  {p.tamanhos.length > 0 ? p.tamanhos.map(t => t.tamanho).join(', ') : '—'}
+                  {p.tamanhos.length > 0 ? p.tamanhos.map(t => `${t.tamanho}: ${t.estoque === null ? '∞' : t.estoque}`).join(', ') : '—'}
                 </td>
                 <td>
                   <span className={`adm-badge adm-badge--${p.ativo ? 'ok' : 'tag'}`}>

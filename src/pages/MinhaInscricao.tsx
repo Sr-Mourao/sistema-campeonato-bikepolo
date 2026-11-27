@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Mail, KeyRound } from 'lucide-react'
+import { KeyRound } from 'lucide-react'
 import './MinhaInscricao.css'
 import AthleteDashboard from '../components/atleta/AthleteDashboard'
 import SiteNavbar from '../components/SiteNavbar'
@@ -7,7 +7,7 @@ import SiteNavbar from '../components/SiteNavbar'
 // ── Tipos ────────────────────────────────────────────────
 interface Session { token: string; email: string }
 
-type AuthStep = 'email' | 'code' | 'loading' | 'done' | 'no-inscricao'
+type AuthStep = 'email' | 'loading' | 'done' | 'no-inscricao'
 
 function loadSession(): Session | null {
   try {
@@ -48,7 +48,6 @@ export default function MinhaInscricao() {
   const [session, setSession]   = useState<Session | null>(initialAuth.session)
   const [email, setEmail]       = useState(initialAuth.email)
   const [code, setCode]         = useState('')
-  const [devCode, setDevCode]   = useState<string | null>(null)
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState('')
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,28 +65,9 @@ export default function MinhaInscricao() {
       .catch(() => { setError('Erro de conexão. Tente novamente.'); setStep('email') })
   }, [session, step])
 
-  async function handleEnviarCodigo(e: React.FormEvent) {
-    e.preventDefault()
-    if (!email.trim()) return
-    setLoading(true)
-    setError('')
-    try {
-      const res = await fetch('/api/auth.php', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ email: email.trim().toLowerCase() }),
-      })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error || 'Erro ao enviar código'); return }
-      setDevCode(data.code_dev ?? null)
-      setStep('code')
-    } catch { setError('Erro de conexão') }
-    finally { setLoading(false) }
-  }
-
   async function handleVerificarCodigo(e: React.FormEvent) {
     e.preventDefault()
-    if (code.length < 6) return
+    if (code.length !== 8) return
     setLoading(true)
     setError('')
     try {
@@ -97,7 +77,7 @@ export default function MinhaInscricao() {
         body:    JSON.stringify({ email, code }),
       })
       const data = await res.json()
-      if (!res.ok) { setError(data.error || 'Código inválido'); setLoading(false); return }
+      if (!res.ok) { setError(data.error || 'E-mail ou código inválido'); return }
       const s: Session = { token: data.token, email: data.email }
       saveSession(s)
       setSession(s)
@@ -112,7 +92,6 @@ export default function MinhaInscricao() {
     setAtleta(null)
     setStep('email')
     setCode('')
-    setDevCode(null)
     setError('')
   }
 
@@ -141,16 +120,15 @@ export default function MinhaInscricao() {
           </div>
         )}
 
-        {/* ── Login — email ──────────────────────────── */}
+        {/* ── Login com e-mail e código do admin ─────── */}
         {step === 'email' && (
           <div className="atl-auth">
-            <div className="atl-auth-icon"><Mail size={44} strokeWidth={1.5} style={{ color: 'color-mix(in srgb, var(--pal-orange) 70%, transparent)' }} /></div>
+            <div className="atl-auth-icon"><KeyRound size={44} strokeWidth={1.5} style={{ color: 'color-mix(in srgb, var(--pal-orange) 70%, transparent)' }} /></div>
             <h1 className="atl-auth-title">Minha Inscrição</h1>
             <p className="atl-auth-sub">
-              Informe seu email para receber um código de acesso.
-              Não precisa de senha — simples assim 💛
+              Entre com seu e-mail e o código de acesso fornecido pela organização.
             </p>
-            <form className="atl-auth-form" onSubmit={handleEnviarCodigo}>
+            <form className="atl-auth-form" onSubmit={handleVerificarCodigo}>
               {error && <div className="atl-auth-error">{error}</div>}
               <input
                 className="atl-auth-input"
@@ -162,47 +140,20 @@ export default function MinhaInscricao() {
                 autoComplete="email"
                 required
               />
-              <button className="atl-auth-btn" type="submit" disabled={loading}>
-                {loading ? <span className="atl-spinner" /> : <Mail size={15} />}
-                {loading ? 'Enviando…' : 'Receber código'}
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* ── Login — código ────────────────────────── */}
-        {step === 'code' && (
-          <div className="atl-auth">
-            <div className="atl-auth-icon"><KeyRound size={44} strokeWidth={1.5} style={{ color: 'color-mix(in srgb, var(--pal-orange) 70%, transparent)' }} /></div>
-            <h1 className="atl-auth-title">Código enviado!</h1>
-            <p className="atl-auth-sub">
-              Verifique sua caixa de entrada em <strong style={{ color: 'var(--pal-white)' }}>{email}</strong>
-              {' '}e cole o código de 6 dígitos abaixo.
-            </p>
-            <form className="atl-auth-form" onSubmit={handleVerificarCodigo}>
-              {error && <div className="atl-auth-error">{error}</div>}
-              {devCode && (
-                <div className="atl-auth-dev-code">
-                  🛠 Dev mode — código: <strong>{devCode}</strong>
-                </div>
-              )}
               <input
                 className="atl-auth-input atl-auth-input--code"
                 type="text"
                 inputMode="numeric"
-                placeholder="000000"
-                maxLength={6}
+                placeholder="00000000"
+                maxLength={8}
                 value={code}
-                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                autoFocus
-                autoComplete="one-time-code"
+                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                autoComplete="off"
+                required
               />
-              <button className="atl-auth-btn" type="submit" disabled={loading || code.length < 6}>
+              <button className="atl-auth-btn" type="submit" disabled={loading || code.length !== 8}>
                 {loading ? <span className="atl-spinner" /> : <KeyRound size={15} />}
-                {loading ? 'Verificando…' : 'Entrar'}
-              </button>
-              <button type="button" className="atl-auth-retry" onClick={() => { setStep('email'); setCode(''); setError('') }}>
-                Usar outro email ou reenviar código
+                {loading ? 'Entrando…' : 'Entrar'}
               </button>
             </form>
           </div>

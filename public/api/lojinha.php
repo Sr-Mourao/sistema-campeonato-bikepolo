@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/email.php';
+require_once __DIR__ . '/lojinha-estoque.php';
 corsHeaders();
 
 $db = getDb();
@@ -45,9 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $s->execute([$p['id']]);
         $p['imagens'] = array_column($s->fetchAll(), 'caminho');
 
-        $s = $db->prepare("SELECT tamanho FROM loj_produto_tamanhos WHERE produto_id = ? ORDER BY ordem, id");
+        $s = $db->prepare("SELECT tamanho, estoque FROM loj_produto_tamanhos WHERE produto_id = ? ORDER BY ordem, id");
         $s->execute([$p['id']]);
-        $p['tamanhos'] = array_column($s->fetchAll(), 'tamanho');
+        $p['tamanhos'] = array_map(fn($t) => [
+            'tamanho' => $t['tamanho'],
+            'estoque' => $t['estoque'] === null ? null : (int)$t['estoque'],
+        ], $s->fetchAll());
 
         $p['id']    = (int)$p['id'];
         $p['preco'] = (float)$p['preco'];
@@ -82,8 +86,7 @@ if ($acao === 'simular_pago') {
     if (!$pedido) respondError('Token de checkout inválido', 401);
     if ($pedido['status'] !== 'pendente') respondError('Pedido já processado', 400);
 
-    $db->prepare("UPDATE loj_pedidos SET status='pago', metodo='mockup', atualizado_em=datetime('now') WHERE id=?")
-       ->execute([$pgId]);
+    if (!lojinhaMarcarPedidoPago($db, $pgId, 'mockup')) respondError('Pedido já processado', 400);
 
     $stmt = $db->prepare("SELECT produto_nome, tamanho, quantidade, preco_unitario FROM loj_pedido_itens WHERE pedido_id = ?");
     $stmt->execute([$pgId]);
@@ -113,6 +116,7 @@ if (empty($itensBody) || !is_array($itensBody))                  respondError('S
 
 $itensValidados = [];
 $valorTotal = 0.0;
+$quantidadesPorVariante = [];
 
 foreach ($itensBody as $item) {
     $produtoId  = (int)($item['produto_id'] ?? 0);
@@ -126,13 +130,20 @@ foreach ($itensBody as $item) {
     $produto = $stmt->fetch();
     if (!$produto) respondError("Produto #{$produtoId} não está mais disponível");
 
-    $stmt = $db->prepare("SELECT tamanho FROM loj_produto_tamanhos WHERE produto_id = ?");
+    $stmt = $db->prepare("SELECT tamanho, estoque FROM loj_produto_tamanhos WHERE produto_id = ?");
     $stmt->execute([$produtoId]);
-    $tamanhosDisponiveis = array_column($stmt->fetchAll(), 'tamanho');
+    $tamanhosDisponiveis = $stmt->fetchAll();
 
     if (!empty($tamanhosDisponiveis)) {
-        if (empty($tamanho) || !in_array($tamanho, $tamanhosDisponiveis, true)) {
+        $variante = null;
+        foreach ($tamanhosDisponiveis as $opcao) if ($opcao['tamanho'] === $tamanho) $variante = $opcao;
+        if (empty($tamanho) || !$variante) {
             respondError("Selecione um tamanho válido para {$produto['nome']}");
+        }
+        $chaveVariante = $produtoId . ':' . $tamanho;
+        $quantidadesPorVariante[$chaveVariante] = ($quantidadesPorVariante[$chaveVariante] ?? 0) + $quantidade;
+        if ($variante['estoque'] !== null && $quantidadesPorVariante[$chaveVariante] > (int)$variante['estoque']) {
+            respondError("Estoque insuficiente para {$produto['nome']} ({$tamanho}). Disponível: {$variante['estoque']}", 409);
         }
     } else {
         $tamanho = null;

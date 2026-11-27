@@ -374,14 +374,10 @@ Abra **http://localhost:5173**.
 
 ### Login sem servidor de e-mail
 
-Deixando `RESEND_API_KEY` no valor sentinela `re_COLOQUE_SUA_CHAVE_AQUI` (o
-padrão do template), o sistema entra em **modo de desenvolvimento sem e-mail**:
-
-- `/api/auth.php` devolve o código de login no próprio JSON (campo `code_dev`)
-- `/api/carteira-auth.php` devolve o token do magic link (campo `token_dev`)
-
-Assim dá pra testar o login das pessoas atletas e da carteira sem configurar
-nada. **Nunca deixe esse valor em produção.**
+A área do atleta usa e-mail e um código permanente gerado pelo admin na ficha
+da inscrição. O Resend não participa desse login. A carteira ainda usa magic
+link por e-mail; em desenvolvimento, o token pode ser retornado no JSON como
+`token_dev`.
 
 ---
 
@@ -635,7 +631,7 @@ Não há migration a rodar: `initSchema()` cuida disso na primeira requisição.
 │   │   ├── db.php             conexão + schema (initSchema) + helpers + preços
 │   │   ├── env.example.php    template de configuração  ← copie para env.php
 │   │   ├── env.php            SEGREDOS — gitignored, nunca commitar
-│   │   ├── auth.php           login por código de e-mail
+│   │   ├── auth.php           login por código gerado pelo admin
 │   │   ├── me.php             perfil da pessoa autenticada
 │   │   ├── inscricoes.php     criação da inscrição
 │   │   ├── pagamentos.php     pagamentos da inscrição
@@ -736,7 +732,7 @@ permissões: quem entra pode tudo.**
 | Seção | Rota | O que faz | Cuidado |
 |---|---|---|---|
 | **Dashboard** | `/admin` | Contadores de inscrição, categoria, ações afirmativas e resumo financeiro | leitura |
-| **Inscrições** | `/admin/inscricoes` | Lista com filtros e busca; drawer com ficha completa; marcar pago manual, cancelar, reativar, marcar reembolsado, observações; **export CSV** | Cancelar reverte pagamento e libera vaga no time. O CSV tem **PII** |
+| **Inscrições** | `/admin/inscricoes` | Lista com filtros e busca; cadastro manual básico (nome, e-mail e categoria); drawer com ficha completa e geração do código de acesso; marcar pago manual, cancelar, reativar, marcar reembolsado, observações; **export CSV** | Cadastro manual começa com pagamento pendente e sem alimentação/alojamento. O CSV tem **PII** |
 | **Times** | `/admin/times` | Times e elencos; renomear time e atleta; mover pessoa entre times; upload de brasão e foto; painel de importação do Poloperator | Mover atleta afeta elenco de partidas já jogadas |
 | **Torneio** | `/admin/torneio` | 7 abas — [seção própria abaixo](#admin--torneio) | |
 | **Awards** | `/admin/awards` | Curadoria, abrir/encerrar votação, participação, apuração, awards MTNB, zerar | Abrir a votação **trava a curadoria**. Zerar apaga todos os votos |
@@ -1150,15 +1146,14 @@ testar o fluxo sem pagamento, ligue `PAGAMENTO_MOCK` **em desenvolvimento**.
 
 ### Resend — obrigatório se você quiser e-mail
 
-E-mails transacionais, por HTTP (`public/api/email.php`): código de login, magic
-link da carteira, confirmação de inscrição, convite de time, pagamento aprovado
+E-mails transacionais, por HTTP (`public/api/email.php`): magic link da carteira,
+confirmação de inscrição, convite de time, pagamento aprovado
 ou recusado, cancelamento, atualização de serviço, pedido da lojinha.
 
 `EMAIL_FROM` precisa ser de um domínio verificado no Resend.
 
-**Sem chave configurada** (deixando o sentinela `re_COLOQUE_SUA_CHAVE_AQUI`), o
-sistema devolve os códigos direto no JSON, e o login funciona sem e-mail — útil
-em desenvolvimento, inaceitável em produção.
+**Sem chave configurada**, os e-mails transacionais ficam indisponíveis. O login
+da área do atleta continua funcionando com o código gerado pelo admin.
 
 Trocar o Resend por SMTP é mexer numa função só (`sendEmail()`).
 
@@ -1216,10 +1211,11 @@ login.** **Não há papéis nem segundo fator.** Ver [SECURITY.md](SECURITY.md).
 
 ### Pessoas atletas
 
-Código de 6 dígitos por e-mail. Hash bcrypt no banco, validade 10 minutos, uso
-único, máximo 5 códigos por e-mail a cada 15 minutos. A sessão é um token de 32
-bytes na tabela `sessions`, com validade `SESSION_DURATION` (padrão 30 dias),
-enviado no header `X-Session-Token`.
+Código numérico de 8 dígitos gerado no detalhe da inscrição pelo admin. O código
+é armazenado com hash bcrypt e só aparece uma vez; redefini-lo encerra sessões
+abertas. Após 5 tentativas inválidas, o acesso fica bloqueado por 15 minutos.
+A sessão é um token de 32 bytes na tabela `sessions`, com validade
+`SESSION_DURATION` (padrão 30 dias), enviado no header `X-Session-Token`.
 
 ### Carteira
 

@@ -303,6 +303,15 @@
   border-color: rgba(255, 255, 255, 0.32);
   color: var(--pal-white);
 }
+.loj-tamanho-chip:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+.loj-tamanho-chip:disabled:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.78);
+}
 .loj-tamanho-chip--active {
   background: var(--loj-orange);
   color: var(--loj-purple);

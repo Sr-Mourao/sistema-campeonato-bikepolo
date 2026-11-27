@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/middleware.php';
+require_once __DIR__ . '/../lojinha-estoque.php';
 adminGuard();
 
 $db = getDb();
@@ -79,12 +80,12 @@ if ($action === 'marcar_retirado') {
 }
 
 if ($action === 'cancelar') {
-    $db->prepare("UPDATE loj_pedidos SET status='cancelado', atualizado_em=datetime('now') WHERE id=?")->execute([$id]);
+    lojinhaCancelarPedido($db, $id);
     respond(['ok' => true, 'status' => 'cancelado']);
 }
 
 if ($action === 'marcar_pago_manual') {
-    $db->prepare("UPDATE loj_pedidos SET status='pago', metodo='manual', atualizado_em=datetime('now') WHERE id=?")->execute([$id]);
+    if (!lojinhaMarcarPedidoPago($db, $id, 'manual')) respondError('Pedido já processado ou cancelado', 409);
     respond(['ok' => true, 'status' => 'pago']);
 }
 

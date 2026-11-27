@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/db.php';
-require_once __DIR__ . '/env.php';
-require_once __DIR__ . '/email.php';
 require_once __DIR__ . '/carteira/lib.php';
 
 corsHeaders();
@@ -15,69 +13,49 @@ if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
     respondError('Email inválido');
 }
 
+$code = trim((string)($body['code'] ?? ''));
+if (!preg_match('/^\d{8}$/', $code)) {
+    respondError('Informe o código de 8 dígitos.', 400);
+}
+
 $db = getDb();
 
-// ── Verificação de código ──────────────────────────────────
-// Se veio código junto com o email, é a etapa de verificação
-if (!empty($body['code'])) {
-    $code = trim($body['code']);
-
-    $stmt = $db->prepare("
-        SELECT * FROM login_codes
-        WHERE email = ? AND used = 0 AND expires_at > datetime('now')
-        ORDER BY criado_em DESC LIMIT 1
-    ");
-    $stmt->execute([$email]);
-    $row = $stmt->fetch();
-
-    if (!$row || !password_verify($code, $row['code_hash'])) {
-        respondError('Código inválido ou expirado. Solicite um novo.', 401);
-    }
-
-    // Marca código como usado
-    $db->prepare("UPDATE login_codes SET used = 1 WHERE id = ?")->execute([$row['id']]);
-
-    // Cria sessão de 30 dias
-    $token     = bin2hex(random_bytes(32));
-    $expiresAt = date('Y-m-d H:i:s', time() + SESSION_DURATION);
-
-    $stmt = $db->prepare("
-        INSERT INTO sessions (token, email, expires_at)
-        VALUES (?, ?, ?)
-    ");
-    $stmt->execute([$token, $email, $expiresAt]);
-    carteiraDefinirCookieSessao($token, time() + SESSION_DURATION);
-
-    respond([
-        'token'      => $token,
-        'email'      => $email,
-        'expires_at' => $expiresAt,
-    ]);
-}
-
-// ── Geração de código ──────────────────────────────────────
-// Limita: máx 5 códigos por email nos últimos 15 minutos (anti-spam)
+// O código é permanente até o admin redefini-lo. Após 5 erros, bloqueia por 15 min.
 $stmt = $db->prepare("
-    SELECT COUNT(*) as n FROM login_codes
-    WHERE email = ? AND criado_em > datetime('now', '-15 minutes')
+    SELECT p.id, p.email, ac.code_hash, ac.failed_attempts, ac.locked_until
+    FROM pessoas p
+    JOIN athlete_access_codes ac ON ac.pessoa_id = p.id
+    WHERE p.email = ? COLLATE NOCASE
 ");
 $stmt->execute([$email]);
-if ((int)$stmt->fetch()['n'] >= 5) {
-    respondError('Muitas tentativas. Aguarde alguns minutos.', 429);
+$row = $stmt->fetch();
+
+if (!$row) respondError('E-mail ou código inválido.', 401);
+if ($row['locked_until'] && strtotime($row['locked_until'] . ' UTC') > time()) {
+    respondError('Muitas tentativas. Tente novamente em 15 minutos.', 429);
 }
 
-$code     = str_pad((string)random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-$hash     = password_hash($code, PASSWORD_DEFAULT);
-$expires  = date('Y-m-d H:i:s', time() + 600); // 10 minutos
+if (!password_verify($code, $row['code_hash'])) {
+    $falhas = (int)$row['failed_attempts'] + 1;
+    $bloqueio = $falhas >= 5 ? gmdate('Y-m-d H:i:s', time() + 900) : null;
+    $db->prepare('UPDATE athlete_access_codes SET failed_attempts=?, locked_until=?, atualizado_em=datetime(\'now\') WHERE pessoa_id=?')
+        ->execute([$bloqueio ? 0 : $falhas, $bloqueio, $row['id']]);
+    respondError('E-mail ou código inválido.', 401);
+}
 
-$db->prepare("INSERT INTO login_codes (email, code_hash, expires_at) VALUES (?, ?, ?)")
-   ->execute([$email, $hash, $expires]);
+$db->prepare("UPDATE athlete_access_codes SET failed_attempts=0, locked_until=NULL, atualizado_em=datetime('now') WHERE pessoa_id=?")
+    ->execute([$row['id']]);
 
-$sent = sendLoginCodeEmail($email, $code);
+// Cria sessão de 30 dias no formato já usado pelos endpoints da área do atleta.
+$token     = bin2hex(random_bytes(32));
+$expiresAt = date('Y-m-d H:i:s', time() + SESSION_DURATION);
+
+$stmt = $db->prepare('INSERT INTO sessions (token, email, expires_at) VALUES (?, ?, ?)');
+$stmt->execute([$token, $row['email'], $expiresAt]);
+carteiraDefinirCookieSessao($token, time() + SESSION_DURATION);
 
 respond([
-    'sent'    => $sent,
-    'message' => 'Código enviado para ' . $email,
-    // Em dev, retorna o código para facilitar testes
-    'code_dev' => (RESEND_API_KEY === 're_COLOQUE_SUA_CHAVE_AQUI') ? $code : null,
+    'token'      => $token,
+    'email'      => $row['email'],
+    'expires_at' => $expiresAt,
 ]);

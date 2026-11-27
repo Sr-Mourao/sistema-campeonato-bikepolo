@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { RefreshCw } from 'lucide-react'
-import { adminGet } from '../adminApi'
+import { RefreshCw, Plus } from 'lucide-react'
+import { adminGet, adminPost } from '../adminApi'
 import InscricaoDrawer, { StatusBadge } from './InscricaoDrawer'
 import ExportButtons from '../components/ExportButtons'
 
@@ -37,11 +37,16 @@ export default function Inscricoes() {
   const [status, setStatus] = useState('todos')
   const [filtros, setFiltros] = useState<Record<string, boolean>>({})
   const [drawerIdId, setDrawerId] = useState<number | null>(null)
+  const [mostrarCadastro, setMostrarCadastro] = useState(false)
+  const [nomeNovo, setNomeNovo] = useState('')
+  const [emailNovo, setEmailNovo] = useState('')
+  const [categoriaNova, setCategoriaNova] = useState('misto')
+  const [salvandoNovo, setSalvandoNovo] = useState(false)
 
   const toggleFiltro = (key: string) =>
     setFiltros(prev => ({ ...prev, [key]: !prev[key] }))
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
     setLoading(true)
     const params = new URLSearchParams()
     if (status !== 'todos') params.set('status', status)
@@ -54,9 +59,10 @@ export default function Inscricoes() {
     if (filtros.mtnb)            params.set('categoria', 'mtnb')
     if (busca)                   params.set('busca', busca)
 
-    adminGet<Inscricao[]>(`/api/admin/inscricoes.php?${params}`)
-      .then(d => { if (d) setLista(d) })
-      .finally(() => setLoading(false))
+    try {
+      const d = await adminGet<Inscricao[]>(`/api/admin/inscricoes.php?${params}`)
+      if (d) setLista(d)
+    } finally { setLoading(false) }
   }, [status, filtros, busca])
 
   useEffect(() => {
@@ -74,6 +80,21 @@ export default function Inscricoes() {
     { key: 'alojamento', label: 'Alojamento' },
   ]
 
+  async function cadastrarAtleta(e: React.FormEvent) {
+    e.preventDefault()
+    setSalvandoNovo(true)
+    const result = await adminPost<{ ok: true; inscricao_id: number }>('/api/admin/inscricoes.php', {
+      action: 'criar_atleta', nome: nomeNovo, email: emailNovo, categoria: categoriaNova,
+    })
+    setSalvandoNovo(false)
+    if (!result) return
+    setMostrarCadastro(false)
+    setNomeNovo('')
+    setEmailNovo('')
+    await load()
+    setDrawerId(result.inscricao_id)
+  }
+
   return (
     <div>
       <div className="adm-toolbar">
@@ -90,6 +111,10 @@ export default function Inscricoes() {
 
         <button className="adm-btn adm-btn--sm" onClick={load} title="Atualizar">
           <RefreshCw size={14} />
+        </button>
+
+        <button className="adm-btn adm-btn--sm adm-btn--success" onClick={() => setMostrarCadastro(v => !v)}>
+          <Plus size={14} /> Cadastrar atleta
         </button>
 
         <span className="adm-count">{lista.length} resultado{lista.length !== 1 ? 's' : ''}</span>
@@ -110,6 +135,32 @@ export default function Inscricoes() {
       <div style={{ marginBottom: 12 }}>
         <ExportButtons />
       </div>
+
+      {mostrarCadastro && (
+        <form onSubmit={cadastrarAtleta} style={{ display: 'flex', alignItems: 'end', gap: 10, flexWrap: 'wrap', marginBottom: 16, padding: 14, border: '1px solid var(--adm-border)', borderRadius: 8 }}>
+          <label style={{ display: 'grid', gap: 5, flex: '1 1 200px', color: 'var(--adm-text-2)', fontSize: '.8rem' }}>
+            Nome
+            <input className="adm-search" value={nomeNovo} onChange={e => setNomeNovo(e.target.value)} maxLength={120} required />
+          </label>
+          <label style={{ display: 'grid', gap: 5, flex: '1 1 220px', color: 'var(--adm-text-2)', fontSize: '.8rem' }}>
+            E-mail
+            <input className="adm-search" type="email" value={emailNovo} onChange={e => setEmailNovo(e.target.value)} required />
+          </label>
+          <label style={{ display: 'grid', gap: 5, minWidth: 130, color: 'var(--adm-text-2)', fontSize: '.8rem' }}>
+            Categoria
+            <select className="adm-select" value={categoriaNova} onChange={e => setCategoriaNova(e.target.value)}>
+              <option value="misto">Misto</option>
+              <option value="mtnb">MTNB</option>
+            </select>
+          </label>
+          <button className="adm-btn adm-btn--success" type="submit" disabled={salvandoNovo || !nomeNovo.trim() || !emailNovo.trim()}>
+            {salvandoNovo ? 'Cadastrando…' : 'Cadastrar'}
+          </button>
+          <span style={{ flexBasis: '100%', color: 'var(--adm-text-3)', fontSize: '.76rem' }}>
+            A inscrição ficará com pagamento pendente, sem alimentação e alojamento. Após salvar, abra a ficha para gerar o código de acesso.
+          </span>
+        </form>
+      )}
 
       <div className="adm-table-wrap">
         <table className="adm-table">
