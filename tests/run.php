@@ -11,7 +11,8 @@ $arquivos = array_merge(
     glob(__DIR__ . '/torneio/test_*.php'),
     glob(__DIR__ . '/midia/test_*.php'),
     glob(__DIR__ . '/carteira/test_*.php'),
-    glob(__DIR__ . '/awards/test_*.php')
+    glob(__DIR__ . '/awards/test_*.php'),
+    glob(__DIR__ . '/streaming/test_*.php')
 );
 sort($arquivos);
 foreach ($arquivos as $f) require_once $f;

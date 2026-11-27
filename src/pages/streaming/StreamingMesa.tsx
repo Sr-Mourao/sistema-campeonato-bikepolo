@@ -26,6 +26,7 @@ export default function StreamingMesa() {
     device,
     updateDevice,
     serverOnline,
+    syncError,
     peers,
     clockOffset,
     toggleClock,
@@ -577,12 +578,22 @@ export default function StreamingMesa() {
 
   return (
     <div className={`stm-page role-${device.role}`}>
+      {/* O servidor não gravou o último envio: a transmissão está parada no placar anterior */}
+      {syncError && (
+        <div className="stm-sync-error" role="alert">
+          NÃO SINCRONIZADO — a transmissão não está recebendo: {syncError}
+        </div>
+      )}
+
       {/* Top Header */}
       <header className="stm-header">
         <h1>MESA DE STREAMING · POLO</h1>
 
         <span className={`stm-status-badge ${serverOnline ? 'ok' : 'off'}`}>
           {serverOnline ? '● Servidor Conectado' : '○ Sincronização Local'}
+        </span>
+        <span className="stm-origin" title="Endereço em que esta mesa está operando">
+          {window.location.origin}
         </span>
 
         <span className="stm-header-sp" />

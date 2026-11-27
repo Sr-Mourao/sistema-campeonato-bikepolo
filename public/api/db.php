@@ -287,6 +287,23 @@ function initSchema(PDO $pdo): void {
             pedido_item_id INTEGER REFERENCES loj_pedido_itens(id) ON DELETE CASCADE,
             criado_em TEXT DEFAULT (datetime('now'))
         );
+
+        -- Streaming (mesa ↔ overlays): estado ao vivo e catálogo de times.
+        -- `dados` guarda o JSON cru como chegou (decodificar/recodificar trocaria {} por []).
+        CREATE TABLE IF NOT EXISTS streaming_kv (
+            chave TEXT PRIMARY KEY,
+            rev INTEGER NOT NULL DEFAULT 0,
+            dados TEXT NOT NULL,
+            atualizado_ms INTEGER NOT NULL
+        );
+
+        -- Presença dos aparelhos conectados à mesa (árbitro, overlays, observadores)
+        CREATE TABLE IF NOT EXISTS streaming_presenca (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            role TEXT,
+            seen_ms INTEGER NOT NULL
+        );
     ");
 
     // ── Módulo de torneio (Swiss modificado + equalização + repescagem + double elimination) ──

@@ -29,7 +29,7 @@ function sceneSrc(path: string, boardPos?: string): string {
 
 export default function StreamingOverlay() {
   useObsDocument('OBS · Placar Streaming')
-  const { state, clockOffset } = useStreamingSync()
+  const { state, clockOffset } = useStreamingSync({ mirror: true })
 
   // Background chroma-key option
   useEffect(() => {

@@ -99,3 +99,33 @@
 .adm-streaming-btn--copy {
   color: rgba(255,255,255,0.6);
 }
+
+/* Diagnóstico da sincronização (botão "Testar sincronização") */
+.adm-streaming-diag {
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.adm-streaming-diag-status {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+}
+.adm-streaming-diag-status.ok { color: var(--pal-green-mint, #29e7a5); }
+.adm-streaming-diag-status.erro { color: #ff6b6b; }
+
+.adm-streaming-diag-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 16px;
+  margin: 0;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  font-size: 13px;
+}
+.adm-streaming-diag-grid dt { color: rgba(255,255,255,0.55); }
+.adm-streaming-diag-grid dd { margin: 0; color: #fff; overflow-wrap: anywhere; }

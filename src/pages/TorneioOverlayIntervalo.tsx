@@ -22,7 +22,7 @@ export default function TorneioOverlayIntervalo() {
   useObsDocument('OBS · Intervalo do torneio')
   const patrocinadores = usePatrocinadores()
   // Próxima partida: fila da mesa de streaming (aba Jogos). ?preview=1 mostra um exemplo.
-  const { state, teams } = useStreamingSync()
+  const { state, teams } = useStreamingSync({ mirror: true })
   const preview = new URLSearchParams(window.location.search).has('preview')
   const proxima = nextScheduledMatch(state, teams) ?? (preview ? { a: 'Alento', b: 'Buena Mira', label: 'Rodada 3 · Jogo 4' } : null)
   const overlay = useRef<HTMLElement>(null)

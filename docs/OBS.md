@@ -29,6 +29,33 @@ Para transmissão em tempo real sincronizada com a mesa de arbitragem:
 4. Fundo: transparente por padrão (suporta `?bg=green` se preferir chroma key verde).
 5. O árbitro opera o jogo em `/streaming/mesa` (carrega a partida da fila, aciona gols, faltas e relógio), e o overlay no OBS atualiza instantaneamente com animações e cartões de jogadoras.
 
+### Overlay parado no OBS/Streamlabs
+
+O OBS e o Streamlabs são **outro navegador**: o overlay só recebe o que a mesa
+consegue gravar no servidor (`/api/streaming.php`, no banco SQLite). Se a mesa
+parece funcionar mas a transmissão não muda, siga nesta ordem:
+
+1. **Abra `https://SEU-DOMINIO/api/streaming.php?action=diag`** (ou use o botão
+   **"Testar sincronização"** em `/admin/streaming`).
+   - `banco.gravacao: false` → o servidor não consegue gravar no banco; o
+     campo `banco.erro` diz o motivo. Nada chega ao overlay até isso ser resolvido.
+   - `state: null` → a mesa nunca conseguiu gravar um estado nesse servidor.
+   - `state.idade_s` alto com o jogo rolando → a mesa está gravando em outro
+     lugar (veja o item 2).
+   - `dispositivos_vivos` conta mesa + overlays abertos agora.
+2. **Mesa e overlay no mesmo domínio.** O cabeçalho da mesa mostra o endereço em
+   que ela está operando (ao lado de "Servidor Conectado"). Se ali aparecer
+   `http://localhost:…` e o OBS aponta para `https://SEU-DOMINIO/…`, cada um está
+   falando com um servidor diferente.
+3. **Faixa vermelha na mesa = servidor não grava.** "NÃO SINCRONIZADO — a
+   transmissão não está recebendo: …" aparece quando o servidor recusa o envio
+   (erro 500, sem conexão). A mensagem é a do servidor; a faixa some sozinha no
+   primeiro envio que der certo.
+4. **"Atualizar cache da página atual"** nas propriedades da fonte do
+   OBS/Streamlabs. Não é mais necessário por causa de dados velhos (o overlay
+   sempre segue o servidor, mesmo que o navegador da fonte tenha guardado um
+   jogo antigo), mas resolve quando o próprio site foi atualizado (novo build).
+
 ---
 
 ## Central de overlays clássicos
