@@ -153,3 +153,6 @@
 .trn-audit-body { flex: 1; font-size: .84rem; color: var(--adm-text); }
 .trn-audit-user { color: var(--adm-text-2); font-size: .74rem; }
 .trn-audit-reverted { text-decoration: line-through; opacity: .5; }
+/* Troca de ordem dos jogos da rodada (↑/↓) */
+.trn-match-order { margin-left: auto; display: inline-flex; gap: 4px; }
+.trn-match-order .adm-btn { padding: 1px 8px; min-height: 0; font-size: .8rem; line-height: 1.4; }

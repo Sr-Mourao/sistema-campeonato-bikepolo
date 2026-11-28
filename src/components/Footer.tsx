@@ -83,7 +83,7 @@ export default function Footer() {
         <div className="footer-group">
           <span className="footer-label">REALIZAÇÃO</span>
           <a
-            href="https://floripa.bikepolo.site"
+            href="https://www.instagram.com/piorbicipolo/"
             target="_blank"
             rel="noopener noreferrer"
             className="footer-club-link"

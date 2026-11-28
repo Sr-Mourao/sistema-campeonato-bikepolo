@@ -34,6 +34,7 @@ const POLOPERATOR_APELIDOS = [
         'Mati'                              => 'Mat',
         'Luqueta'                           => 'Lusca',
         'Emiliane Mayumi Ito'               => 'Emi',
+        'Paulo Borba'                       => 'Paulo',
     ],
 ];
 

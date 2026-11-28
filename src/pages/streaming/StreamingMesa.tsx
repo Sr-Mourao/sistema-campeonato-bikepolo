@@ -13,7 +13,9 @@ import {
 } from '../../services/streamingState'
 import { torneioApi, type Jogo, type Torneio, type TipoGol } from '../../admin/torneio/torneioApi'
 import PausePanel from './PausePanel'
-import { CENTRAL_SCENES, defaultHideBoard } from './centralScenes'
+import { cenasDaCentral, defaultHideBoard } from './centralScenes'
+import { torneioPublico } from '../../services/torneioPublico'
+import { formatoDe } from '../../services/formatoTorneio'
 import './StreamingMesa.css'
 
 const ROLE_LABEL: Record<string, string> = { mesa: 'Árbitro', overlays: 'Operador da live', completo: 'Completo' }
@@ -78,6 +80,13 @@ export default function StreamingMesa() {
 
   // Cenas da Central com dados simulados (?preview=1), para ensaiar a live
   const [centralPreview, setCentralPreview] = useState(false)
+  // 2° Pior: sem Repescagem → a cena vira "Cruzamentos da Double". Sem resposta do backend, mantém o catálogo completo.
+  const [comRepescagem, setComRepescagem] = useState(true)
+  useEffect(() => {
+    torneioPublico.resumo('misto').then(r => setComRepescagem(formatoDe(r.torneio).repescagem)).catch(() => {})
+  }, [])
+  // Ensaio usa os dados de teste do formato atual (8 times, sem Repescagem).
+  const cenas = cenasDaCentral(centralPreview ? false : comRepescagem)
   const [activeTab, setActiveTab] = useState<'teams' | 'games' | 'results' | 'settings'>('teams')
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [previewSize, setPreviewSize] = useState<'large' | 'small' | 'off'>('large')
@@ -1253,7 +1262,7 @@ export default function StreamingMesa() {
             {(['Misto'] as const).map(torneio => (
               <div key={torneio} className="stm-central-group">
                 <h3>{torneio}</h3>
-                {CENTRAL_SCENES.filter(c => c.torneio === torneio).map(c => {
+                {cenas.filter(c => c.torneio === torneio).map(c => {
                   const path = centralPreview ? `${c.path}?preview=1` : c.path
                   const onAir = state.scene?.path.split('?')[0] === c.path
                   return (

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CampeaoPublico, JogoPublico, StandingRowPublico } from '../../services/torneioPublico'
-import { chaveMudouParaCampeao, classificacaoOficial, classificadosRepescagem, colunaDoDesempate, escolherEtapaClassificacao, escolherRodada, estadoDaFinal, jogoTemPlacar, partidaOperacionalEmFoco, porCodigo } from './tournamentOverlayData'
+import { chaveMudouParaCampeao, classificacaoOficial, classificadosRepescagem, colunaDoDesempate, cruzamentosDaDouble, escolherEtapaClassificacao, escolherRodada, estadoDaFinal, jogoTemPlacar, partidaOperacionalEmFoco, porCodigo } from './tournamentOverlayData'
 
 const jogo = (codigo: string, patch: Partial<JogoPublico> = {}): JogoPublico => ({
   codigo, bracket: null, ordem: 1, status: 'agendado', placar_a: null, placar_b: null,
@@ -33,6 +33,17 @@ describe('dados dos overlays de fase', () => {
     jogos[0] = rr('RR1.1', 1, { status: 'encerrado', placar_a: 2, placar_b: 1 })
     jogos[1] = rr('RR2.1', 2, { status: 'em_andamento', placar_a: 0, placar_b: 0 })
     expect(escolherRodada(jogos)?.rodada).toBe(2)
+  })
+
+  it('cruzamentos da Double de 8: projeção 1×8, 2×7, 3×6, 4×5 e, depois, os jogos oficiais', () => {
+    const classif = Array.from({ length: 8 }, (_, i) => ({ time_id: 100 + i, nome: `Time ${i + 1}`, logo: null, posicao: i + 1 }))
+    const proj = cruzamentosDaDouble(classif, [])
+    expect(proj.map(c => `${c.codigo}:${c.a.nome}x${c.b.nome}`)).toEqual(['QD:Time 1xTime 8', 'QC:Time 2xTime 7', 'QB:Time 3xTime 6', 'QA:Time 4xTime 5'])
+    expect(proj.every(c => c.jogo === undefined)).toBe(true)
+    const qd = jogo('QD', { fase_tipo: 'double', fase_rodada: null, time_a_id: 900, time_a_nome: 'Oficial A', time_b_id: 901, time_b_nome: 'Oficial B', status: 'em_andamento' })
+    const oficial = cruzamentosDaDouble(classif, [qd])
+    expect(oficial[0]).toMatchObject({ codigo: 'QD', jogo: qd, a: { seed: 1, nome: 'Oficial A' }, b: { seed: 8, nome: 'Oficial B' } })
+    expect(oficial[1].jogo).toBeUndefined()
   })
 
   it('antes do início mostra a primeira rodada criada', () => {

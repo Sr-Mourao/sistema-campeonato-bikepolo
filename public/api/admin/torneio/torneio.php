@@ -7,6 +7,7 @@ require_once __DIR__ . '/../middleware.php';
 require_once __DIR__ . '/../../torneio/lib.php';
 require_once __DIR__ . '/../../torneio/bracket.php';
 require_once __DIR__ . '/../../torneio/setup.php';
+require_once __DIR__ . '/../../torneio/sumula.php';
 adminGuard();
 
 $db     = getDb();
@@ -97,6 +98,12 @@ if ($method === 'POST') {
         if ($action === 'gerar_repescagem') {
             $torneio = torneioOu404($db, $body['torneio_id'] ?? 0);
             $r = gerarRepescagem($db, (int)$torneio['id'], $usuario);
+            respond(['ok' => true] + $r);
+        }
+
+        if ($action === 'mover_jogo') {
+            $torneio = torneioOu404($db, $body['torneio_id'] ?? 0);
+            $r = moverJogo($db, (int)$torneio['id'], (int)($body['jogo_id'] ?? 0), (string)($body['direcao'] ?? ''), $usuario);
             respond(['ok' => true] + $r);
         }
 

@@ -220,3 +220,33 @@ function test_pior8_confronto_direto_grupo_decide_quando_ha_vencedor(): void {
     assertEqualsT([3, 2, 1], array_map(fn($r) => $r['time_id'], $ordenado), 'mini-tabela ordena o grupo empatado');
     echo "OK: test_pior8_confronto_direto_grupo_decide_quando_ha_vencedor\n";
 }
+
+function ordemDaRodada(PDO $db, int $id, int $rodada): array {
+    $stmt = $db->prepare("SELECT j.codigo FROM torneio_jogos j JOIN torneio_fases f ON f.id=j.fase_id WHERE j.torneio_id=? AND f.tipo='round_robin' AND f.rodada=? ORDER BY j.ordem");
+    $stmt->execute([$id, $rodada]);
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
+function test_pior8_admin_troca_ordem_dos_jogos_da_rodada(): void {
+    $db = testDb(); [$id] = montarPior8($db, false);
+    assertEqualsT(['RR1.1', 'RR1.2', 'RR1.3', 'RR1.4'], ordemDaRodada($db, $id, 1), 'ordem inicial');
+    $rr13 = jogoPorCodigo($db, $id, 'RR1.3');
+    assertEqualsT(['codigo' => 'RR1.3', 'trocado_com' => 'RR1.2'], moverJogo($db, $id, (int)$rr13['id'], 'cima', 'teste'), 'sobe uma posição');
+    assertEqualsT(['RR1.1', 'RR1.3', 'RR1.2', 'RR1.4'], ordemDaRodada($db, $id, 1), 'RR1.3 passa à frente do RR1.2');
+    // O próximo jogo segue a nova ordem.
+    atualizarPartida($db, $id, (int)jogoPorCodigo($db, $id, 'RR1.1')['id'], ['status' => 'encerrado', 'placar_a' => 1, 'placar_b' => 0], 'teste');
+    assertEqualsT('RR1.3', resolverPartidaDestaque($db, $id)['jogo']['codigo'] ?? null, 'próximo jogo respeita a ordem trocada');
+    assertThrowsT(fn() => moverJogo($db, $id, (int)$rr13['id'], 'cima', 'teste'), 'não troca com jogo já encerrado');
+    assertThrowsT(fn() => moverJogo($db, $id, (int)jogoPorCodigo($db, $id, 'RR1.4')['id'], 'baixo', 'teste'), 'último da rodada não desce');
+    $n = $db->prepare("SELECT COUNT(*) FROM torneio_audit_log WHERE torneio_id=? AND acao='mover_jogo'");
+    $n->execute([$id]);
+    assertEqualsT(1, (int)$n->fetchColumn(), 'troca registrada na auditoria');
+    echo "OK: test_pior8_admin_troca_ordem_dos_jogos_da_rodada\n";
+}
+
+function test_pior8_double_nao_troca_ordem(): void {
+    $db = testDb(); [$id] = montarPior8($db, true);
+    fecharClassificacao($db, $id, 'teste'); gerarDouble($db, $id, 'teste');
+    assertThrowsT(fn() => moverJogo($db, $id, (int)jogoPorCodigo($db, $id, 'QB')['id'], 'cima', 'teste'), 'Double mantém a ordem operacional');
+    echo "OK: test_pior8_double_nao_troca_ordem\n";
+}

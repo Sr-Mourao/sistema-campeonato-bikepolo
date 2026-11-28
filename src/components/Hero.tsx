@@ -94,10 +94,11 @@ export default function Hero() {
         {/* ── Faixas de título ──────────────────────────── */}
         <div className="hero-titles">
           <div className="zone zone-orange">
+            {/* Mesma arte horizontal do overlay de Intervalo. */}
             <img
-              src="/identidade/10BR.svg"
+              src="/identidade/overlay/logo-camp-horizontal.webp"
               alt="2° Pior Campeonato de Bici Polo"
-              className="title-img"
+              className="title-img title-img--camp"
             />
           </div>
 

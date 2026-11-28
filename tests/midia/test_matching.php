@@ -109,13 +109,45 @@ function test_apelido_nao_sobrepoe_nome_direto(): void {
 // Os apelidos oficiais do 2° Pior cobrem exatamente os atletas do Poloperator cujo nome difere.
 function test_apelidos_pior_2026_casam_nomes_do_poloperator(): void {
     $internos = [];
-    foreach (['Jpg', 'Emily Ethel', 'Marcos', 'Ana', 'Dox', 'Fábio', 'Carla', 'Mendonça', 'Lari', 'Buratto', 'Mat', 'Kwy', 'Jay', 'Mourao', 'Aguidota', 'Vitinho', 'Gusta', 'Jantas', 'Lusca', 'Emi'] as $i => $n) {
+    foreach (['Jpg', 'Emily Ethel', 'Marcos', 'Ana', 'Dox', 'Fábio', 'Carla', 'Mendonça', 'Lari', 'Buratto', 'Mat', 'Kwy', 'Jay', 'Mourao', 'Aguidota', 'Vitinho', 'Gusta', 'Jantas', 'Lusca', 'Emi', 'Paulo'] as $i => $n) {
         $internos[] = ['id' => $i + 1, 'nome' => $n, 'poloperator_id' => null];
     }
     $nomesPolo = ['João Pedro Gnoatto Lopes', 'Emily Ethel Chika', 'Marcos Normelio Antunes da Costa ', 'Ana Carolina Alencar de Barros', 'Dox Lucchin',
-        'Fábio Luiz Kuntze', 'Carla Thais Maiewski ', 'Lucas Mendonça', 'Larissa Torres', 'Rafael Buratto', 'Mati', 'Kwy', 'JAY', 'Mourão ', 'Aguidota', 'Vitinho', 'Gusta', 'Jantas', 'Luqueta', 'Emiliane Mayumi Ito'];
+        'Fábio Luiz Kuntze', 'Carla Thais Maiewski ', 'Lucas Mendonça', 'Larissa Torres', 'Rafael Buratto', 'Mati', 'Kwy', 'JAY', 'Mourão ', 'Aguidota', 'Vitinho', 'Gusta', 'Jantas', 'Luqueta', 'Emiliane Mayumi Ito', 'Paulo Borba '];
     $externos = array_map(fn($n, $i) => ['id' => "p$i", 'name' => $n], $nomesPolo, array_keys($nomesPolo));
     $m = casarComInternos($externos, $internos, POLOPERATOR_APELIDOS['brasileiro']);
     foreach ($m as $i => $r) assertEqualsT($i + 1, $r['interno']['id'] ?? null, "'{$nomesPolo[$i]}' deve casar com '{$internos[$i]['nome']}'");
     echo "OK: test_apelidos_pior_2026_casam_nomes_do_poloperator\n";
+}
+
+// Numeração diferente: "Time 7" no Poloperator tem o elenco do nosso "Time 2" → casa pelo elenco.
+function test_times_casam_pelo_elenco_e_nao_pelo_numero(): void {
+    $externos = [
+        ['id' => 'pt7', 'name' => 'Time 7', 'players' => [['id' => 'k', 'name' => 'Kwy'], ['id' => 'm', 'name' => 'Mati'], ['id' => 'j', 'name' => 'JAY']]],
+        ['id' => 'pt8', 'name' => 'Time 8', 'players' => []],
+    ];
+    $internos = [
+        ['id' => 2, 'nome' => 'Time 2', 'poloperator_id' => null],
+        ['id' => 7, 'nome' => 'Time 7', 'poloperator_id' => 'pt7'], // id antigo gravado errado
+        ['id' => 8, 'nome' => 'Time 8', 'poloperator_id' => null],
+    ];
+    $roster = [
+        2 => [['id' => 21, 'nome' => 'Kwy', 'poloperator_id' => null], ['id' => 22, 'nome' => 'Mat', 'poloperator_id' => null], ['id' => 23, 'nome' => 'Jay', 'poloperator_id' => null]],
+        7 => [['id' => 71, 'nome' => 'Vitinho', 'poloperator_id' => null]],
+        8 => [['id' => 81, 'nome' => 'Gusta', 'poloperator_id' => null]],
+    ];
+    $m = casarTimesPorElenco($externos, $internos, $roster, ['Mati' => 'Mat']);
+    assertEqualsT([2, 'elenco'], [$m[0]['interno']['id'], $m[0]['via']], 'Time 7 do Poloperator = nosso Time 2 pelo elenco, mesmo com id antigo errado');
+    assertEqualsT([8, 'nome'], [$m[1]['interno']['id'], $m[1]['via']], 'sem atletas, cai no nome');
+    echo "OK: test_times_casam_pelo_elenco_e_nao_pelo_numero\n";
+}
+
+// Empate de votos entre dois times internos nunca é decidido por adivinhação.
+function test_elenco_empatado_nao_adivinha(): void {
+    $externos = [['id' => 'x', 'name' => 'Sem Par', 'players' => [['id' => 'a', 'name' => 'Ana'], ['id' => 'b', 'name' => 'Bia']]]];
+    $internos = [['id' => 1, 'nome' => 'T1', 'poloperator_id' => null], ['id' => 2, 'nome' => 'T2', 'poloperator_id' => null]];
+    $roster = [1 => [['id' => 11, 'nome' => 'Ana', 'poloperator_id' => null]], 2 => [['id' => 21, 'nome' => 'Bia', 'poloperator_id' => null]]];
+    $m = casarTimesPorElenco($externos, $internos, $roster);
+    assertEqualsT('pendente', $m[0]['status'], 'empate 1×1 fica pendente');
+    echo "OK: test_elenco_empatado_nao_adivinha\n";
 }

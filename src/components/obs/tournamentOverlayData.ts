@@ -109,3 +109,39 @@ export function estadoDaFinal(double: JogoPublico[], campeao: CampeaoPublico | n
 export function chaveMudouParaCampeao(anterior: CampeaoPublico | null, atual: CampeaoPublico | null): boolean {
   return anterior === null && atual !== null
 }
+
+export interface LadoCruzamento { seed: number; time_id: number | null; nome: string | null; logo: string | null }
+export interface CruzamentoDouble {
+  codigo: 'QA' | 'QB' | 'QC' | 'QD'
+  a: LadoCruzamento
+  b: LadoCruzamento
+  /** Jogo oficial já gerado (Double existe); ausente = projeção pela classificação. */
+  jogo?: JogoPublico
+}
+
+/** Seeds das quartas da Double de entrada direta (formato de 8, sem Repescagem). */
+const CRUZAMENTOS_DIRETOS: [CruzamentoDouble['codigo'], number, number][] = [
+  ['QD', 1, 8], ['QC', 2, 7], ['QB', 3, 6], ['QA', 4, 5],
+]
+
+/**
+ * Ponte 1ª fase → Double no formato sem Repescagem. Enquanto a Double não existe, mostra a
+ * projeção pela classificação oficial (posição N = seed N). Quando QA–QD já existem, usa
+ * os times e o status dos jogos oficiais — nunca recalcula seeds no front.
+ */
+export function cruzamentosDaDouble(classificacao: { time_id: number; nome: string; logo?: string | null; posicao: number }[], double: JogoPublico[]): CruzamentoDouble[] {
+  const porPosicao = new Map(classificacao.map(r => [r.posicao, r]))
+  const lado = (seed: number, oficial?: { id: number | null; nome: string | null; logo: string | null }): LadoCruzamento => {
+    if (oficial && oficial.id != null) return { seed, time_id: oficial.id, nome: oficial.nome, logo: oficial.logo }
+    const row = porPosicao.get(seed)
+    return { seed, time_id: row?.time_id ?? null, nome: row?.nome ?? null, logo: row?.logo ?? null }
+  }
+  return CRUZAMENTOS_DIRETOS.map(([codigo, sa, sb]) => {
+    const jogo = porCodigo(double, codigo)
+    return {
+      codigo, jogo,
+      a: lado(sa, jogo ? { id: jogo.time_a_id, nome: jogo.time_a_nome, logo: jogo.time_a_logo } : undefined),
+      b: lado(sb, jogo ? { id: jogo.time_b_id, nome: jogo.time_b_nome, logo: jogo.time_b_logo } : undefined),
+    }
+  })
+}

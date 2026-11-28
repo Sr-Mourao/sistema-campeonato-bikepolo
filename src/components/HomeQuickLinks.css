@@ -25,3 +25,8 @@
 @media(min-width:700px){.home-primary-grid,.home-operational-grid{grid-template-columns:1fr 1fr}.home-primary-grid .home-link-card{min-height:310px}.home-more{grid-template-columns:1fr auto;align-items:center}.home-more nav{justify-content:flex-end}}
 @media(min-width:900px){.home-primary-grid .home-link-card--results{grid-column:1/-1;min-height:250px}.home-primary-grid .home-link-card--results .home-link-label{font-size:clamp(44px,6vw,70px)}}
 @media(max-width:520px){.home-links-intro{margin-top:-14px}.home-primary-grid .home-link-card{min-height:225px}.home-link-card--operational{min-height:135px}.home-more nav{display:grid;grid-template-columns:1fr 1fr}.home-more a{justify-content:flex-start}}
+/* Cards que ocupam a linha inteira (torneio sem o card de Equipes; YouTube). */
+.home-primary-grid .home-link-card--wide,.home-operational-grid .home-link-card--wide{grid-column:1/-1}
+@media(min-width:900px){.home-primary-grid .home-link-card--tournament.home-link-card--wide{min-height:250px}.home-primary-grid .home-link-card--tournament.home-link-card--wide .home-link-label{font-size:clamp(44px,6vw,70px)}}
+.home-link-card--youtube{border-color:color-mix(in srgb, var(--pal-magenta-l65) 60%, transparent);background:linear-gradient(120deg,color-mix(in srgb, var(--pal-magenta-d40) 55%, transparent),color-mix(in srgb, var(--pal-purple-d20) 80%, transparent))}
+.home-link-card--youtube .home-link-icon{color:var(--pal-white);background:color-mix(in srgb, var(--pal-magenta) 70%, transparent)}

@@ -81,7 +81,8 @@ export default function TorneioAdmin() {
         </div>
       )}
       <div className="trn-toolbar" style={{marginBottom:12}}>
-        {!torneios.some(t => t.categoria === 'misto') && <button className="adm-btn-primary" disabled={criando} onClick={() => criarTorneioOficial('misto')}>CRIAR MISTO</button>}
+        {/* O 2° Pior (8 times) pode ser criado mesmo se um Misto antigo existir; o site mostra o mais recente. */}
+        {!torneios.some(t => t.categoria === 'misto' && t.formato === 'misto_round_robin_8') && <button className="adm-btn-primary" disabled={criando} onClick={() => criarTorneioOficial('misto')}>CRIAR MISTO</button>}
         {MTNB_VISIVEL && !torneios.some(t => t.categoria === 'mtnb') && <button className="adm-btn-primary" disabled={criando} onClick={() => criarTorneioOficial('mtnb')}>CRIAR MTNB</button>}
       </div>
 
