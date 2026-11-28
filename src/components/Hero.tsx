@@ -76,7 +76,7 @@ export default function Hero() {
 
           <div className="illustration-wrapper">
             <img
-              src="/identidade/lobo.svg"
+              src="/identidade/logocamps.svg"
               alt=""
               className="hero-illustration"
               aria-hidden="true"
