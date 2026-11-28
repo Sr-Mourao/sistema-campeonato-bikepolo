@@ -137,6 +137,7 @@ try {
                 'pontos_vitoria' => (float)$torneio['pontos_vitoria'],
                 'pontos_empate' => (float)$torneio['pontos_empate'],
                 'pontos_derrota' => (float)$torneio['pontos_derrota'],
+                'formato_info' => formatoInfo($torneio),
             ],
             'fases' => $fases,
             'criterios' => array_map(fn($c) => ['chave' => $c, 'label' => TORNEIO_CRITERIOS_LABEL[$c] ?? $c], getCriterios($db, $torneioId)),
@@ -287,7 +288,7 @@ try {
         $double = array_values(array_filter($jogos, fn($j) => $j['fase_tipo'] === 'double'));
 
         respond([
-            'torneio' => ['id' => (int)$torneio['id'], 'nome' => $torneio['nome'], 'categoria' => $torneio['categoria'], 'formato' => formatoDoTorneio($torneio), 'estado' => $torneio['estado'], 'classificados_diretos' => (int)$torneio['classificados_diretos'], 'vagas_repescagem' => (int)$torneio['vagas_repescagem']],
+            'torneio' => ['id' => (int)$torneio['id'], 'nome' => $torneio['nome'], 'categoria' => $torneio['categoria'], 'formato' => formatoDoTorneio($torneio), 'formato_info' => formatoInfo($torneio), 'estado' => $torneio['estado'], 'classificados_diretos' => (int)$torneio['classificados_diretos'], 'vagas_repescagem' => (int)$torneio['vagas_repescagem']],
             'classificacao' => $classificacao, 'rodadas' => $rodadas,
             'repescagem' => $repescagem, 'double' => $double, 'campeao' => $campeao,
         ]);

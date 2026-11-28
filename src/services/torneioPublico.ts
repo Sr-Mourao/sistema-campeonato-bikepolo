@@ -1,11 +1,12 @@
 // Cliente do endpoint público do torneio (public/api/torneio-publico.php) — sem
 // autenticação, somente leitura.
+import type { FormatoChave, FormatoInfo } from './formatoTorneio'
 
 export interface FasePublica { tipo: string; rodada: number | null; rotulo: string; estado: string; completa: boolean }
 
 export interface TorneioResumo {
   torneio: {
-    id: number; nome: string; categoria: string; formato: 'misto_swiss_13'; estado: string
+    id: number; nome: string; categoria: string; formato: FormatoChave; formato_info?: FormatoInfo; estado: string
     classificados_diretos: number; vagas_repescagem: number; rodadas_swiss: number
     pontos_vitoria: number; pontos_empate: number; pontos_derrota: number
   }
@@ -64,7 +65,7 @@ export interface PodioTimePublico {
 
 export interface BroadcastTorneioPublico {
   torneio: {
-    id: number; nome: string; categoria: string; formato: 'misto_swiss_13'; estado: string
+    id: number; nome: string; categoria: string; formato: FormatoChave; formato_info?: FormatoInfo; estado: string
     classificados_diretos: number; vagas_repescagem: number
   }
   classificacao: StandingRowPublico[]
@@ -109,7 +110,7 @@ export interface AwardResultadoPublico {
 }
 
 export interface ResultadosPublicos {
-  competicao: { id: number; categoria: 'misto'; nome: string; titulo_publico: string; estado: string; encerrado: boolean }
+  competicao: { id: number; categoria: 'misto'; nome: string; titulo_publico: string; estado: string; encerrado: boolean; formato_info?: FormatoInfo }
   campeao_definido: boolean; classificacao_final_completa: boolean
   classificacao_final: ColocacaoFinalPublica[]
   primeira_fase: {

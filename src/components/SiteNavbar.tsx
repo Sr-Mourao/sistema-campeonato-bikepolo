@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { ChevronDown, Menu, X } from 'lucide-react'
 import './SiteNavbar.css'
-import { SITE_NAV_CTA, SITE_NAV_LINKS, SITE_NAV_SECONDARY_LINKS } from './siteNav'
+import { SITE_NAV_CTA, SITE_NAV_LINKS, SITE_NAV_SECONDARY_LINKS, linksVisiveis } from './siteNav'
+
+// Itens com `hidden` (siteNav.ts) ficam fora do menu nesta versão; as rotas seguem ativas.
+const NAV_LINKS = linksVisiveis(SITE_NAV_LINKS)
+const NAV_SECONDARY = linksVisiveis(SITE_NAV_SECONDARY_LINKS)
+const NAV_CTA = SITE_NAV_CTA.hidden ? null : SITE_NAV_CTA
 
 interface Props {
   currentPath?: string
@@ -86,7 +91,7 @@ export default function SiteNavbar({
 
         <div className="site-nav-desktop">
           <div className="site-nav-links">
-            {SITE_NAV_LINKS.map(link => (
+            {NAV_LINKS.map(link => (
               <a
                 key={link.href}
                 href={link.href}
@@ -98,17 +103,17 @@ export default function SiteNavbar({
           </div>
 
           <div className="site-nav-actions">
-            <details className="site-nav-more">
+            {NAV_SECONDARY.length > 0 && <details className="site-nav-more">
               <summary>Mais <ChevronDown size={13} /></summary>
-              <div>{SITE_NAV_SECONDARY_LINKS.map(link => <a href={link.href} key={link.href}>{link.label}</a>)}</div>
-            </details>
+              <div>{NAV_SECONDARY.map(link => <a href={link.href} key={link.href}>{link.label}</a>)}</div>
+            </details>}
             {rightSlot && <div className="site-nav-extra">{rightSlot}</div>}
-            <a
-              href={SITE_NAV_CTA.href}
-              className={`site-nav-cta${path === SITE_NAV_CTA.href ? ' site-nav-cta--active' : ''}`}
+            {NAV_CTA && <a
+              href={NAV_CTA.href}
+              className={`site-nav-cta${path === NAV_CTA.href ? ' site-nav-cta--active' : ''}`}
             >
-              {SITE_NAV_CTA.label}
-            </a>
+              {NAV_CTA.label}
+            </a>}
           </div>
         </div>
 
@@ -130,7 +135,7 @@ export default function SiteNavbar({
       >
         <div className="site-nav-drawer-panel">
           <div className="site-nav-drawer-links">
-            {SITE_NAV_LINKS.map(link => (
+            {NAV_LINKS.map(link => (
               <a
                 key={link.href}
                 href={link.href}
@@ -140,18 +145,18 @@ export default function SiteNavbar({
                 {link.label}
               </a>
             ))}
-            <div className="site-nav-drawer-secondary"><span>Mais</span>{SITE_NAV_SECONDARY_LINKS.map(link => (
+            {NAV_SECONDARY.length > 0 && <div className="site-nav-drawer-secondary"><span>Mais</span>{NAV_SECONDARY.map(link => (
               <a key={link.href} href={link.href} className="site-nav-drawer-link site-nav-drawer-link--secondary" onClick={closeMenu}>{link.label}</a>
-            ))}</div>
+            ))}</div>}
           </div>
 
-          <a
-            href={SITE_NAV_CTA.href}
-            className={`site-nav-drawer-cta${path === SITE_NAV_CTA.href ? ' site-nav-drawer-cta--active' : ''}`}
+          {NAV_CTA && <a
+            href={NAV_CTA.href}
+            className={`site-nav-drawer-cta${path === NAV_CTA.href ? ' site-nav-drawer-cta--active' : ''}`}
             onClick={closeMenu}
           >
-            {SITE_NAV_CTA.label}
-          </a>
+            {NAV_CTA.label}
+          </a>}
 
           {drawerFooter && <div className="site-nav-drawer-footer">{drawerFooter}</div>}
         </div>

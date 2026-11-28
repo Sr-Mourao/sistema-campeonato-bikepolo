@@ -89,7 +89,7 @@ function test_zerar_resultados_preserva_midia_de_times_e_pessoas(): void {
     $logo = salvarImagemTime($db, $timeId, validarImagemArquivo(criarPngTeste()), 'manual');
     $foto = salvarFotoPessoa($db, $pessoaId, validarImagemArquivo(criarPngTeste()), 'manual');
 
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     zerarResultados($db, $torneioId, 'teste');
 
     assertEqualsT($logo, $db->query("SELECT logo_path FROM times WHERE id = $timeId")->fetchColumn(), 'Zerar resultados não pode limpar logo_path');

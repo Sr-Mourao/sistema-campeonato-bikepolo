@@ -13,6 +13,7 @@ import LiveStreamingCard from '../../components/torneio/LiveStreamingCard'
 import type { AbaKey } from '../Torneio'
 import './VisaoGeral.css'
 import { useTournamentCategory } from '../../contexts/TournamentContext'
+import { formatoDe } from '../../services/formatoTorneio'
 
 const POLL_MS = 12000
 const ENCERRADO = new Set(['encerrado', 'wo', 'cancelado'])
@@ -109,7 +110,7 @@ export default function VisaoGeral({ resumo, onIrPara, onAbrirTime }: Props) {
       {fase && !['swiss', 'round_robin', 'equalizacao'].includes(fase.tipo) && standings && (
         <details className="ov-context">
           <summary>Classificação final da Primeira Fase</summary>
-          <Standings rows={standings} onAbrirTime={onAbrirTime} compact />
+          <Standings rows={standings} onAbrirTime={onAbrirTime} compact seeds={!formatoDe(resumoAtual.torneio).repescagem} />
           <button className="trp-link-btn" onClick={() => onIrPara('primeira-fase')}>Ver classificação final →</button>
         </details>
       )}
@@ -119,8 +120,8 @@ export default function VisaoGeral({ resumo, onIrPara, onAbrirTime }: Props) {
 }
 
 function Progress({ resumo, fase, foco }: { resumo: TorneioResumo; fase: FasePublica | null; foco: JogoPublico | null }) {
-  const etapas = ['Primeira Fase', 'Repescagem', 'Double', 'Final']
-  let atual = fase?.tipo === 'repescagem' ? 1 : fase?.tipo === 'double' ? etapas.length - 2 : 0
+  const etapas = formatoDe(resumo.torneio).repescagem ? ['Primeira Fase', 'Repescagem', 'Double', 'Final'] : ['Primeira Fase', 'Double', 'Final']
+  let atual = fase?.tipo === 'repescagem' ? etapas.indexOf('Repescagem') : fase?.tipo === 'double' ? etapas.length - 2 : 0
   if (foco?.codigo === 'GF' || foco?.codigo === 'GF2' || resumo.torneio.estado === 'FINALIZADO') atual = etapas.length - 1
   const finalizado = resumo.torneio.estado === 'FINALIZADO'
   return (
@@ -207,10 +208,11 @@ function GameRow({ jogo, onHistorico }: { jogo: JogoPublico; onHistorico: (codig
 
 function PhaseSnapshot({ fase, jogos, standings, resumo, foco, onIrPara, onAbrirTime, onHistorico }: { fase: FasePublica | null; jogos: JogoPublico[]; standings: StandingRowPublico[] | null; resumo: TorneioResumo; foco: JogoPublico | null; onIrPara: (aba: AbaKey) => void; onAbrirTime: (id: number) => void; onHistorico: (codigo: string) => void }) {
   if (!fase) return null
+  const formato = formatoDe(resumo.torneio)
   if (fase.tipo === 'swiss' || fase.tipo === 'round_robin' || fase.tipo === 'equalizacao') return (
     <OverviewSection kicker="Estado da fase" title={fase.tipo === 'equalizacao' ? 'Conclusão da Primeira Fase' : 'Classificação atual'}>
-      <p className="ov-lead">{fase.tipo === 'round_robin' ? 'Cinco equipes disputam dez jogos; a classificação final define os seeds 1º a 5º.' : `Os ${resumo.torneio.classificados_diretos} primeiros avançam direto. Os demais seguem para a Repescagem.`}</p>
-      {standings ? <Standings rows={standings} onAbrirTime={onAbrirTime} /> : <p className="ov-muted">Carregando classificação…</p>}
+      <p className="ov-lead">{fase.tipo === 'round_robin' ? `${formato.participantes} equipes, todos contra todos: ${formato.jogos_primeira_fase} jogos em ${formato.rodadas} rodadas. A classificação final define os seeds 1º a ${formato.participantes}º da Double Elimination.` : `Os ${resumo.torneio.classificados_diretos} primeiros avançam direto. Os demais seguem para a Repescagem.`}</p>
+      {standings ? <Standings rows={standings} onAbrirTime={onAbrirTime} seeds={!formato.repescagem} /> : <p className="ov-muted">Carregando classificação…</p>}
       <button className="trp-link-btn" onClick={() => onIrPara('primeira-fase')}>Ver classificação completa →</button>
     </OverviewSection>
   )
@@ -242,8 +244,8 @@ function PhaseMatches({ jogos, onHistorico }: { jogos: JogoPublico[]; onHistoric
   return <div className="ov-phase-matches">{jogos.map(j => { const content = <><b>{j.codigo.replace('REP-', '')}</b><span>{j.time_a_nome ?? origemLabel(j.time_a_origem) ?? 'A definir'} <strong>{j.placar_a != null ? `${j.placar_a} × ${j.placar_b}` : '×'}</strong> {j.time_b_nome ?? origemLabel(j.time_b_origem) ?? 'A definir'}</span><i className={`is-${j.status}`}>{j.status === 'encerrado' ? '✓' : j.status === 'em_andamento' ? '●' : '○'}</i></>; return j.status === 'encerrado' ? <button key={j.codigo} onClick={() => onHistorico(j.codigo)}>{content}</button> : <div key={j.codigo}>{content}</div> })}</div>
 }
 
-function Standings({ rows, onAbrirTime, compact }: { rows: StandingRowPublico[]; onAbrirTime: (id: number) => void; compact?: boolean }) {
-  return <div className={`ov-standings ${compact ? 'ov-standings--compact' : ''}`}>{rows.map(r => <button key={r.time_id} className={r.classificado_direto ? 'is-direct' : 'is-rep'} onClick={() => onAbrirTime(r.time_id)}><b>{r.posicao}º</b><span>{r.nome}</span><small>{false ? `Seed ${r.posicao}` : r.classificado_direto ? 'Direto' : 'Repescagem'}</small><strong>{r.pontos} pts</strong></button>)}</div>
+function Standings({ rows, onAbrirTime, compact, seeds }: { rows: StandingRowPublico[]; onAbrirTime: (id: number) => void; compact?: boolean; seeds?: boolean }) {
+  return <div className={`ov-standings ${compact ? 'ov-standings--compact' : ''}`}>{rows.map(r => <button key={r.time_id} className={seeds || r.classificado_direto ? 'is-direct' : 'is-rep'} onClick={() => onAbrirTime(r.time_id)}><b>{r.posicao}º</b><span>{r.nome}</span><small>{seeds ? `Seed ${r.posicao}` : r.classificado_direto ? 'Direto' : 'Repescagem'}</small><strong>{r.pontos} pts</strong></button>)}</div>
 }
 
 function Remaining({ fase, jogos, resumo }: { fase: FasePublica | null; jogos: JogoPublico[]; resumo: TorneioResumo }) {

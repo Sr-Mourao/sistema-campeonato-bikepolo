@@ -7,8 +7,34 @@
  */
 
 const POLOPERATOR_TORNEIOS = [
-    'brasileiro' => 'cmqd65ei4004d5lyuacl6ovhr',
+    // Slot do Misto. Hoje = 2° Pior Campeonato de Bici Polo 2026
+    // (poloperator.com/pt/tournament/2-pior-campeonato-curitiba-2026).
+    // Antes: Brasileiro 2026 = 'cmqd65ei4004d5lyuacl6ovhr'.
+    'brasileiro' => 'cmwtzkh58004qvqb7frjo8cmh',
     'mtnb'       => 'cmqd6acwa004i5lyub7d3l0ln',
+];
+
+/**
+ * Nome no Poloperator → apelido usado no cadastro interno, por torneio. Só para atletas
+ * cujo nome difere; nomes iguais (após normalizaNome) já casam sozinhos. Depois da
+ * primeira importação o poloperator_id fica gravado e passa a ter prioridade.
+ */
+const POLOPERATOR_APELIDOS = [
+    'brasileiro' => [
+        'João Pedro Gnoatto Lopes'          => 'Jpg',
+        'Emily Ethel Chika'                 => 'Emily Ethel',
+        'Marcos Normelio Antunes da Costa'  => 'Marcos',
+        'Ana Carolina Alencar de Barros'    => 'Ana',
+        'Dox Lucchin'                       => 'Dox',
+        'Fábio Luiz Kuntze'                 => 'Fábio',
+        'Carla Thais Maiewski'              => 'Carla',
+        'Lucas Mendonça'                    => 'Mendonça',
+        'Larissa Torres'                    => 'Lari',
+        'Rafael Buratto'                    => 'Buratto',
+        'Mati'                              => 'Mat',
+        'Luqueta'                           => 'Lusca',
+        'Emiliane Mayumi Ito'               => 'Emi',
+    ],
 ];
 
 /** Projeta um atleta pro shape usado no site — omite campo ausente/vazio em vez de null. */

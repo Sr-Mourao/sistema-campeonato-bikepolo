@@ -38,7 +38,7 @@ function test_fair_play_menos_e_melhor(): void {
 function test_mudar_ordem_criterios_muda_posicao(): void {
     $db = testDb();
     seedTimes($db, 2);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $stmt = $db->query("SELECT id FROM times ORDER BY id");
     [$t1, $t2] = array_column($stmt->fetchAll(), 'id');
 
@@ -76,7 +76,7 @@ function test_confronto_direto(): void {
 function test_buchholz_soma_pontos_atuais_dos_adversarios_sem_bye(): void {
     $db = testDb();
     seedTimes($db, 4);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $stmt = $db->query("SELECT id FROM times ORDER BY id");
     [$t1, $t2, $t3, $t4] = array_column($stmt->fetchAll(), 'id');
 
@@ -103,7 +103,7 @@ function test_buchholz_soma_pontos_atuais_dos_adversarios_sem_bye(): void {
 function test_buchholz_detalhe_expoe_composicao_sem_recalculo(): void {
     $db = testDb();
     seedTimes($db, 4);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $stmt = $db->query("SELECT id, nome FROM times ORDER BY id");
     $times = $stmt->fetchAll();
     [$t1, $t2, $t3, $t4] = array_column($times, 'id');

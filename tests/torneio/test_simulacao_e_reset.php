@@ -4,7 +4,7 @@
 
 function montarRodada1(PDO $db): array {
     seedTimes($db, 13);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $sug = sugerirPareamentoSwiss($db, $torneioId, 1);
     $r = confirmarRodadaSwiss($db, $torneioId, 1, $sug['bye'], $sug['pares'], 'teste');
     return [$torneioId, (int)$r['fase_id']];

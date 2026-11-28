@@ -166,7 +166,7 @@ echo "  " . count($TIMES_MISTO) . " times Misto, " . count($TIMES_MTNB) . " time
 // Torneio Misto — 4 rodadas de suíço, simuladas pelo motor real
 // ─────────────────────────────────────────────────────────────────────────────
 echo "Criando torneio Misto e simulando a Primeira Fase…\n";
-$mistoId = criarTorneioPreset($db, 'misto', $USUARIO, 'Brasileiro Demo — Misto');
+$mistoId = criarTorneioPreset($db, 'misto', $USUARIO, 'Brasileiro Demo — Misto', 'misto_swiss_13');
 
 for ($rodada = 1; $rodada <= 4; $rodada++) {
     $sugestao = sugerirPareamentoSwiss($db, $mistoId, $rodada, ['seed_prng' => 20260905 + $rodada]);

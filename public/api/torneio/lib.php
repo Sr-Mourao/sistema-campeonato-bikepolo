@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/ordem.php';
+require_once __DIR__ . '/formato.php';
 
 /**
  * Motor esportivo do torneio — fonte canônica de cálculo.
@@ -21,7 +22,7 @@ require_once __DIR__ . '/ordem.php';
 
 const TORNEIO_CRITERIOS_VALIDOS = [
     'pontos', 'vitorias', 'empates', 'saldo', 'gols_pro', 'gols_contra_menos',
-    'fair_play', 'confronto_direto', 'buchholz', 'sorteio',
+    'fair_play', 'confronto_direto', 'confronto_direto_grupo', 'buchholz', 'sorteio',
 ];
 
 const TORNEIO_CRITERIOS_LABEL = [
@@ -33,6 +34,7 @@ const TORNEIO_CRITERIOS_LABEL = [
     'gols_contra_menos'    => 'Menos gols sofridos',
     'fair_play'            => 'Fair Play (menos faltas)',
     'confronto_direto'     => 'Confronto direto',
+    'confronto_direto_grupo' => 'Confronto direto (jogos entre os empatados)',
     'buchholz'             => 'Força de tabela (Buchholz)',
     'sorteio'              => 'Critério manual / sorteio',
 ];
@@ -47,6 +49,7 @@ const TORNEIO_CRITERIOS_DIRECAO = [
     'gols_contra_menos' => false, // menos gols sofridos é melhor
     'fair_play'         => false, // menos faltas é melhor
     'confronto_direto'  => null,  // resolvido contextualmente, não por valor escalar
+    'confronto_direto_grupo' => null, // mini-tabela entre os empatados (ver ordenarClassificacaoPorGrupos)
     'buchholz'          => true,
     'sorteio'           => null,
 ];
@@ -198,6 +201,7 @@ function calcularClassificacao(PDO $db, int $torneioId): array {
     $jogos = $stmt->fetchAll();
 
     $confrontos = []; // "a-b" (a<b) => ['vencedor'=>time_id|null (empate)]
+    $jogosDiretos = []; // todos os jogos encerrados [a, b, placar_a, placar_b] — mini-tabela do grupo
 
     foreach ($jogos as $j) {
         $a = $j['time_a_id']; $b = $j['time_b_id'];
@@ -215,6 +219,7 @@ function calcularClassificacao(PDO $db, int $torneioId): array {
         $stats[$b]['gp'] += $pb; $stats[$b]['gc'] += $pa;
         $stats[$a]['adversarios'][] = $b;
         $stats[$b]['adversarios'][] = $a;
+        $jogosDiretos[] = [(int)$a, (int)$b, $pa, $pb];
 
         $key = $a < $b ? "$a-$b" : "$b-$a";
         if ($pa > $pb) {
@@ -272,6 +277,22 @@ function calcularClassificacao(PDO $db, int $torneioId): array {
     $criterios = getCriterios($db, $torneioId);
     $lista = array_values($stats);
 
+    if (in_array('confronto_direto_grupo', $criterios, true)) {
+        // Critério de grupo não cabe num comparador 2 a 2 (seria circular com 3+ empatados):
+        // ordena por partições sucessivas e já anota qual critério separou cada fronteira.
+        // Desempate final ('sorteio') pelo número do time no torneio (seed: Time 1, Time 2…).
+        $seedPorTime = array_column($participantes, 'seed', 'time_id');
+        [$lista, $decisoes] = ordenarClassificacaoPorGrupos($lista, $criterios, $jogosDiretos, $torneio, $seedPorTime);
+        $pos = 1;
+        foreach ($lista as &$row) {
+            $row['posicao'] = $pos++;
+            $row['decisao'] = $decisoes[$row['time_id']] ?? null;
+            unset($row['adversarios']);
+        }
+        unset($row);
+        return $lista;
+    }
+
     usort($lista, function ($a, $b) use ($criterios, $confrontos) {
         return compararTimesClassificacao($a, $b, $criterios, $confrontos);
     });
@@ -295,6 +316,74 @@ function compararTimesClassificacao(array $a, array $b, array $criterios, array 
     }
     // Sorteio / manual — fallback determinístico e auditável (ordem por id)
     return $a['time_id'] <=> $b['time_id'];
+}
+
+/**
+ * Ordenação por partições sucessivas — usada quando a lista de critérios contém
+ * 'confronto_direto_grupo'. Cada critério divide o grupo atual em subgrupos empatados e
+ * o próximo critério só olha dentro de cada subgrupo. No confronto direto, o subgrupo
+ * empatado é ranqueado pela mini-tabela (pontos somados SÓ nos jogos entre eles), o que
+ * nunca é circular. Empate até o fim cai no fallback determinístico: seed do time no
+ * torneio (= número do time, 'sorteio') e, sem seed, o id.
+ *
+ * @param array $jogos [[time_a, time_b, placar_a, placar_b], ...] já filtrados (fases que contam, encerrados, sem bye)
+ * @param array $seedPorTime [time_id => seed] — ordem do desempate final; ausente = id
+ * @return array{0: array, 1: array<int, ?string>} [lista ordenada, time_id => critério que o separou do de baixo]
+ */
+function ordenarClassificacaoPorGrupos(array $lista, array $criterios, array $jogos, array $torneio, array $seedPorTime = []): array {
+    $decisoes = [];
+    $pv = (float)$torneio['pontos_vitoria']; $pe = (float)$torneio['pontos_empate']; $pd = (float)$torneio['pontos_derrota'];
+
+    $miniTabela = function (array $grupo) use ($jogos, $pv, $pe, $pd): array {
+        $pts = [];
+        foreach ($grupo as $r) $pts[(int)$r['time_id']] = 0.0;
+        foreach ($jogos as [$a, $b, $pa, $pb]) {
+            if (!isset($pts[$a], $pts[$b])) continue;
+            if ($pa > $pb)      { $pts[$a] += $pv; $pts[$b] += $pd; }
+            elseif ($pb > $pa)  { $pts[$b] += $pv; $pts[$a] += $pd; }
+            else                { $pts[$a] += $pe; $pts[$b] += $pe; }
+        }
+        return $pts;
+    };
+
+    $ordemFinal = fn(array $r): array => [isset($seedPorTime[$r['time_id']]) && $seedPorTime[$r['time_id']] !== null ? (int)$seedPorTime[$r['time_id']] : PHP_INT_MAX, (int)$r['time_id']];
+    $rank = function (array $grupo, int $i) use (&$rank, &$decisoes, $criterios, $miniTabela, $ordemFinal): array {
+        if (count($grupo) <= 1) return $grupo;
+        if ($i >= count($criterios)) {
+            usort($grupo, fn($a, $b) => $ordemFinal($a) <=> $ordemFinal($b));
+            return $grupo;
+        }
+        $crit = $criterios[$i];
+        if ($crit === 'confronto_direto_grupo' || $crit === 'confronto_direto') {
+            $mini = $miniTabela($grupo);
+            $cmp = fn($a, $b) => $mini[(int)$b['time_id']] <=> $mini[(int)$a['time_id']];
+        } else {
+            $cmp = fn($a, $b) => aplicaCriterio($crit, $a, $b, []);
+        }
+        usort($grupo, $cmp);
+
+        $subgrupos = [];
+        $atual = [$grupo[0]];
+        for ($k = 1; $k < count($grupo); $k++) {
+            if ($cmp($grupo[$k - 1], $grupo[$k]) === 0) { $atual[] = $grupo[$k]; continue; }
+            $subgrupos[] = $atual;
+            $atual = [$grupo[$k]];
+        }
+        $subgrupos[] = $atual;
+
+        $saida = [];
+        foreach ($subgrupos as $idx => $sub) {
+            $ordenado = $rank($sub, $i + 1);
+            if ($idx < count($subgrupos) - 1) {
+                // Critério primário = ordenação normal, não desempate (mesma regra de decompoeDecisao).
+                $decisoes[$ordenado[count($ordenado) - 1]['time_id']] = $i === 0 ? null : $crit;
+            }
+            array_push($saida, ...$ordenado);
+        }
+        return $saida;
+    };
+
+    return [$rank(array_values($lista), 0), $decisoes];
 }
 
 function aplicaCriterio(string $crit, array $a, array $b, array $confrontos): int {

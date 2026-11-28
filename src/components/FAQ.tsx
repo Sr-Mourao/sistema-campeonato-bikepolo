@@ -26,6 +26,7 @@ import {
 import './FAQ.css'
 import './HomeQuickLinks.css'
 import SiteNavbar from './SiteNavbar'
+import { hrefOculto } from './siteNav'
 import { SITE, whatsappUrl } from '../site.config'
 
 const Hi = ({ children }: { children: React.ReactNode }) => (
@@ -392,6 +393,12 @@ export function HomeQuickLinks() {
     },
   ]
 
+  // Atalhos para destinos ocultos no menu (siteNav.ts) também somem da Home — reativar depois junto.
+  const visivel = (link: { href: string }) => !hrefOculto(link.href)
+  const principaisVisiveis = principais.filter(visivel)
+  const operacionaisVisiveis = operacionais.filter(visivel)
+  const maisVisiveis = mais.filter(visivel)
+
   return (
     <section className="home-links">
       <div className="home-links-inner">
@@ -399,7 +406,7 @@ export function HomeQuickLinks() {
         <h2 className="home-links-title">Acompanhe o 2° Pior Campeonato de Bici Polo 2026</h2>
         <p className="home-links-intro">Equipes, torneio, regulamento e tudo que acontece nas quadras de Curitiba.</p>
         <div className="home-primary-grid">
-          {principais.map(link => (
+          {principaisVisiveis.map(link => (
             <a key={link.href} href={link.href} className={`home-link-card ${link.className}`}>
               <span className="home-link-icon" aria-hidden="true">{link.icon}</span>
               <span className="home-link-label">{link.label}</span>
@@ -407,8 +414,8 @@ export function HomeQuickLinks() {
             </a>
           ))}
         </div>
-        <div className="home-operational-grid">{operacionais.map(link => <a key={link.href} href={link.href} className={`home-link-card home-link-card--operational ${link.className}`}><span className="home-link-icon" aria-hidden="true">{link.icon}</span><span className="home-link-label">{link.label}</span><span className="home-link-description">{link.description}</span></a>)}</div>
-        <div className="home-more"><div><span>Mais do campeonato</span><p>Acessos úteis para quem participa do evento.</p></div><nav>{mais.map(link => <a href={link.href} key={link.href}><span aria-hidden="true">{link.icon}</span>{link.label}</a>)}</nav></div>
+        {operacionaisVisiveis.length > 0 && <div className="home-operational-grid">{operacionaisVisiveis.map(link => <a key={link.href} href={link.href} className={`home-link-card home-link-card--operational ${link.className}`}><span className="home-link-icon" aria-hidden="true">{link.icon}</span><span className="home-link-label">{link.label}</span><span className="home-link-description">{link.description}</span></a>)}</div>}
+        <div className="home-more"><div><span>Mais do campeonato</span><p>Acessos úteis para quem participa do evento.</p></div><nav>{maisVisiveis.map(link => <a href={link.href} key={link.href}><span aria-hidden="true">{link.icon}</span>{link.label}</a>)}</nav></div>
       </div>
     </section>
   )

@@ -9,6 +9,9 @@ $db = getDb();
 $method = $_SERVER['REQUEST_METHOD'];
 $usuario = $_SESSION['admin_user'] ?? 'admin';
 
+$torneioEq = getTorneio($db, (int)($_GET['torneio_id'] ?? (getBody()['torneio_id'] ?? 0)));
+if ($torneioEq && !formatoTemEqualizacao($torneioEq)) respondError('Este formato de torneio não possui Equalização.', 400);
+
 if ($method === 'GET') {
     $torneioId = (int)($_GET['torneio_id'] ?? 0);
     if (!$torneioId) respondError('torneio_id é obrigatório');

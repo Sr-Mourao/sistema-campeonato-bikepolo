@@ -20,7 +20,7 @@ function rodarSwissCompleto(PDO $db, int $torneioId): array {
 function test_equalizacao_2_jogos_apenas_times_com_bye(): void {
     $db = testDb();
     seedTimes($db, 13);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $byes = rodarSwissCompleto($db, $torneioId);
 
     $sugestao = sugerirEqualizacao($db, $torneioId);
@@ -56,7 +56,7 @@ function test_equalizacao_2_jogos_apenas_times_com_bye(): void {
 function test_equalizacao_pareamento_1v2_3v4(): void {
     $db = testDb();
     seedTimes($db, 13);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     rodarSwissCompleto($db, $torneioId);
 
     $timesBye = getTimesEqualizacao($db, $torneioId); // já ordenado por posição
@@ -75,7 +75,7 @@ function test_equalizacao_pareamento_1v2_3v4(): void {
 function test_equalizacao_bloqueada_com_rodada4_incompleta(): void {
     $db = testDb();
     seedTimes($db, 13);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
 
     for ($r = 1; $r <= 4; $r++) {
         $sug = sugerirPareamentoSwiss($db, $torneioId, $r);

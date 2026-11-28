@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { torneioPublico, type JogoPublico, type StandingRowPublico } from '../../services/torneioPublico'
 import { ResponsiveBracket } from '../../components/torneio/BracketView'
 import { porCodigo } from '../../components/torneio/bracketHelpers'
-import { WIN_COLS, LOS_COLS, DOUBLE_PLACEHOLDERS, MTNB_WIN_COLS, MTNB_LOS_COLS, MTNB_DOUBLE_PLACEHOLDERS, type BracketColDef } from '../../components/torneio/bracketDefs'
+import { WIN_COLS, LOS_COLS, DOUBLE_PLACEHOLDERS, DOUBLE_DIRETA_PLACEHOLDERS, MTNB_WIN_COLS, MTNB_LOS_COLS, MTNB_DOUBLE_PLACEHOLDERS, type BracketColDef } from '../../components/torneio/bracketDefs'
 import { useTournamentCategory } from '../../contexts/TournamentContext'
 
 type Secao = 'winners' | 'losers' | 'final'
@@ -19,7 +19,8 @@ type Secao = 'winners' | 'losers' | 'final'
  * Primeira Fase só como exibição de um fato já decidido pelo backend, nunca recalculado
  * aqui — a chave não implica que vencer REP-R4 valha mais que vencer REP-R5.
  */
-export default function DoubleElimination() {
+/** comRepescagem=false: Double de entrada direta (seeds 1×8, 2×7, 3×6, 4×5 da 1ª fase). */
+export default function DoubleElimination({ comRepescagem = true }: { comRepescagem?: boolean }) {
   const categoria = useTournamentCategory()
   const [double, setDouble] = useState<JogoPublico[] | null>(null)
   const [standings, setStandings] = useState<StandingRowPublico[] | null>(null)
@@ -29,14 +30,14 @@ export default function DoubleElimination() {
   const mtnb = false
   const winCols = mtnb ? MTNB_WIN_COLS : WIN_COLS
   const losCols = mtnb ? MTNB_LOS_COLS : LOS_COLS
-  const placeholders = mtnb ? MTNB_DOUBLE_PLACEHOLDERS : DOUBLE_PLACEHOLDERS
+  const placeholders = mtnb ? MTNB_DOUBLE_PLACEHOLDERS : comRepescagem ? DOUBLE_PLACEHOLDERS : DOUBLE_DIRETA_PLACEHOLDERS
 
   const gf2 = double ? porCodigo(double, 'GF2') : undefined
   const finalCols: BracketColDef[] = gf2 ? [['Grande Final', ['GF', 'GF2']]] : [['Grande Final', ['GF']]]
 
   const posicaoPorTime = new Map((standings ?? []).map(r => [r.time_id, r.posicao]))
-  const qc = !mtnb && double ? porCodigo(double, 'QC') : undefined
-  const qd = !mtnb && double ? porCodigo(double, 'QD') : undefined
+  const qc = !mtnb && comRepescagem && double ? porCodigo(double, 'QC') : undefined
+  const qd = !mtnb && comRepescagem && double ? porCodigo(double, 'QD') : undefined
   const subtitulosWinners: Record<string, [string | null, string | null]> = {}
   if (qc?.time_b_id != null && posicaoPorTime.has(qc.time_b_id)) {
     subtitulosWinners['QC'] = [null, `Melhor repescado · ${posicaoPorTime.get(qc.time_b_id)}º na Primeira Fase`]
@@ -63,7 +64,8 @@ export default function DoubleElimination() {
         eliminado. Se o representante da Losers vencer a Grande Final, a GF2 decide o campeão.
       </p>
 
-      {!mtnb && <details className="de-reseed-info">
+      {!mtnb && !comRepescagem && <p className="trp-explicacao">Os oito times entram pela classificação final da 1ª fase: 1º×8º, 2º×7º, 3º×6º e 4º×5º.</p>}
+      {!mtnb && comRepescagem && <details className="de-reseed-info">
         <summary>Como os repescados entram na chave (QC/QD)</summary>
         <p>
           Entre os dois classificados pela Repescagem, o time que terminou melhor colocado

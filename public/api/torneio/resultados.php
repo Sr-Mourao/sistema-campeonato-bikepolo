@@ -50,7 +50,7 @@ function resultadosLinhaFinal(int $posicao, int $timeId, string $etapa, string $
     ];
 }
 
-/** Regra canônica 1º–13º, independente de campanha e da ordem operacional dos jogos. */
+/** Regra canônica 1º–8º (entrada direta) ou 1º–13º (com Repescagem), independente de campanha e da ordem operacional dos jogos. */
 function resultadosClassificacaoFinalMisto(array $torneio, array $jogos, array $primeiraFase): array
 {
     $porCodigo = [];
@@ -334,12 +334,13 @@ function consolidarResultadosPublicos(PDO $db, array $torneio): array
         $linha['jogos'] = array_values(array_filter($campanhas[$timeId]['jogos'] ?? [], static fn(array $j): bool => in_array($j['fase_tipo'], ['swiss', 'equalizacao', 'round_robin'], true)));
     }
     unset($linha);
-    $esperado = $categoria === 'mtnb' ? 5 : 13;
+    $esperado = formatoParticipantes($torneio);
     $payload = [
         'competicao' => [
             'id' => $torneioId, 'categoria' => $categoria, 'nome' => $torneio['nome'],
-            'titulo_publico' => $categoria === 'mtnb' ? '4º Brasileiro MTNB' : '2° Pior Campeonato de Bici Polo Misto',
+            'titulo_publico' => configFormato($torneio)['nome'],
             'estado' => $torneio['estado'], 'encerrado' => count($final) === $esperado,
+            'formato_info' => formatoInfo($torneio),
         ],
         'campeao_definido' => resolverCampeaoOficial($torneio, $jogos) !== null,
         'classificacao_final_completa' => count($final) === $esperado,

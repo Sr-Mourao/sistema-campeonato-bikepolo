@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { torneioApi, criterioLabel, criterioDirecao, TODOS_CRITERIOS, type TorneioDetalhe } from './torneioApi'
+import { formatoDe } from '../../services/formatoTorneio'
 
 interface Props {
   torneio: TorneioDetalhe
@@ -13,7 +14,7 @@ export default function Configuracoes({ torneio, onChange }: Props) {
         <h3>Formato</h3>
         <dl className="trn-config-list">
           <div><dt>Preset</dt><dd>{torneio.preset ?? '—'}</dd></div>
-          {torneio.formato === 'mtnb_round_robin_5' ? <><div><dt>Primeira Fase</dt><dd>5 rodadas · todos contra todos</dd></div><div><dt>Entrada na Double</dt><dd>5º × 4º; 1º aguarda o vencedor</dd></div></> : <><div><dt>Rodadas suíças</dt><dd>{torneio.rodadas_swiss}</dd></div><div><dt>Equalização</dt><dd>{torneio.equalizacao_habilitada ? 'Habilitada' : 'Desabilitada'}</dd></div><div><dt>Classificados direto</dt><dd>1º ao {torneio.classificados_diretos}º</dd></div><div><dt>Vagas de repescagem</dt><dd>{torneio.vagas_repescagem}</dd></div></>}
+          {formatoDe(torneio).double === 'direta_8' ? <><div><dt>Primeira Fase</dt><dd>{formatoDe(torneio).rodadas} rodadas · todos contra todos · {formatoDe(torneio).jogos_primeira_fase} jogos</dd></div><div><dt>Entrada na Double</dt><dd>1º×8º · 2º×7º · 3º×6º · 4º×5º (sem repescagem)</dd></div></> : formatoDe(torneio).double === 'mtnb_5' ? <><div><dt>Primeira Fase</dt><dd>5 rodadas · todos contra todos</dd></div><div><dt>Entrada na Double</dt><dd>5º × 4º; 1º aguarda o vencedor</dd></div></> : <><div><dt>Rodadas suíças</dt><dd>{torneio.rodadas_swiss}</dd></div><div><dt>Equalização</dt><dd>{torneio.equalizacao_habilitada ? 'Habilitada' : 'Desabilitada'}</dd></div><div><dt>Classificados direto</dt><dd>1º ao {torneio.classificados_diretos}º</dd></div><div><dt>Vagas de repescagem</dt><dd>{torneio.vagas_repescagem}</dd></div></>}
           <div><dt>Pontuação</dt><dd>Vitória {torneio.pontos_vitoria} · Empate {torneio.pontos_empate} · Derrota {torneio.pontos_derrota}</dd></div>
         </dl>
       </div>

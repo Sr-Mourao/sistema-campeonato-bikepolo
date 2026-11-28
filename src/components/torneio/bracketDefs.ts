@@ -79,3 +79,10 @@ export const DOUBLE_PLACEHOLDERS: Record<string, [string, string] | [string]> = 
   GF: ['Vencedor FA (Winners)', 'Vencedor B6 (Losers)'],
   GF2: ['Revanche da Grande Final — decide o campeão'],
 }
+
+/** Double de entrada direta (2° Pior, 8 times, sem Repescagem): seeds 1..8 da 1ª fase. */
+export const DOUBLE_DIRETA_PLACEHOLDERS: Record<string, [string, string] | [string]> = {
+  ...DOUBLE_PLACEHOLDERS,
+  QC: ['2º', '7º'],
+  QD: ['1º', '8º'],
+}

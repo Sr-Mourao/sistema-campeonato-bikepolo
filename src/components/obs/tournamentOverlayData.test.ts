@@ -26,6 +26,15 @@ describe('dados dos overlays de fase', () => {
     expect(escolherRodada([jogos[0], jogos[2]])?.rodada).toBe(2)
   })
 
+  it('reconhece as rodadas do todos contra todos (2° Pior de 8)', () => {
+    const rr = (codigo: string, rodada: number, patch: Partial<JogoPublico> = {}) => jogo(codigo, { fase_tipo: 'round_robin', fase_rodada: rodada, fase_rotulo: `Todos contra todos — Rodada ${rodada}`, ...patch })
+    const jogos = [1, 2, 3, 4, 5, 6, 7].map(r => rr(`RR${r}.1`, r))
+    expect(escolherEtapaClassificacao(jogos)).toMatchObject({ tipo: 'rodada', rodada: 1, rotulo: 'Rodada 1' })
+    jogos[0] = rr('RR1.1', 1, { status: 'encerrado', placar_a: 2, placar_b: 1 })
+    jogos[1] = rr('RR2.1', 2, { status: 'em_andamento', placar_a: 0, placar_b: 0 })
+    expect(escolherRodada(jogos)?.rodada).toBe(2)
+  })
+
   it('antes do início mostra a primeira rodada criada', () => {
     expect(escolherRodada([jogo('R2', { fase_rodada: 2 }), jogo('R1')])?.rodada).toBe(1)
   })
@@ -71,6 +80,7 @@ describe('dados dos overlays de fase', () => {
     expect(colunaDoDesempate('saldo')).toBe('sg')
     expect(colunaDoDesempate('buchholz')).toBe('buch')
     expect(colunaDoDesempate('fair_play')).toBe('fp')
+    expect(colunaDoDesempate('gols_pro')).toBe('gp')
     expect(colunaDoDesempate('confronto_direto')).toBeNull()
   })
 

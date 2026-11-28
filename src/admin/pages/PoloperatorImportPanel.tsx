@@ -79,7 +79,7 @@ export default function PoloperatorImportPanel({ timesDisponiveis, onImportado }
         <div style={{ marginTop: 14 }}>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 14 }}>
             <select className="adm-select" value={categoria} onChange={e => { setCategoria(e.target.value as 'misto' | 'mtnb'); setRelatorio(null) }}>
-              <option value="misto">Brasileiro Misto</option>
+              <option value="misto">2° Pior · Misto</option>
               <option value="mtnb">Brasileiro MTNB</option>
             </select>
             <button className="adm-btn" disabled={carregando} onClick={preview}>

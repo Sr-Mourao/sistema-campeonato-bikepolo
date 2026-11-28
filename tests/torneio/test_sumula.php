@@ -4,7 +4,7 @@
 
 function prepararJogoDeTeste(PDO $db): array {
     $ids = seedTimes($db, 2);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $db->prepare("INSERT INTO torneio_fases (torneio_id, tipo, rodada, rotulo, estado, conta_classificacao) VALUES (?, 'swiss', 1, 'R1', 'confirmada', 1)")->execute([$torneioId]);
     $faseId = (int)$db->lastInsertId();
     $db->prepare("INSERT INTO torneio_jogos (torneio_id, fase_id, codigo, time_a_id, time_b_id, status) VALUES (?, ?, 'J1', ?, ?, 'agendado')")

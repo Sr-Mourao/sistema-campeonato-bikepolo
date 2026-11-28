@@ -95,7 +95,7 @@ function test_mtnb_gf_e_gf2_reutilizam_regra_generica(): void {
 }
 
 function test_mtnb_isolamento_resultado_evento_reset_e_resolver(): void {
-    $db=testDb(); seedTimes($db,13,1,'misto'); $misto=criarTorneioPreset($db,'misto','teste');
+    $db=testDb(); seedTimes($db,13,1,'misto'); $misto=criarTorneioPreset($db,'misto','teste',null,'misto_swiss_13');
     $sugMisto=sugerirPareamentoSwiss($db,$misto,1); confirmarRodadaSwiss($db,$misto,1,$sugMisto['bye'],$sugMisto['pares'],'teste');
     [$mtnb,$times]=montarMtnbComPrimeiraFase($db,false);
     $jogo=$db->query("SELECT id FROM torneio_jogos WHERE torneio_id=$mtnb ORDER BY id LIMIT 1")->fetchColumn();

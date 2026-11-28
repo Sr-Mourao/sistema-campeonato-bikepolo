@@ -15,6 +15,7 @@ export const CRITERIO_CURTO: Record<string, string> = {
   gols_contra_menos: 'GC',
   fair_play: 'FP',
   confronto_direto: 'CD',
+  confronto_direto_grupo: 'CD',
   buchholz: 'BH',
   sorteio: 'Sorteio',
 }
@@ -30,6 +31,7 @@ export const CRITERIO_EXPLICACAO: Record<string, string> = {
   gols_contra_menos: 'Menos gols sofridos é melhor.',
   fair_play: 'Menos faltas é melhor.',
   confronto_direto: 'Resultado do confronto direto entre os times empatados.',
+  confronto_direto_grupo: 'Pontos somados só nos jogos entre os times empatados (mini-tabela do grupo).',
   buchholz: 'Força dos adversários enfrentados. Maior é melhor.',
   sorteio: 'Critério manual/sorteio, só decide se tudo o resto empatar.',
 }

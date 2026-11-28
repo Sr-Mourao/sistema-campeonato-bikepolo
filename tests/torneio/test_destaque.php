@@ -16,7 +16,7 @@ function criarJogoTeste(PDO $db, int $torneioId, int $faseId, string $codigo, in
 
 function prepararTorneioComFase(PDO $db): array {
     $ids = seedTimes($db, 6);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $db->prepare("INSERT INTO torneio_fases (torneio_id, tipo, rodada, rotulo, estado, conta_classificacao) VALUES (?, 'swiss', 1, 'R1', 'confirmada', 1)")->execute([$torneioId]);
     $faseId = (int)$db->lastInsertId();
     return [$torneioId, $faseId, $ids];
@@ -187,7 +187,7 @@ function test_destaque_traz_colunas_de_logo_dos_times(): void {
 function test_destaque_double_respeita_ordem_operacional_oficial(): void {
     $db = testDb();
     $times = seedTimes($db, 8);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $db->prepare("INSERT INTO torneio_fases (torneio_id, tipo, rodada, rotulo, estado, conta_classificacao) VALUES (?, 'double', NULL, 'Double', 'confirmada', 0)")->execute([$torneioId]);
     $faseId = (int)$db->lastInsertId();
 
@@ -223,7 +223,7 @@ function test_ordem_operacional_double_e_explicita_e_normaliza_chaves_existentes
 
     $db = testDb();
     $times = seedTimes($db, 2);
-    $torneioId = criarTorneioPreset($db, 'misto', 'teste');
+    $torneioId = criarTorneioPreset($db, 'misto', 'teste', null, 'misto_swiss_13');
     $db->prepare("INSERT INTO torneio_fases (torneio_id, tipo, rodada, rotulo, estado, conta_classificacao) VALUES (?, 'double', NULL, 'Double antiga', 'confirmada', 0)")->execute([$torneioId]);
     $faseId = (int)$db->lastInsertId();
     criarJogoTeste($db, $torneioId, $faseId, 'SF1', 5, $times[0], $times[1], 'agendado');
