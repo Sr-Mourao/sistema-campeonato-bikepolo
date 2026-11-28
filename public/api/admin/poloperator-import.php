@@ -50,16 +50,19 @@ function rodarMatching(PDO $db, string $categoria, array $confirmacoes = []): ar
     $timesInternos = timesInternosPorCategoria($db, $categoria);
     $timesInternosPorId = array_column($timesInternos, null, 'id');
 
-    $matchesTimes = casarComInternos($dados['teams'], $timesInternos);
+    $apelidos = POLOPERATOR_APELIDOS[$torneioPoloperator] ?? [];
+    $rosterPorTime = [];
+    foreach ($timesInternos as $t) $rosterPorTime[(int)$t['id']] = rosterInternoDoTime($db, (int)$t['id']);
+    $matchesTimes = casarTimesPorElenco($dados['teams'], $timesInternos, $rosterPorTime, $apelidos);
     $matchesTimes = aplicarConfirmacoesManuais($matchesTimes, $confirmacoes['times'] ?? [], $timesInternosPorId);
 
     $matchesAtletasPorTime = []; // interno_time_id => matches de atletas
     foreach ($matchesTimes as $mt) {
         if ($mt['status'] !== 'associado') continue;
         $timeInternoId = $mt['interno']['id'];
-        $roster = rosterInternoDoTime($db, $timeInternoId);
+        $roster = $rosterPorTime[$timeInternoId] ?? rosterInternoDoTime($db, $timeInternoId);
         $rosterPorId = array_column($roster, null, 'id');
-        $mAtletas = casarComInternos($mt['externo']['players'] ?? [], $roster, POLOPERATOR_APELIDOS[$torneioPoloperator] ?? []);
+        $mAtletas = casarComInternos($mt['externo']['players'] ?? [], $roster, $apelidos);
         $mAtletas = aplicarConfirmacoesManuais($mAtletas, $confirmacoes['atletas'] ?? [], $rosterPorId);
         $matchesAtletasPorTime[$timeInternoId] = ['time' => $mt['interno'], 'matches' => $mAtletas];
     }
@@ -162,7 +165,8 @@ try {
                         }
                     } elseif ($poloId) {
                         // Sem logo externo, mas grava o poloperator_id pra próximas importações não dependerem do nome.
-                        $db->prepare("UPDATE times SET poloperator_id = COALESCE(poloperator_id, ?) WHERE id = ?")->execute([$poloId, $timeId]);
+                        // Casamento por elenco é a verdade: corrige um poloperator_id de time antigo/errado.
+                        $db->prepare("UPDATE times SET poloperator_id = ? WHERE id = ?")->execute([$poloId, $timeId]);
                     }
                 } catch (\Throwable $e) {
                     $erros['times'][] = ['time_id' => $timeId, 'erro' => $e->getMessage()];

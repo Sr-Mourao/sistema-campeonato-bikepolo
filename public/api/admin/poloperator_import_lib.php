@@ -97,3 +97,38 @@ function resumirMatches(array $matches, string $chaveImagemExterna): array {
         'com_imagem_externa' => $comImagem,
     ];
 }
+
+/**
+ * Casa times externos com internos pelo ELENCO: cada atleta externo é casado com as pessoas
+ * internas (poloperator_id > nome > apelido) e o time interno com mais atletas casados vence.
+ * Vale mais que o nome e que um poloperator_id de time já gravado — a numeração do
+ * Poloperator pode estar diferente da numeração interna durante ajustes na plataforma.
+ * Sem nenhum atleta casado, ou empate entre dois times, mantém o casamento por id/nome.
+ *
+ * @param array $rosterPorTime [time_interno_id => lista de pessoas (id, nome, poloperator_id)]
+ */
+function casarTimesPorElenco(array $timesExternos, array $timesInternos, array $rosterPorTime, array $apelidos = []): array {
+    $base = casarComInternos($timesExternos, $timesInternos);
+    $internoPorId = array_column($timesInternos, null, 'id');
+    $pessoas = [];
+    $timeDaPessoa = [];
+    foreach ($rosterPorTime as $timeId => $roster) {
+        foreach ($roster as $p) { $pessoas[] = $p; $timeDaPessoa[$p['id']] = $timeId; }
+    }
+    foreach ($base as $i => $m) {
+        $votos = [];
+        foreach (casarComInternos($m['externo']['players'] ?? [], $pessoas, $apelidos) as $pm) {
+            if ($pm['status'] !== 'associado') continue;
+            $t = $timeDaPessoa[$pm['interno']['id']];
+            $votos[$t] = ($votos[$t] ?? 0) + 1;
+        }
+        if (!$votos) continue;
+        arsort($votos);
+        $contagens = array_values($votos);
+        if (count($contagens) > 1 && $contagens[0] === $contagens[1]) continue; // empate: não adivinha
+        $vencedor = array_key_first($votos);
+        if (!isset($internoPorId[$vencedor])) continue;
+        $base[$i] = ['externo' => $m['externo'], 'interno' => $internoPorId[$vencedor], 'status' => 'associado', 'via' => 'elenco'];
+    }
+    return $base;
+}

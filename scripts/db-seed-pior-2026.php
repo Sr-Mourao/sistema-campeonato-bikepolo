@@ -45,24 +45,25 @@ if (!in_array($host, ['localhost', '127.0.0.1', '::1', '[::1]'], true) && !$forc
     exit(1);
 }
 
-// Numeração oficial = Poloperator (poloperator.com/pt/tournament/2-pior-campeonato-curitiba-2026).
-// Elencos e apelidos = tabela da organização (Paulo, Kelvola, Gominho e o Time 8 ainda não
-// estavam no Poloperator em 27/11/2026).
+// Numeração e elencos = base do Poloperator (poloperator.com/pt/tournament/2-pior-campeonato-curitiba-2026),
+// com os apelidos usados no cadastro interno. O importador de fotos casa os times pelo elenco.
 $TIMES = [
-    'Time 1' => ['Emily Ethel', 'Jpg', 'Paulo'],
-    'Time 2' => ['Vitinho', 'Marcos', 'Aguidota'],
-    'Time 3' => ['Dox', 'Kelvola', 'Ana'],
-    'Time 4' => ['Gusta', 'Fábio', 'Gominho'],
-    'Time 5' => ['Jantas', 'Mendonça', 'Carla'],
-    'Time 6' => ['Mourao', 'Lari', 'Buratto'],
-    'Time 7' => ['Kwy', 'Jay', 'Mat'],
-    'Time 8' => ['Deivi', 'Lusca', 'Emi'],
+    'Time 1' => ['Deivi', 'Lusca', 'Emi'],
+    'Time 2' => ['Kwy', 'Mat', 'Jay'],
+    'Time 3' => ['Mourao', 'Lari', 'Buratto'],
+    'Time 4' => ['Dox', 'Kelvola', 'Ana'],
+    'Time 5' => ['Emily Ethel', 'Jpg', 'Paulo'],
+    'Time 6' => ['Jantas', 'Mendonça', 'Carla'],
+    'Time 7' => ['Vitinho', 'Marcos', 'Aguidota'],
+    'Time 8' => ['Gusta', 'Fábio', 'Gominho'],
 ];
 
-// Clube por pessoa (demais ficam sem clube).
+// Clube por pessoa (FLO / POA / CWB).
 $CLUBES = [
-    'Floripa' => ['Marcos', 'Deivi', 'Ana', 'Emily Ethel', 'Mendonça', 'Fábio'],
-    'POA'     => ['Kwy'],
+    'Floripa'  => ['Marcos', 'Deivi', 'Ana', 'Emily Ethel', 'Mendonça', 'Fábio'],
+    'POA'      => ['Kwy'],
+    'Curitiba' => ['Lusca', 'Emi', 'Mat', 'Jay', 'Mourao', 'Lari', 'Buratto', 'Dox', 'Kelvola', 'Jpg', 'Paulo',
+                   'Jantas', 'Carla', 'Vitinho', 'Aguidota', 'Gusta', 'Gominho'],
 ];
 
 function emailFicticio(string $nome): string {

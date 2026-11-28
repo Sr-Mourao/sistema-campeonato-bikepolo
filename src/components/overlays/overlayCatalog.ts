@@ -8,8 +8,8 @@ export interface OverlayCatalogItem {
   resolucao: string
   observacao?: string
   destino?: 'OBS' | 'PROJETOR'
-  /** Só faz sentido em formatos com Repescagem (some no 2° Pior de 8). */
-  requerRepescagem?: boolean
+  /** Conteúdo muda conforme o formato tenha Repescagem; sem ela, usa este nome/descrição. */
+  semRepescagem?: { nome: string; descricao: string }
 }
 
 export const OVERLAY_CATALOG: OverlayCatalogItem[] = [
@@ -18,7 +18,7 @@ export const OVERLAY_CATALOG: OverlayCatalogItem[] = [
   { nome: 'Emissora', descricao: 'Assinatura institucional da transmissão.', path: '/torneio/overlay/emissora', grupo: 'Ao vivo', resolucao: '1920×1080 / 1280×720' },
   { nome: 'Confronto', descricao: 'Apresentação da partida principal.', path: '/torneio/overlay/confronto', grupo: 'Ao vivo', resolucao: '1920×1080 / 1280×720', observacao: 'Use na apresentação ou antes do início.' },
   { nome: 'Classificação', descricao: 'Classificação oficial e etapa atual da Primeira Fase.', path: '/torneio/overlay/classificacao', grupo: 'Fases', resolucao: '1920×1080 / 1280×720' },
-  { nome: 'Repescagem', descricao: 'Chave completa e classificados para a Double.', path: '/torneio/overlay/repescagem', grupo: 'Fases', resolucao: '1920×1080 / 1280×720', requerRepescagem: true },
+  { nome: 'Repescagem', descricao: 'Chave completa e classificados para a Double.', path: '/torneio/overlay/repescagem', grupo: 'Fases', resolucao: '1920×1080 / 1280×720', semRepescagem: { nome: 'Cruzamentos da Double', descricao: 'Ponte da 1ª fase para a Double: 1º×8º, 2º×7º, 3º×6º e 4º×5º.' } },
   { nome: 'Double Elimination', descricao: 'Winners e Losers Bracket na mesma composição.', path: '/torneio/overlay/double', grupo: 'Fases', resolucao: '1920×1080 / 1280×720' },
   { nome: 'Grande Final', descricao: 'Final, GF2 e celebração do campeão oficial.', path: '/torneio/overlay/final', grupo: 'Fases', resolucao: '1920×1080 / 1280×720', observacao: 'A mesma fonte se transforma no estado de campeão.' },
   { nome: 'Intervalo', descricao: 'Peça de pausa com informações da transmissão.', path: '/torneio/overlay/intervalo', grupo: 'Pausas', resolucao: '1920×1080 / 1280×720' },
@@ -72,7 +72,7 @@ export function overlayUrl(path: string, origin = window.location.origin): strin
   return new URL(path, origin).href
 }
 
-/** Catálogo filtrado pelo formato ativo — o overlay de Repescagem some quando o formato não tem. */
+/** Catálogo do formato ativo — sem Repescagem, a mesma URL vira "Cruzamentos da Double". */
 export function catalogoDoFormato(itens: OverlayCatalogItem[], comRepescagem: boolean): OverlayCatalogItem[] {
-  return comRepescagem ? itens : itens.filter(item => !item.requerRepescagem)
+  return comRepescagem ? itens : itens.map(item => item.semRepescagem ? { ...item, ...item.semRepescagem } : item)
 }

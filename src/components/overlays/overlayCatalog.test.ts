@@ -14,10 +14,10 @@ describe('central de overlays', () => {
     expect(OVERLAY_CATALOG.filter(item => item.destino === 'PROJETOR')).toHaveLength(6)
   })
 
-  it('esconde só o overlay de Repescagem quando o formato não tem Repescagem', () => {
-    const semRep = catalogoDoFormato(OVERLAY_CATALOG, false).map(item => item.path)
-    expect(semRep).not.toContain('/torneio/overlay/repescagem')
-    expect(semRep).toHaveLength(OVERLAY_CATALOG.length - 1)
+  it('sem Repescagem, a mesma URL vira Cruzamentos da Double', () => {
+    const semRep = catalogoDoFormato(OVERLAY_CATALOG, false)
+    expect(semRep).toHaveLength(OVERLAY_CATALOG.length)
+    expect(semRep.find(item => item.path === '/torneio/overlay/repescagem')?.nome).toBe('Cruzamentos da Double')
     expect(catalogoDoFormato(OVERLAY_CATALOG, true)).toEqual(OVERLAY_CATALOG)
   })
 
