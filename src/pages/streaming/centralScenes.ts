@@ -6,7 +6,7 @@
  * para a transmissão, e o Placar/Eventos do torneio, que o próprio overlay
  * principal já faz (placar, gols e faltas).
  */
-import { OVERLAY_CATALOG, type OverlayCatalogItem } from '../../components/overlays/overlayCatalog'
+import { OVERLAY_CATALOG, catalogoDoFormato, type OverlayCatalogItem } from '../../components/overlays/overlayCatalog'
 
 export interface CentralScene extends OverlayCatalogItem {
   /** Campeonato da cena (a estrutura agora é por campeonato) */
@@ -15,9 +15,14 @@ export interface CentralScene extends OverlayCatalogItem {
 
 const DUPLICADAS = new Set(['Placar', 'Eventos'])
 
-export const CENTRAL_SCENES: CentralScene[] = [
-  ...OVERLAY_CATALOG.filter(i => i.destino !== 'PROJETOR' && !DUPLICADAS.has(i.nome)).map(i => ({ ...i, torneio: 'Misto' as const })),
-]
+/** Cenas do formato ativo: sem Repescagem, a cena vira "Cruzamentos da Double" (mesma URL). */
+export function cenasDaCentral(comRepescagem: boolean): CentralScene[] {
+  return catalogoDoFormato(OVERLAY_CATALOG, comRepescagem)
+    .filter(i => i.destino !== 'PROJETOR' && !DUPLICADAS.has(i.nome))
+    .map(i => ({ ...i, torneio: 'Misto' as const }))
+}
+
+export const CENTRAL_SCENES: CentralScene[] = cenasDaCentral(true)
 
 /**
  * Ao mandar uma cena ao ar, o placar/pausas/alertas do overlay principal devem

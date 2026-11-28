@@ -9,6 +9,7 @@ require_once __DIR__ . '/middleware.php';
 require_once __DIR__ . '/../midia/lib.php';
 require_once __DIR__ . '/poloperator_import_lib.php';
 require_once __DIR__ . '/../poloperator/lib.php';
+require_once __DIR__ . '/poloperator_times_lib.php';
 adminGuard();
 
 $db = getDb();
@@ -125,6 +126,15 @@ function montarRelatorio(array $matching): array {
 $method = $_SERVER['REQUEST_METHOD'];
 
 try {
+    // Poloperator como base dos times: prévia (não grava) e criação do que falta.
+    if ($method === 'GET' && ($_GET['action'] ?? '') === 'preview_times') {
+        $categoria = $_GET['categoria'] ?? 'misto';
+        if (!in_array($categoria, ['misto', 'mtnb'], true)) respondError('Categoria inválida');
+        $chave = categoriaParaTorneioPoloperator($categoria);
+        $dados = buscarTorneioPoloperator($chave);
+        respond(planoTimesPoloperator($db, $categoria, $dados['teams'], POLOPERATOR_APELIDOS[$chave] ?? []));
+    }
+
     if ($method === 'GET' && ($_GET['action'] ?? '') === 'preview') {
         $categoria = $_GET['categoria'] ?? 'misto';
         if (!in_array($categoria, ['misto', 'mtnb'], true)) respondError('Categoria inválida');
@@ -135,6 +145,13 @@ try {
     if ($method === 'POST') {
         $body = getBody();
         $action = $body['action'] ?? '';
+        if ($action === 'criar_times') {
+            $categoria = $body['categoria'] ?? 'misto';
+            if (!in_array($categoria, ['misto', 'mtnb'], true)) respondError('Categoria inválida');
+            $chave = categoriaParaTorneioPoloperator($categoria);
+            $dados = buscarTorneioPoloperator($chave);
+            respond(criarTimesDoPoloperator($db, $categoria, $dados['teams'], POLOPERATOR_APELIDOS[$chave] ?? []));
+        }
         if ($action === 'importar') {
             $categoria = $body['categoria'] ?? 'misto';
             if (!in_array($categoria, ['misto', 'mtnb'], true)) respondError('Categoria inválida');

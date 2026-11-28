@@ -32,6 +32,7 @@ require_once __DIR__ . '/../public/api/torneio/simulator.php';
 require_once __DIR__ . '/../public/api/midia/lib.php';
 require_once __DIR__ . '/../public/api/admin/poloperator_import_lib.php';
 require_once __DIR__ . '/../public/api/poloperator/lib.php';
+require_once __DIR__ . '/../public/api/admin/poloperator_times_lib.php';
 if (!defined('SESSION_DURATION')) define('SESSION_DURATION', 30 * 24 * 3600);
 require_once __DIR__ . '/../public/api/carteira/lib.php';
 require_once __DIR__ . '/../public/api/carteira/auth_lib.php';

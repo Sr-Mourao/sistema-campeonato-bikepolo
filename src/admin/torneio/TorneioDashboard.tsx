@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { torneioApi, type TorneioDetalhe, type Jogo, type Fase } from './torneioApi'
+import { torneioApi, getErrorMessage, type TorneioDetalhe, type Jogo, type Fase } from './torneioApi'
 import Pareamento from './Pareamento'
 import Sumula from './Sumula'
 import { formatoDe, jogosPorRodada } from '../../services/formatoTorneio'
@@ -103,6 +103,16 @@ export default function TorneioDashboard({ torneio, onChange }: Props) {
     setAcaoEmCurso(false)
   }
 
+  // Troca de ordem na hora (só 1ª fase, jogos ainda não iniciados) — define o "próximo jogo".
+  const NAO_INICIADO = new Set(['agendado', 'atrasado', 'chamado'])
+  const podeReordenar = slotAtual?.tipo === 'round_robin' || slotAtual?.tipo === 'swiss'
+  async function mover(jogo: Jogo, direcao: 'cima' | 'baixo') {
+    setAcaoEmCurso(true); setErro('')
+    try { await torneioApi.moverJogo(torneio.id, jogo.id, direcao); onChange(); await carregarJogos() }
+    catch (e) { setErro(getErrorMessage(e, 'Não foi possível trocar a ordem.')) }
+    setAcaoEmCurso(false)
+  }
+
   async function simularPendentes() {
     if (!slotAtual?.fase) return
     const jogoComFase = (jogos ?? []).find(j => !j.is_bye)
@@ -161,7 +171,7 @@ export default function TorneioDashboard({ torneio, onChange }: Props) {
 
         {jogos && jogos.length > 0 && (
           <div className="trn-round-board">
-            {jogos.map(j => (
+            {jogos.map((j, idx) => (
               <div
                 key={j.id}
                 className={`trn-match-card ${j.is_bye ? 'trn-match-card--bye' : ''} ${j.status === 'em_andamento' ? 'trn-match-card--live' : ''} ${j.status === 'encerrado' ? 'trn-match-card--done' : ''}`}
@@ -184,6 +194,12 @@ export default function TorneioDashboard({ torneio, onChange }: Props) {
                 <div className="trn-match-meta">
                   <span className={`trn-dot trn-dot--${j.status}`} />
                   {j.codigo} · {STATUS_LABEL[j.status]}
+                  {podeReordenar && !j.is_bye && NAO_INICIADO.has(j.status) && (
+                    <span className="trn-match-order" onClick={e => e.stopPropagation()}>
+                      <button type="button" className="adm-btn" title="Jogar antes" aria-label={`Mover ${j.codigo} para antes`} disabled={acaoEmCurso || idx === 0} onClick={() => mover(j, 'cima')}>↑</button>
+                      <button type="button" className="adm-btn" title="Jogar depois" aria-label={`Mover ${j.codigo} para depois`} disabled={acaoEmCurso || idx === jogos.length - 1} onClick={() => mover(j, 'baixo')}>↓</button>
+                    </span>
+                  )}
                 </div>
               </div>
             ))}

@@ -5,7 +5,7 @@
 //
 // Não existe mais conceito de sandbox: um torneio só tem um estado real.
 
-import { adminGet, adminPost, AdminApiError } from '../adminApi'
+import { adminGet, adminPost, adminPostStrict, AdminApiError } from '../adminApi'
 import type { FormatoChave, FormatoInfo } from '../../services/formatoTorneio'
 
 /**
@@ -229,6 +229,9 @@ export const torneioApi = {
     adminPost<{ ok: true }>(`${API}/sumula.php`, { action: 'remover_evento', torneio_id, tipo, evento_id }),
   recalcularPlacar: (torneio_id: number, jogo_id: number) =>
     adminPost<{ ok: true; placar_a: number; placar_b: number }>(`${API}/sumula.php`, { action: 'recalcular_placar', torneio_id, jogo_id }),
+  /** Troca a ordem do jogo com o vizinho da mesma rodada (só 1ª fase, jogos não iniciados). */
+  moverJogo: (torneio_id: number, jogo_id: number, direcao: 'cima' | 'baixo') =>
+    adminPostStrict<{ ok: true; codigo: string; trocado_com: string }>(`${API}/torneio.php`, { action: 'mover_jogo', torneio_id, jogo_id, direcao }),
   atualizarPartida: (torneio_id: number, jogo_id: number, campos: Record<string, unknown>) =>
     adminPost<{ ok: true; status: string; vencedor_time_id: number | null; resolvidos: string[]; aviso: string | null }>(`${API}/sumula.php`, { action: 'atualizar_partida', torneio_id, jogo_id, campos }),
 

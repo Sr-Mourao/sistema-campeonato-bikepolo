@@ -439,6 +439,10 @@
     flex: 1;
     height: 100%;
   }
+  /* A faixa de apoiadores (marquee) ocupava a linha toda e zerava a faixa do título:
+     título à esquerda com largura própria, apoiadores dividem o resto. */
+  .hero-titles .zone-orange { flex: 0 0 clamp(320px, 38%, 620px); }
+  .hero-titles .zone-red { flex: 1 1 0; min-width: 0; }
 
   /* red zone: linha única no desktop */
   .red-zone-inner {

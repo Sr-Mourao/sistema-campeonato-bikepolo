@@ -49,7 +49,7 @@ export default function TorneioOverlayClassificacao() {
         <ol className="tc-standing-list">
           {classificacao.map((time, i) => (
             <li key={time.time_id} className={!formato.repescagem || time.classificado_direto ? 'is-direct' : 'is-rep'} style={{ '--order': i } as CSSProperties}>
-              {i === 0 && <small className="tc-zone tc-zone--direct">{formato.repescagem ? 'Classificação direta' : 'Seeds da Double'}</small>}
+              {i === 0 && <small className="tc-zone tc-zone--direct">{formato.repescagem ? 'Classificação direta' : `Seeds 1–${formato.participantes}`}</small>}
               {formato.repescagem && i === payload.torneio.classificados_diretos && <small className="tc-zone tc-zone--rep">Repescagem</small>}
               <span className="tc-pos">{time.posicao}<sup>º</sup></span>
               <span className="tc-team">

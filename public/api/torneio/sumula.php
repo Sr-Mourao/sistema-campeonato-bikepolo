@@ -285,3 +285,40 @@ function getElencoPartida(PDO $db, int $torneioId, int $jogoId): array {
 
     return ['jogo' => $jogo, 'elenco' => $elenco, 'eventos' => $eventos];
 }
+
+/**
+ * Troca a ordem de um jogo com o vizinho (acima/abaixo) dentro da MESMA rodada da 1ª fase —
+ * para o admin ajustar a sequência na hora. Só jogos ainda não iniciados (agendado,
+ * atrasado ou chamado) trocam de lugar; a Double tem ordem operacional ligada às
+ * dependências da chave e não é alterada aqui. A ordem define o "próximo jogo" do
+ * placar, da mesa e dos overlays.
+ *
+ * @return array{codigo: string, trocado_com: string}
+ */
+function moverJogo(PDO $db, int $torneioId, int $jogoId, string $direcao, string $usuario): array {
+    if (!in_array($direcao, ['cima', 'baixo'], true)) throw new InvalidArgumentException('Direção inválida.');
+    return torneioTx($db, function (PDO $db) use ($torneioId, $jogoId, $direcao, $usuario) {
+        $stmt = $db->prepare("SELECT j.*, f.conta_classificacao FROM torneio_jogos j JOIN torneio_fases f ON f.id = j.fase_id WHERE j.torneio_id = ? AND j.id = ?");
+        $stmt->execute([$torneioId, $jogoId]);
+        $jogo = $stmt->fetch();
+        if (!$jogo) throw new RuntimeException('Jogo não encontrado.');
+        if ((int)$jogo['conta_classificacao'] !== 1) throw new RuntimeException('Só os jogos da 1ª fase podem trocar de ordem.');
+        $livres = ['agendado', 'atrasado', 'chamado'];
+        if (!in_array($jogo['status'], $livres, true)) throw new RuntimeException('Este jogo já começou e não pode trocar de ordem.');
+
+        $op = $direcao === 'cima' ? '<' : '>';
+        $ord = $direcao === 'cima' ? 'DESC' : 'ASC';
+        $viz = $db->prepare("SELECT * FROM torneio_jogos WHERE fase_id = ? AND is_bye = 0 AND ordem $op ? ORDER BY ordem $ord LIMIT 1");
+        $viz->execute([$jogo['fase_id'], $jogo['ordem']]);
+        $vizinho = $viz->fetch();
+        if (!$vizinho) throw new RuntimeException($direcao === 'cima' ? 'Já é o primeiro jogo da rodada.' : 'Já é o último jogo da rodada.');
+        if (!in_array($vizinho['status'], $livres, true)) throw new RuntimeException("O jogo {$vizinho['codigo']} já começou; não dá para trocar com ele.");
+
+        $upd = $db->prepare("UPDATE torneio_jogos SET ordem = ?, atualizado_em = datetime('now') WHERE id = ?");
+        $upd->execute([(int)$vizinho['ordem'], (int)$jogo['id']]);
+        $upd->execute([(int)$jogo['ordem'], (int)$vizinho['id']]);
+        torneioAuditoria($db, $torneioId, $usuario, 'mover_jogo', 'torneio_jogos', (int)$jogo['id'],
+            ['ordem' => (int)$jogo['ordem']], ['ordem' => (int)$vizinho['ordem'], 'trocado_com' => $vizinho['codigo']], null);
+        return ['codigo' => $jogo['codigo'], 'trocado_com' => $vizinho['codigo']];
+    });
+}

@@ -21,7 +21,7 @@ import {
   ShoppingBag,
   Users,
   Medal,
-  Tv,
+  Play,
 } from 'lucide-react'
 import './FAQ.css'
 import './HomeQuickLinks.css'
@@ -352,8 +352,9 @@ export function HomeQuickLinks() {
     {
       href: '/torneio',
       label: 'Acompanhar o torneio',
-      description: 'Partidas, classificação e chaves oficiais das duas categorias.',
-      className: 'home-link-card--tournament',
+      description: 'Partidas, classificação e chaves oficiais do campeonato.',
+      // Largura total: com Equipes oculto, o torneio não divide mais a linha.
+      className: 'home-link-card--tournament home-link-card--wide',
       icon: <Trophy size={34} strokeWidth={2.1} />,
     },
     {
@@ -365,6 +366,13 @@ export function HomeQuickLinks() {
     },
   ]
   const operacionais = [
+    {
+      href: 'https://www.youtube.com/@PIORBicipolo',
+      label: 'Transmissões ao vivo',
+      description: 'Assista aos jogos no canal do PIOR Bici Polo no YouTube.',
+      className: 'home-link-card--youtube home-link-card--wide',
+      icon: <Play size={25} strokeWidth={2.1} />,
+    },
     {
       href: '/torneio?aba=regulamento',
       label: 'Regulamento',
@@ -381,7 +389,6 @@ export function HomeQuickLinks() {
     },
   ]
   const mais = [
-    { href: '/overlays', label: 'Overlays & Live', icon: <Tv size={19} /> },
     { href: '/lojinha', label: 'Lojinha', icon: <ShoppingBag size={19} /> },
     { href: '/apoie', label: 'Apoie', icon: <Heart size={19} /> },
     { href: '/faq', label: 'Dúvidas', icon: <CircleHelp size={19} /> },
@@ -404,7 +411,7 @@ export function HomeQuickLinks() {
       <div className="home-links-inner">
         <p className="home-links-eyebrow">Acompanhamento oficial</p>
         <h2 className="home-links-title">Acompanhe o 2° Pior Campeonato de Bici Polo 2026</h2>
-        <p className="home-links-intro">Equipes, torneio, regulamento e tudo que acontece nas quadras de Curitiba.</p>
+        <p className="home-links-intro">Torneio, resultados, transmissões e tudo que acontece nas quadras de Curitiba.</p>
         <div className="home-primary-grid">
           {principaisVisiveis.map(link => (
             <a key={link.href} href={link.href} className={`home-link-card ${link.className}`}>
@@ -414,7 +421,7 @@ export function HomeQuickLinks() {
             </a>
           ))}
         </div>
-        {operacionaisVisiveis.length > 0 && <div className="home-operational-grid">{operacionaisVisiveis.map(link => <a key={link.href} href={link.href} className={`home-link-card home-link-card--operational ${link.className}`}><span className="home-link-icon" aria-hidden="true">{link.icon}</span><span className="home-link-label">{link.label}</span><span className="home-link-description">{link.description}</span></a>)}</div>}
+        {operacionaisVisiveis.length > 0 && <div className="home-operational-grid">{operacionaisVisiveis.map(link => <a key={link.href} href={link.href} {...(link.href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={`home-link-card home-link-card--operational ${link.className}`}><span className="home-link-icon" aria-hidden="true">{link.icon}</span><span className="home-link-label">{link.label}</span><span className="home-link-description">{link.description}</span></a>)}</div>}
         <div className="home-more"><div><span>Mais do campeonato</span><p>Acessos úteis para quem participa do evento.</p></div><nav>{maisVisiveis.map(link => <a href={link.href} key={link.href}><span aria-hidden="true">{link.icon}</span>{link.label}</a>)}</nav></div>
       </div>
     </section>

@@ -28,6 +28,13 @@
     "url": "https://projetohito.com.br/"
   },
   {
+    "nome": "Mananã Cafés",
+    "slug": "manana",
+    "logo": "/imgs/logos/manana.svg",
+    "logoOriginal": "/imgs/logos/originais/manana.png",
+    "url": ""
+  },
+  {
     "nome": "Luli Shield",
     "slug": "luli-shield",
     "logo": "/imgs/logos/luli.shield.svg",
@@ -39,7 +46,8 @@
     "slug": "toniracks",
     "logo": "/imgs/logos/toniracks.svg",
     "logoOriginal": "/imgs/logos/originais/toniracks.png",
-    "url": "https://www.instagram.com/tonirackspoa/"
+    "url": "https://www.instagram.com/tonirackspoa/",
+    "oculto": true
   },
   {
     "nome": "Van",

@@ -66,20 +66,47 @@ const double = [
   match('GF', 14, null, null, { fase_tipo: 'double', bracket: 'final', fase_rodada: null, fase_rotulo: 'Double Elimination', time_a_origem: origem('FA'), time_b_origem: origem('B6') }),
 ]
 
-export const PREVIEW_BROADCAST: BroadcastTorneioPublico = {
+/** Formato legado (suíço de 13 + Repescagem) — `?preview=suico`. */
+export const PREVIEW_SUICO: BroadcastTorneioPublico = {
   torneio: { id: 1, nome: '2° Pior Campeonato de Bici Polo', categoria: 'misto', formato: 'misto_swiss_13', estado: 'DOUBLE', classificados_diretos: 6, vagas_repescagem: 2 },
   classificacao: nomes.map(row), rodadas, repescagem, double, campeao: null,
+}
+
+// ── Formato atual: 2° Pior, 8 times, todos contra todos + Double direta (sem Repescagem) ──
+const pontos8 = [9, 7, 6, 6, 4, 3, 1, 0]
+const classificacao8: StandingRowPublico[] = nomes.slice(0, 8).map((nome, i) => ({
+  ...row(nome, i), j: 3, v: [3, 2, 2, 2, 1, 1, 0, 0][i], e: [0, 1, 0, 0, 1, 0, 1, 0][i], d: [0, 0, 1, 1, 1, 2, 2, 3][i],
+  pontos: pontos8[i], buchholz: 0, decisao: i === 2 ? 'saldo' : null, classificado_direto: true, repescagem: false,
+}))
+const rr = (codigo: string, ordem: number, a: number, b: number, patch: Partial<JogoPublico> = {}) =>
+  match(codigo, ordem, a, b, { fase_tipo: 'round_robin', fase_rodada: 3, fase_rotulo: 'Todos contra todos — Rodada 3', ...patch })
+const rodadas8 = [
+  rr('RR3.1', 1, 1, 6, { status: 'encerrado', placar_a: 3, placar_b: 1, vencedor_time_id: 1 }),
+  rr('RR3.2', 2, 7, 5, { status: 'em_andamento', placar_a: 2, placar_b: 2 }),
+  rr('RR3.3', 3, 8, 4), rr('RR3.4', 4, 2, 3),
+]
+// Quartas pela classificação: QA 4×5, QB 3×6, QC 2×7, QD 1×8 (o resto da chave é igual).
+const double8 = double.map(j =>
+  j.codigo === 'QC' ? encerrado('QC', 3, 2, 7, 3, 2, { fase_tipo: 'double', bracket: 'winners', fase_rodada: null, fase_rotulo: 'Double Elimination' })
+  : j.codigo === 'QD' ? encerrado('QD', 4, 1, 8, 4, 1, { fase_tipo: 'double', bracket: 'winners', fase_rodada: null, fase_rotulo: 'Double Elimination' })
+  : j.codigo === 'B2' ? encerrado('B2', 6, 8, 7, 1, 3, { fase_tipo: 'double', bracket: 'losers', fase_rodada: null, fase_rotulo: 'Double Elimination' })
+  : j)
+
+export const PREVIEW_BROADCAST: BroadcastTorneioPublico = {
+  torneio: { id: 1, nome: '2° Pior Campeonato de Bici Polo', categoria: 'misto', formato: 'misto_round_robin_8', estado: 'DOUBLE', classificados_diretos: 8, vagas_repescagem: 0 },
+  classificacao: classificacao8, rodadas: rodadas8, repescagem: [], double: double8, campeao: null,
 }
 
 export function previewBroadcast(search: string): BroadcastTorneioPublico | null {
   const params = new URLSearchParams(search)
   if (!params.has('preview')) return null
+  if (params.get('preview') === 'suico') return PREVIEW_SUICO
   if (params.get('preview') === 'campeao') return { ...PREVIEW_BROADCAST, campeao: { time_id: 1, nome: nomes[0], logo: '/imgs/times/1/logo.webp', jogo_codigo: 'GF' } }
   if (params.get('preview') === 'final') {
     return { ...PREVIEW_BROADCAST, double: [...double.filter(j => j.codigo !== 'GF'), match('GF', 14, 1, 5, { status: 'em_andamento', placar_a: 4, placar_b: 2, fase_tipo: 'double', bracket: 'final', fase_rodada: null, fase_rotulo: 'Grande Final' })] }
   }
   if (params.get('preview') === 'classificacao-revisao') {
-    return { ...PREVIEW_BROADCAST, classificacao: classificacaoRevisao, rodadas: [...rodadas, ...equalizacao] }
+    return { ...PREVIEW_SUICO, classificacao: classificacaoRevisao, rodadas: [...rodadas, ...equalizacao] }
   }
   return PREVIEW_BROADCAST
 }

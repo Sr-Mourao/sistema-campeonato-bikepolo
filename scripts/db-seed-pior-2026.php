@@ -32,6 +32,7 @@ require_once $raiz . '/public/api/torneio/lib.php';
 require_once $raiz . '/public/api/torneio/bracket.php';
 require_once $raiz . '/public/api/torneio/setup.php';
 require_once $raiz . '/public/api/torneio/round_robin.php';
+require_once $raiz . '/public/api/admin/poloperator_import_lib.php'; // emailFicticioPior(): mesma regra do botão do admin
 
 $forcar = in_array('--forcar', $argv, true);
 $arquivarDemo = in_array('--arquivar-demo', $argv, true);
@@ -67,11 +68,7 @@ $CLUBES = [
 ];
 
 function emailFicticio(string $nome): string {
-    // Tabela fixa (iconv//TRANSLIT varia por SO: no Windows "á" vira "'a").
-    $slug = strtr($nome, ['á'=>'a','à'=>'a','â'=>'a','ã'=>'a','é'=>'e','ê'=>'e','í'=>'i','ó'=>'o','ô'=>'o','õ'=>'o','ú'=>'u','ü'=>'u','ç'=>'c',
-                          'Á'=>'A','À'=>'A','Â'=>'A','Ã'=>'A','É'=>'E','Ê'=>'E','Í'=>'I','Ó'=>'O','Ô'=>'O','Õ'=>'O','Ú'=>'U','Ç'=>'C']);
-    $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '.', $slug));
-    return trim($slug, '.') . '@pior.example.com';
+    return emailFicticioPior($nome);
 }
 
 $db = new PDO('sqlite:' . DB_PATH);
